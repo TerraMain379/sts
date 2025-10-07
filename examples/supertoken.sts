@@ -1,0 +1,55 @@
+# super token idea
+
+
+# tokens
+BRACKET_BLOCK {
+  parentZone: main;
+  regex!: "\(";
+  openZone: bracket;
+}
+- bracket (
+  < main;
+)
+BRACKET_BLOCK_CLOSE! {
+  parentZone: bracket;
+  regex: "\)";
+  closeZone!
+}
+
+FOR_KEY {
+  parentZone: main;
+  regex!: "for/endw/";
+  $isForeach = false;
+}
+
+NAME {
+  parentZone: main;
+  regex!: "+$name(/wordc/)/endw/";
+  $name;
+}
+
+ENDCOMMAND {
+  parentZone: main;
+  regex!: ";";
+}
+
+VOID! {
+  parentZone: main;
+  regex: "/void/";
+}
+
+
+# super tokens
+
+# FOR NAME ENDCOMMAND
+[VAR_FOR] {
+  [
+    FOR_KEY( # add conditions;
+      "! . this isForeach", # current FOR_KEY token not isForeach
+    ),
+    $name: NAME,
+    ENDCOMMAND,
+  ]
+  $name;
+}
+# FOR BRACKET_BLOCK

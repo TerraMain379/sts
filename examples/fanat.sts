@@ -1,0 +1,121 @@
+# class Main: Program <- KeyListener, MouseListener { 
+#   fun main() {
+#     let a: i32;
+#     a = 1;
+#     if (System.time().getMs() < Time(year: 2077, day: 101).getMs()) {
+#       Random.init(System.time);
+#       let b = Random.get();
+#       return b;
+#     }
+#   }
+# }
+
+
+
+########################
+#        ZONES         #
+########################
+
+-static_code()
+-dinamic_code(
+  < static_code
+)
+
+
+########################
+#     REGEX_LINKS      #
+########################
+
+/void"+[ /n/t/r]"/
+/vvoid"*[ /n/t/r]"/
+/nschar"[\l\L\_\$]"/
+/nchar"[\l\L\N\_\$]"/
+/name"+/nschar//nchar/"/
+/endnchar"[^\l\L\N\_\$]"
+/endname">[^\l\L\N\_\$]"/
+/comment"\/\/*[^\n]\n"/
+/long_comment"\/\***.(\*\/)"/ # ** is a speed break loop
+/comments"+[/comment//long_comment//void/]"/
+
+########################
+#      DEF_TOKENS      #
+########################
+
+VOID! {
+  regex: "/void/";
+}
+NAME {
+  regex: "/name/";
+}
+COMMENTS! {
+  regex: "/comments/";
+}
+
+########################
+#       TOKENS         #
+########################
+
+
+### CLASS ###
+CLASS_ANY {
+  parentZone: static_code;
+  openZone: class_description;
+  $name's;
+  $extenders'[t];
+  $implementers'[t];
+  $params'[t];
+}
+CLASS_CLASS < CLASS_ANY {
+  regex: "class/endmame/";
+}
+CLASS_STRUCT < CLASS_ANY {
+  regex: "struct/endmame/";
+}
+CLASS_ENUM {
+  regex: "enum/endmame/";
+}
+
+~VOID {
+  parentZone += class_description;
+}
+~COMMENTS {
+  parentZone += class_description;
+}
+CLASS_NAME! {
+  parentZone: class_description;
+  regex: "/name/";
+  events {
+    regex.after: "= $name . this regex"; # "$name = this.regex"
+  }
+}
+CLASS_EXTEND! {
+  parentZone: class_description;
+  regex: "\:";
+  openZone: class_description_linkslist;
+  events {
+    openZone.after: "= $extenders . . this childZone childs"; # "$extenders = this.childZone.childs"
+  }
+}
+CLASS_IMPLEMENT! {
+  parentZone: class_description;
+  regex: "\<\-";
+  openZone: class_description_linkslist;
+  events {
+    openZone.after: "= $implementers . . this childZone childs"; # "$extenders = this.childZone.childs"
+  }
+}
+CLASS_LINKLIST_ELEMENT < {
+  parentZone: class_description_linkslist;
+  regex: "/name/";
+  setZone: class_description_linkslist_next;
+}
+-class_description_linkslist_next (
+  events {
+    search.error: ": exitZone ()";
+  }
+)
+CLASS_LINKLIST_NEXT! {
+  parentZone: class_description_linkslist_next;
+  regex: ",";
+  setZone: class_description_linkslist;
+}

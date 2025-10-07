@@ -1,0 +1,117 @@
+#
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99
+
+
+
+# Output files
+TARGET = main.bin
+TEST_TARGET = tests.bin
+
+
+
+# All source code directories
+INCLUDE_DIRS = src src/sts src/sts/metaparser src/sts/contentparser src/collections src/strings src/errors src/collections/gmaps
+SRC_DIRS = $(INCLUDE_DIRS) ./src/sts/metaparser/metaparsermodules
+
+# Tests directories
+TEST_DIR = tests
+UNITY_DIR = $(TEST_DIR)/unity
+
+# Object files directory
+OBJ_DIR = o
+TEST_OBJ_DIR = $(TEST_DIR)/o
+
+
+
+# Generate include paths from source directories
+INCLUDES = $(addprefix -I,$(INCLUDE_DIRS)) -I$(TEST_DIR) -I$(UNITY_DIR)
+
+# Find all .c/.h files in all directories
+SOURCES = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
+HEADERS = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.h))
+
+# Test files
+TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
+UNITY_SOURCES = $(UNITY_DIR)/unity.c
+
+
+
+# Generate list of object files in o/ directory
+OBJECTS = $(SOURCES:%.c=$(OBJ_DIR)/%.o)
+TEST_OBJECTS = $(SOURCES:%.c=$(TEST_OBJ_DIR)/%.o) \
+  $(TEST_SOURCES:%.c=$(TEST_OBJ_DIR)/%.o) \
+  $(TEST_OBJ_DIR)/$(UNITY_DIR)/unity.o
+
+
+
+
+# Create directories
+$(OBJ_DIR) $(TEST_OBJ_DIR):
+	mkdir -p $@
+
+
+
+# Main target
+$(TARGET): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $(TARGET)
+
+# Test target
+$(TEST_TARGET): $(TEST_OBJECTS)
+	$(CC) $(TEST_OBJECTS) -o $(TEST_TARGET)
+
+
+# Rule for compiling .c files to .o files in o/ directory
+$(OBJ_DIR)/%.o: %.c $(HEADERS) | $(OBJ_DIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Rule for compiling test files
+$(TEST_OBJ_DIR)/%.o: %.c | $(TEST_OBJ_DIR)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+
+
+# Clean
+clean:
+	rm -f $(OBJECTS) $(TARGET) $(TEST_TARGET)
+	rm -rf $(OBJ_DIR) $(TEST_OBJ_DIR)
+
+
+
+# Test run target
+test: clean $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+# Rebuild
+rebuild: clean $(TARGET)
+
+# Debug build target
+debug: CFLAGS += -g -DDEBUG
+debug: clean $(TARGET)
+
+# Release build target
+release: CFLAGS += -O2 -DNDEBUG
+release: clean $(TARGET)
+
+
+
+# Show project information
+info:
+	@echo "=== Project Information ==="
+	@echo "Executable: $(TARGET)"
+	@echo "Object directory: $(OBJ_DIR)"
+	@echo "Source directories:"
+	@for dir in $(SRC_DIRS); do echo "  $$dir"; done
+	@echo "Source files (.c):"
+	@for file in $(SOURCES); do echo "  $$file"; done
+	@echo "Header files (.h):"
+	@for file in $(HEADERS); do echo "  $$file"; done
+	@echo "Object files:"
+	@for file in $(OBJECTS); do echo "  $$file"; done
+	@echo "Include paths:"
+	@echo "  $(INCLUDES)"
+
+.PHONY: clean rebuild debug release info 

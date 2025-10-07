@@ -1,0 +1,18 @@
+# hardparse.sts
+
+# for a b; // logic for variable
+# for (a; b; c); // For-loop
+# for (a : b); // For-loop (iterator)
+# for; // Command
+
+
+
+
+NAME_BLOCK {
+  parentZone:
+  regex: "+[a-z]/endw/";
+}
+END_COMMAND {
+  regex: ";";
+  closeZone;
+}

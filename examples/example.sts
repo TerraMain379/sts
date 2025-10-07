@@ -1,0 +1,19 @@
+# hello world
+
+/hello"world"/
+
+- world (
+  < global;
+  events {
+    hex: "dadada";
+  }
+)
+
+
+
+- world {
+  < name;
+  events {
+
+  }
+}

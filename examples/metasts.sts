@@ -1,0 +1,108 @@
+########################
+#        ZONES         #
+########################
+
+--global--
+
+-regex_link_zone ()
+-zone_zone ()
+-token_zone ()
+
+-global (
+  < regex_link_zone;
+  < zone_zone;
+  < token_zone;
+)
+
+
+########################
+#     REGEX_LINKS      #
+########################
+
+/void"+[ /n/t/r]"/
+/vvoid"*[ /n/t/r]"/
+/nschar"[\l\L\_]"/
+/nchar"[\l\L\N\_]"/
+/name"/nschar/*/nchar/"/
+/path"/name/*(\./name/)"/
+/endnchar"[^\l\L\N\_]"
+/endname">[^\l\L\N\_]"/
+/comment"\#*[^\n]\n"/
+
+########################
+#      DEF_TOKENS      #
+########################
+
+VOID! {
+  parentZone: global;
+  regex: "/void/";
+}
+COMMENT! {
+  parentZone: global;
+  regex: "/comment/";
+}
+
+########################
+#       TOKENS         #
+########################
+
+### regex_link ###
+
+REGEX_LINK {
+  parentZone: regex_link_zone;
+  regex!: "\/>/nschar/";
+  openZone: regex_link_name;
+  $name:s;
+  $value:s;
+}
+REGEX_LINK_NAME! {
+  parentZone: regex_link_name;
+  regex: "/name/";
+  setZone: regex_link_text;
+  events {
+    regex.after: "= $name . this text";
+  }
+}
+REGEX_LINK_TEXT! {
+  parentZone: regex_link_text;
+  regex!: "\"$1[^\"]\""; 
+  events {
+    regex.after: "= $value . this text";
+  }
+  closeZone;
+}
+
+
+### zone ###
+
+ZONE {
+  parentZone: zone_zone;
+  regex!: "\->/nschar/";
+  openZone: zone_name;
+  $name;
+}
+ZONE_NAME! {
+  parentZone: zone_name;
+  regex: "/name/";
+  setZone: zone_params_open;
+  events {
+    regex.after: "= $name . this text"
+  }
+}
+ZONE_PARAMS_OPEN {
+  parentZone: zone_params_open;
+  regex!: "\(";
+  openZone: zone_params;
+}
+
+ZONE_PARAM_EXTEND {
+  parentZone: zone_params;
+  regex!: "\</vvoid/"
+  openZone: zone_param_extend_name;
+  $name;
+}
+ZONE_PARAM_EXTEND_NAME {
+  parentZone: zone_param_extend_name;
+  regex: "/name/";
+  closeZone;
+}

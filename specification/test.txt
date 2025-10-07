@@ -1,0 +1,80 @@
+Regex
+
+Field }
+
+
+TOKEN_PROTOTYPE {
+  regex: ""
+  events {}
+  $name
+  $id
+  $isFlag
+}
+
+
+
+
+TOKEN: {
+  prototype: {
+    fields: {
+      regex: {
+        type: {
+          id: regex
+          childType: NULL
+        }
+        value: {
+          str: "Hello"
+        }
+      }
+      events: {
+        type: {
+          id: array
+          childType: {
+            id: string
+            childType: NULL
+          }
+        }
+        value: [
+          {
+            event: "parse.after"
+            handler: {
+              type: {
+                id: string
+                childType: NULL
+              }
+              value: "= . this name \"hello world\""
+            }
+          }
+        ]
+      }
+    }
+  }
+  fields: {
+    text: {
+      type: {
+        id: string
+        childType: NULL
+      }
+      value: "Hello"
+    }
+  }
+}
+
+
+
+TOKEN: {
+  prototype: {
+    regex: {
+      str: "Hello"
+    }
+    events: [
+      {
+        event: "parse.after"
+        handler: "= . this name \"hello world\""
+      }
+    ]
+    fields: { }
+  }
+  text: "Hello"
+  fields: { }
+}
