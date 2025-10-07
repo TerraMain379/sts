@@ -34,8 +34,10 @@ void test_gmaps_set_get1() {
     ));
     TEST_ASSERT_EQUAL_SIZE_T(MAP->size, 1);
 
-    TYPE* value = MAP_FUN(get)(MAP, key);
+    TYPE* ptr = MAP_FUN(get)(MAP, key);
     TEST_ASSERT_EQUAL_INT(errno, 0);
+    TYPE value = *ptr;
+
 
   #include "tgen_maps.h"
 }
