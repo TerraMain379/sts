@@ -1,15 +1,11 @@
 // #define NAME ...
 // #define TYPE ...
 
-#define __NAME(name) _ ## name
-#define _NAME(name) __NAME(name)
 #define CONCAT(a, b) a ## _ ## b
-#define _CONCAT(a, b) _ ## a ## _ ## b
 #define ELEMENT(name) CONCAT(name, element)
-#define _ELEMENT(name) _CONCAT(name, element)
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-typedef NAME Map;
+typedef Map NAME;
 
 inline void FUNCTION(NAME, init)(Map* map) {
   Map_init(map);
