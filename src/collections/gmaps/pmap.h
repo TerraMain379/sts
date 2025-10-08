@@ -1,33 +1,35 @@
-// #define NAME ...
-// #define TYPE ...
+#include "map.h"
+
+// #define PNAME ...
+// #define PTYPE ...
 
 #define CONCAT(a, b) a ## _ ## b
 #define ELEMENT(name) CONCAT(name, element)
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-typedef Map NAME;
+typedef Map PNAME;
 
-inline void FUNCTION(NAME, init)(Map* map) {
+inline void FUNCTION(PNAME, init)(Map* map) {
   Map_init(map);
 }
-inline ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash) {
+inline ELEMENT(Map)* FUNCTION(PNAME, getElementByHash)(PNAME* map, int hash) {
   return Map_getElementByHash(map, hash);
 }
-inline ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key) {
+inline ELEMENT(Map)* FUNCTION(PNAME, getElement)(PNAME* map, const String key) {
   return Map_getElement(map, key);
 }
-inline type_errno(TYPE*) FUNCTION(NAME, get)(NAME* map, const String key) {
-  return (TYPE*) Map_get(map, key);
+inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* map, const String key) {
+  return (PTYPE*) Map_get(map, key);
 }
-inline bool FUNCTION(NAME, contains)(NAME* map, const String key) {
+inline bool FUNCTION(PNAME, contains)(PNAME* map, const String key) {
   return Map_contains(map, key);
 }
-inline type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value) {
-  return (TYPE) Map_set(map, key, value);
+inline type_errno(PTYPE) FUNCTION(PNAME, set)(PNAME* map, const String key, PTYPE value) {
+  return (PTYPE) Map_set(map, key, value);
 }
-inline type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key) {
-  return (TYPE) Map_remove(map, key);
+inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* map, const String key) {
+  return (PTYPE) Map_remove(map, key);
 }
-inline void FUNCTION(NAME, free)(NAME* map) {
+inline void FUNCTION(PNAME, free)(PNAME* map) {
   Map_free(map);
 }
