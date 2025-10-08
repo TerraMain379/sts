@@ -20,6 +20,10 @@
 {
   MAPS_CODE
 }
+#undef MAP
+#undef MAP_TYPE
+#undef TYPE
+#undef MAP_SWITCH
 
 #define MAP im
 #define MAP_TYPE IntMap
@@ -28,6 +32,10 @@
 {
   MAPS_CODE
 }
+#undef MAP
+#undef MAP_TYPE
+#undef TYPE
+#undef MAP_SWITCH
 
 #define MAP sm
 #define MAP_TYPE StrMap
@@ -36,3 +44,7 @@
 {
   MAPS_CODE
 }
+#undef MAP
+#undef MAP_TYPE
+#undef TYPE
+#undef MAP_SWITCH

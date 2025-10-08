@@ -25,6 +25,10 @@
 {
   LISTS_CODE
 }
+#undef LIST
+#undef LIST_TYPE
+#undef TYPE
+#undef LIST_SWITCH
 
 #define LIST il
 #define LIST_TYPE IntList
@@ -33,6 +37,10 @@
 {
   LISTS_CODE
 }
+#undef LIST
+#undef LIST_TYPE
+#undef TYPE
+#undef LIST_SWITCH
 
 #define LIST sl
 #define LIST_TYPE StrList
@@ -41,6 +49,10 @@
 {
   LISTS_CODE
 }
+#undef LIST
+#undef LIST_TYPE
+#undef TYPE
+#undef LIST_SWITCH
 
 #undef LIST
 #undef LIST_TYPE

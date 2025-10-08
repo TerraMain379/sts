@@ -61,8 +61,50 @@ void test_gmaps_get_set2() {
   #undef VALUE
 }
 
-void test_gmaps_gets_sets() {
-  // TODO: 
+void test_gmaps_get_set3() {
+  #define KEY String_const("anykey")
+  #define VALUE MAP_SWITCH((void*) 0x90, 0x90, String_const("0x90"))
+  #include "tgen_maps_setget.h"
+  #undef KEY
+  #undef VALUE
+}
+
+void test_gmaps_get_set4() {
+  #define KEY String_const("abcd")
+  #define VALUE MAP_SWITCH((void*) 0x1, 0x1, String_const(""))
+  #include "tgen_maps_setget.h"
+  #undef KEY
+  #undef VALUE
+}
+void test_gmaps_remove() {
+  #define KEY String_const("remove")
+  #define VALUE MAP_SWITCH((void*) 0xEA, 0xEA, String_const("xea"))
+  #include "tgen_maps_setget.h"
+
+  #define MAPS_CODE                                 \
+    size_t size = MAP->size;                        \
+    TYPE value = MAP_FUN(remove)(MAP, KEY);         \
+    TEST_ASSERT_EQUAL_SIZE_T(MAP->size, size - 1);  \
+    MAP_EQUAL_N(VALUE, value);                      \
+    
+  #include "tgen_maps.h"
+  #undef MAPS_CODE
+
+  #undef KEY
+  #undef VALUE
+}
+
+void test_gmaps_get_set_empty_key() {
+  #define KEY String_const("")
+  #define VALUE MAP_SWITCH((void*) 5000, 5000, String_const("5000"))
+
+  #define MAPS_CODE TEST_ASSERT_TRUE(!MAP_FUN(contains)(MAP, KEY));
+  #include "tgen_maps.h"
+  #undef MAPS_CODE
+
+  #include "tgen_maps_setget.h"
+  #undef KEY
+  #undef VALUE
 }
 
 void test_gmaps() {
@@ -70,5 +112,9 @@ void test_gmaps() {
   RUN_TEST(test_gmaps_set_get1);
   RUN_TEST(test_gmaps_get_null1);
   RUN_TEST(test_gmaps_get_set2);
+  RUN_TEST(test_gmaps_get_set3);
+  RUN_TEST(test_gmaps_get_set4);
+  RUN_TEST(test_gmaps_remove);
+  RUN_TEST(test_gmaps_get_set_empty_key);
   // TODO: 
 }

@@ -2,7 +2,7 @@
 MAKE = make
 MAKEFILE = Makefile
 CC = gcc
-CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter
+CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment
 
 # output
 BIN_TARGET = main.bin
