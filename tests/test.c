@@ -18,6 +18,14 @@ void tearDown() {
 #include "test_glists.h"
 #include "test_gmaps.h"
 
+#define NAME RegexRC
+#define TYPE Regex
+#define FREE_FUN Regex_free
+#include "refcount.h"
+#undef NAME
+#undef TYPE
+#undef FREE_FUN
+
 int main() {
   UNITY_BEGIN();
 

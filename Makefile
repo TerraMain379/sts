@@ -21,7 +21,7 @@ TRANSFORM_FILES_OPERATION = c
 
 
 # sources directories
-INCLUDE_DIRS = src src/sts src/sts/metaparser src/sts/contentparser src/collections src/strings src/errors src/collections/gmap src/collections/gmaps src/collections/glist src/collections/glists
+INCLUDE_DIRS = src src/sts src/sts/metaparser src/sts/contentparser src/collections src/strings src/errors src/collections/gmap src/collections/gmaps src/collections/glist src/collections/glists src/memutils
 SRC_DIRS = $(INCLUDE_DIRS) src/sts/metaparser/metaparsermodules
 TESTS_INCLUDE_DIRS = tests tests/unity tests/collections tests/collections/glist tests/collections/glist/tgen tests/collections/gmap tests/collections/gmap/tgen
 TESTS_SRC_DIRS = $(TESTS_INCLUDE_DIRS)
