@@ -14,7 +14,7 @@
 #define CONCAT(a, b) a ## _ ## b
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-static inline void doubleCapacity(NAME* list) {
+void FUNCTION(NAME, doubleCapacity)(NAME* list) {
   if (list->capacity == 0) FUNCTION(NAME, setCapacity)(list, 1);
   else FUNCTION(NAME, setCapacity)(list, 2 * list->capacity);
 }
@@ -36,7 +36,7 @@ void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity) {
 }
 void FUNCTION(NAME, add)(NAME* list, TYPE value) {
   if (list->size == list->capacity) {
-    doubleCapacity(list);
+    FUNCTION(NAME, doubleCapacity)(list);
   }
   list->array[list->size] = value;
   list->size++;
@@ -46,7 +46,7 @@ void_errno FUNCTION(NAME, insert)(NAME* list, TYPE value, size_t index) {
     errno = 1; return;
   }
   if (list->capacity == list->size) {
-    doubleCapacity(list);
+    FUNCTION(NAME, doubleCapacity)(list);
   }
   for (size_t i = list->size; i > index; i--) {
     list->array[i] = list->array[i - 1];

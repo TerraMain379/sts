@@ -8,28 +8,29 @@
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
 typedef Map PNAME;
+typedef Map_element ELEMENT(PNAME);
 
-inline void FUNCTION(PNAME, init)(Map* map) {
+static inline void FUNCTION(PNAME, init)(PNAME* map) {
   Map_init(map);
 }
-inline ELEMENT(Map)* FUNCTION(PNAME, getElementByHash)(PNAME* map, int hash) {
+static inline ELEMENT(Map)* FUNCTION(PNAME, getElementByHash)(PNAME* map, int hash) {
   return Map_getElementByHash(map, hash);
 }
-inline ELEMENT(Map)* FUNCTION(PNAME, getElement)(PNAME* map, const String key) {
+static inline ELEMENT(Map)* FUNCTION(PNAME, getElement)(PNAME* map, const String key) {
   return Map_getElement(map, key);
 }
-inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* map, const String key) {
+static inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* map, const String key) {
   return (PTYPE*) Map_get(map, key);
 }
-inline bool FUNCTION(PNAME, contains)(PNAME* map, const String key) {
+static inline bool FUNCTION(PNAME, contains)(PNAME* map, const String key) {
   return Map_contains(map, key);
 }
-inline type_errno(PTYPE) FUNCTION(PNAME, set)(PNAME* map, const String key, PTYPE value) {
-  return (PTYPE) Map_set(map, key, value);
+static inline type_errno(PTYPE*) FUNCTION(PNAME, set)(PNAME* map, const String key, PTYPE* value) {
+  return (PTYPE*) Map_set(map, key, value);
 }
-inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* map, const String key) {
-  return (PTYPE) Map_remove(map, key);
+static inline type_errno(PTYPE*) FUNCTION(PNAME, remove)(PNAME* map, const String key) {
+  return (PTYPE*) Map_remove(map, key);
 }
-inline void FUNCTION(PNAME, free)(PNAME* map) {
+static inline void FUNCTION(PNAME, free)(PNAME* map) {
   Map_free(map);
 }

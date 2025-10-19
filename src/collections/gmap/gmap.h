@@ -18,20 +18,25 @@
 #define _ELEMENT(name) _CONCAT(name, element)
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-//gmap
-typedef struct _NAME(NAME) {
-  size_t size;
-  struct _ELEMENT(NAME)* first;
-  struct _ELEMENT(NAME)* last;
-} NAME;
+typedef struct NAME NAME;
+typedef struct ELEMENT(NAME) ELEMENT(NAME);
 
-//gmap_element
-typedef struct _ELEMENT(NAME) {
+// gmap
+struct NAME {
+  size_t size;
+  ELEMENT(NAME)* first;
+  ELEMENT(NAME)* last;
+};
+
+// gmap_element
+struct ELEMENT(NAME) {
   String key;
   int hash;
   TYPE value;
-  struct _ELEMENT(NAME)* next;
-} ELEMENT(NAME);
+  ELEMENT(NAME)* next;
+};
+
+int FUNCTION(NAME, getHash)(const char* key);
 
 void FUNCTION(NAME, init)(NAME* map);
 ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash);

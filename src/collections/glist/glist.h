@@ -13,12 +13,16 @@
 #define CONCAT(a, b) a ## _ ## b
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
+typedef struct NAME NAME;
+
 // glist
-typedef struct {
+struct NAME {
   size_t size;
   size_t capacity;
   TYPE* array;
-} NAME;
+};
+
+void FUNCTION(NAME, doubleCapacity)(NAME* list);
 
 void FUNCTION(NAME, init)(NAME* list, size_t capacity);
 void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity);

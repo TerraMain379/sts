@@ -10,9 +10,13 @@
 
 typedef struct {
   size_t refCount;
-  TYPE* value;
+  TYPE value;
   bool freeRequired;
 } NAME;
+
+NAME RC_FUN(NAME, init)(TYPE value) {
+  
+}
 
 TYPE* RC_FUN(NAME, get)(NAME rc) {
   rc.refCount++;

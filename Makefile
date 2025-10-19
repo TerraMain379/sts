@@ -21,9 +21,31 @@ TRANSFORM_FILES_OPERATION = c
 
 
 # sources directories
-INCLUDE_DIRS = src src/sts src/sts/metaparser src/sts/contentparser src/collections src/strings src/errors src/collections/gmap src/collections/gmaps src/collections/glist src/collections/glists src/memutils
+INCLUDE_DIRS = \
+	src \
+	src/collections \
+	src/collections/gmap \
+	src/collections/gmaps \
+	src/collections/glist \
+	src/collections/glists \
+	src/errors \
+	src/iter \
+	src/memutils \
+	src/strings \
+	src/sts \
+	src/sts/metaparser \
+	src/sts/contentparser \
+
 SRC_DIRS = $(INCLUDE_DIRS) src/sts/metaparser/metaparsermodules
-TESTS_INCLUDE_DIRS = tests tests/unity tests/collections tests/collections/glist tests/collections/glist/tgen tests/collections/gmap tests/collections/gmap/tgen
+TESTS_INCLUDE_DIRS = \
+	tests \
+	tests/unity \
+	tests/collections \
+	tests/collections/glist \
+	tests/collections/glist/tgen \
+	tests/collections/gmap \
+	tests/collections/gmap/tgen \
+
 TESTS_SRC_DIRS = $(TESTS_INCLUDE_DIRS)
 
 # Generate include paths from source directories
@@ -37,12 +59,15 @@ SOURCES := $(filter-out %main.c, $(SOURCES))
 TEST_HEADERS = $(foreach dir,$(TESTS_SRC_DIRS),$(wildcard $(dir)/*.h))
 TEST_SOURCES = $(foreach dir,$(TESTS_SRC_DIRS),$(wildcard $(dir)/*.c))
 
+MAIN_SOURCES = src/main.c
 
 # Generate list of object files in o/ directory
 TRANSFORM_FILES = $(SOURCES:%.c=$(OBJ_DIR)/%.$(TRANSFORM_FILES_TYPE))
 
 TRANSFORM_TEST_FILES = $(TRANSFORM_FILES) \
 	$(TEST_SOURCES:%.c=$(OBJ_DIR)/%.$(TRANSFORM_FILES_TYPE))
+TRANSFORM_MAIN_FILES = $(TRANSFORM_FILES) \
+	$(MAIN_SOURCES:%.c=$(OBJ_DIR)/%.$(TRANSFORM_FILES_TYPE))
 
 
  
@@ -69,11 +94,11 @@ clean:
 
 
 # tasks for build
-MAKE_TRANFORM_FILES: $(TRANSFORM_FILES)
+MAKE_TRANFORM_MAIN_FILES: $(TRANSFORM_MAIN_FILES)
 MAKE_TRANFORM_TEST_FILES: $(TRANSFORM_TEST_FILES)
 
-MAKE_BIN_BY_TRANSFORM_FILES: $(TRANSFORM_FILES)
-	$(CC) $(TRANSFORM_FILES) -o $(BIN_TARGET)
+MAKE_BIN_BY_TRANSFORM_MAIN_FILES: $(TRANSFORM_MAIN_FILES)
+	$(CC) $(TRANSFORM_MAIN_FILES) -o $(BIN_TARGET)
 MAKE_BIN_BY_TRANSFORM_TEST_FILES: $(TRANSFORM_TEST_FILES)
 	$(CC) $(TRANSFORM_TEST_FILES) -o $(TEST_TARGET)
 
@@ -86,9 +111,9 @@ SED_ENTERS_FOR_DOT_I_FILES: $(TRANSFORM_TEST_FILES)
 
 # make links
 build_bin:
-	$(MAKE) --file=$(MAKEFILE) clean MAKE_TRANFORM_FILES MAKE_BIN_BY_TRANSFORM_FILES
+	$(MAKE) --file=$(MAKEFILE) clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 gdb_bin:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_FILES MAKE_BIN_BY_TRANSFORM_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 build_test:
 	$(MAKE) --file=$(MAKEFILE) clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 gdb_tests:
@@ -96,7 +121,7 @@ gdb_tests:
 
 build_preprocessor:
 	$(MAKE) --file=$(MAKEFILE) TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
-		clean MAKE_TRANFORM_FILES SED_ENTERS_FOR_DOT_I_FILES
+		clean MAKE_TRANFORM_MAIN_FILES SED_ENTERS_FOR_DOT_I_FILES
 build_test_preprocessor:
 	$(MAKE) --file=$(MAKEFILE) TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
 		clean MAKE_TRANFORM_TEST_FILES SED_ENTERS_FOR_DOT_I_FILES
@@ -106,5 +131,17 @@ test: build_test
 	@printf '\n\n\n'
 	@./$(TEST_TARGET)
 
+run: build_bin
+	@./$(BIN_TARGET)
+
+tokei:
+	@echo '### SRC ###'
+	@tokei ./src --exclude='*/_sts'
+	@echo
+	@echo '### TESTS ###'
+	@tokei ./tests --exclude='*/unity'
+	@echo
+	@echo '### ALL ###'
+	@tokei . --exclude='*/_sts' --exclude='*/unity'
 
 .PHONY: MAKE_PREPROCESSOR

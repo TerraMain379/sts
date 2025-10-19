@@ -8,14 +8,6 @@
 // #undef TYPE
 // #undef NULLV
 
-static inline int Map_hash(const char* key) {
-  int hash = 0;
-  while (*key) {
-    hash = hash * 31 + *key;
-    key++;
-  }
-  return hash;
-}
 
 // logic for generate names for structs
 #define CONCAT(a, b) a ## _ ## b
@@ -30,6 +22,15 @@ static inline int Map_hash(const char* key) {
 // type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value);
 // type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key);
 // void FUNCTION(NAME, free)(NAME* map);
+
+int FUNCTION(NAME, getHash)(const char* key) {
+  int hash = 0;
+  while (*key) {
+    hash = hash * 31 + *key;
+    key++;
+  }
+  return hash;
+}
 
 void FUNCTION(NAME, init)(NAME* map) {
   map->size = 0;
@@ -47,7 +48,7 @@ ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash) {
 }
 
 ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key) {
-  int hash = Map_hash(key.buffer);
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* element = FUNCTION(NAME, getElementByHash)(map, hash);
   if (!element) return 0;
   ELEMENT(NAME)* next = element->next;
@@ -58,14 +59,13 @@ ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key) {
       }
       element = element->next;
     } while (element && element->hash == hash);
-    return 0;
   }
   else {
     if (Strings_equals(key, element->key)) {
       return element;
     }
-    return 0;
   }
+  return 0;
 }
 
 type_errno(TYPE*) FUNCTION(NAME, get)(NAME* map, const String key) {
@@ -80,7 +80,7 @@ bool FUNCTION(NAME, contains)(NAME* map, const String key) {
   return (bool) element;
 }
 type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value) { // true if new element is gen
-  int hash = Map_hash(key.buffer);
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
   if (!hashElement) {
@@ -124,7 +124,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value) { 
   errno = 0; return NULLV;
 }
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key) {
-  int hash = Map_hash(key.buffer);
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* element = map->first;
   ELEMENT(NAME)* prev = 0;
   while (element) {

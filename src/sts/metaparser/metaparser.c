@@ -1,11 +1,8 @@
 #include "metaparser.h"
+#include "errors.h"
 
-void MetaParser_parse(StsFile* stsFile, const char* input) {
+void Sts_MetaParser_parse(Sts_MetaFile* metaFile, Iter* iter) {
   String errLocation = String_const("Sts_MetaParser_parse");
-  if (stsFile == 0) Errors_internal_nullPointer(String_const("stsFile"), errLocation);
-  if (input == 0) Errors_internal_nullPointer(String_const("input"), errLocation);
-
-  stsFile->currStart = input;
-  parseLoop(stsFile, input);
-  stsFile->currStart = 0;
+  if (metaFile == 0) Errors_internal_nullPointer(String_const("stsFile"), errLocation);
+  if (iter == 0) Errors_internal_nullPointer(String_const("input"), errLocation);
 }

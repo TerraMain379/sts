@@ -11,6 +11,14 @@
 # }
 
 
+:fun {
+  $flag'b
+  = $flag true
+  = $count'n 1
+  ++ $count
+  = $count + $count 1
+  new Token (1 2 3)
+}
 
 ########################
 #        ZONES         #
@@ -65,14 +73,17 @@ CLASS_ANY {
   $implementers'[t];
   $params'[t];
 }
-CLASS_CLASS < CLASS_ANY {
+CLASS_CLASS <- CLASS_ANY {
   regex: "class/endmame/";
 }
-CLASS_STRUCT < CLASS_ANY {
+CLASS_STRUCT <- CLASS_ANY {
   regex: "struct/endmame/";
 }
-CLASS_ENUM {
+CLASS_ENUM <- CLASS_ANY {
   regex: "enum/endmame/";
+}
+CLASS_INTERFACE <- CLASS_INTERFACE {
+  regex: "interface/endmame/";
 }
 
 ~VOID {
@@ -104,7 +115,7 @@ CLASS_IMPLEMENT! {
     openZone.after: "= $implementers . . this childZone childs"; # "$extenders = this.childZone.childs"
   }
 }
-CLASS_LINKLIST_ELEMENT < {
+CLASS_LINKLIST_ELEMENT {
   parentZone: class_description_linkslist;
   regex: "/name/";
   setZone: class_description_linkslist_next;
@@ -119,3 +130,27 @@ CLASS_LINKLIST_NEXT! {
   regex: ",";
   setZone: class_description_linkslist;
 }
+
+
+[_CLASS_ANY] <class_type> {
+  openTrigger: class_type;
+  closeTrigger: CLASS_END;
+  Body! {
+    ?MODIFICATORS modificators;
+    class_type class;
+    ?CLASS_NAME name;
+    ?CLASS_EXTEND extend;
+    ?CLASS_IMPLEMENT implement;
+    ?CLASS_BODY body;
+    CLASS_END end;
+  }
+  $modificators'token = modificators;
+  $name's = name.$text;
+  $extends'[token] = extend.$childs;
+  $implements'[token] = implements.$childs;
+  $body'token = body;
+}
+[CLASS] <- _CLASS_ANY <CLASS_CLASS> {}
+[STRUCT] <- _CLASS_ANY <CLASS_STRUCT> {}
+[ENUM] <- _CLASS_ANY <CLASS_ENUM> {}
+[INTERFACE] <- _CLASS_ANY <CLASS_INTERFACE> {}

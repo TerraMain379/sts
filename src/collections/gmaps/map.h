@@ -1,3 +1,5 @@
+#pragma once
+
 #define NAME Map
 #define TYPE void*
 #define NULLV 0
