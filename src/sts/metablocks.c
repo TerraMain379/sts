@@ -41,7 +41,10 @@
 #undef NULLV
 
 
-void Sts_MetaRegex_free(Sts_MetaRegex* regex) {
+void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex) {
+  metaRegex->regex = regex;
+}
+void Sts_MetaRegex_free(Sts_MetaRegex* metaRegex) {
   String_free(&regex->regex);
 }
 void Sts_MetaRegexes_freeElements(Sts_MetaRegexes* regexes) {
@@ -54,6 +57,9 @@ void Sts_MetaRegexes_freeElements(Sts_MetaRegexes* regexes) {
 }
 
 
+void Sts_MetaEvent_init(Sts_MetaEvent* event, String code) {
+  event->code = code;
+}
 void Sts_MetaEvent_free(Sts_MetaEvent* event) {
   String_free(&event->code);
 }
@@ -78,10 +84,25 @@ void Sts_MetaVariables_freeElements(Sts_MetaVariables* variables) {
   }
 }
 
+void Sts_MetaStaticParam_non(Sts_MetaStaticParam* staticParam) {
+  staticParam->type = Sts_MetaStaticParamType_NON
+}
+void Sts_MetaStaticParam_name(Sts_MetaStaticParam* staticParam, String name) {
+  staticParam->type = Sts_MetaStaticParamType_NAME;
+  staticParam->value->name = name;
+}
+void Sts_MetaStaticParam_string(Sts_MetaStaticParam* staticParam, String string) {
+  staticParam->type = Sts_MetaStaticParamType_STRING;
+  staticParam->value->name = string;
+}
+void Sts_MetaStaticParam_number(Sts_MetaStaticParam* staticParam, double number) {
+  staticParam->type = Sts_MetaStaticParamType_NUMBER;
+  staticParam->value->name = number;
+}
 void Sts_MetaStaticParam_free(Sts_MetaStaticParam* staticParam) {
   Sts_MetaStaticParamType type = staticParam->type;
-  if (type == NAME) String_free(&staticParam->value.name);
-  else if (type == STRING) String_free(&staticParam->value.string);
+  if (type == Sts_MetaStaticParamType_NAME) String_free(&staticParam->value.name);
+  else if (type == Sts_MetaStaticParamType_STRING) String_free(&staticParam->value.string);
 }
 void Sts_MetaStaticParams_freeElements(Sts_MetaStaticParams* staticParams) {
   Sts_MetaStaticParams_element* el = staticParams->first;
@@ -92,10 +113,7 @@ void Sts_MetaStaticParams_freeElements(Sts_MetaStaticParams* staticParams) {
   }
 }
 
-void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name, Sts_MetaZonesMap* zonesMap) {
-  if (Sts_MetaZonesMap_contains(zonesMap, name)) {
-    errno = 1; return;
-  }
+void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name) {
   zone->name = name;
   Sts_MetaTokens_init(&zone->tokens);
   Sts_MetaZones_init(&zone->expandZones, 1);
@@ -127,10 +145,10 @@ void Sts_MetaZonesMap_freeElements(Sts_MetaZonesMap* zonesMap) {
   }
 }
 
-void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name, Sts_MetaTokens* tokens) {
-  if (Sts_MetaTokens_contains(tokens, name)) {
-    errno = 1; return;
-  }
+void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name) {
+  // if (Sts_MetaTokens_contains(tokens, name)) {
+  //   errno = 1; return;
+  // }
   token->name = name;
   token->regex = (String) {0};
   Sts_MetaZones_init(&token->parentZones, 100);
@@ -166,6 +184,11 @@ void Sts_MetaTokens_freeElements(Sts_MetaTokens* tokens) {
   }
 }
 
+void Sts_MetaSuperTokenBodyBlock_init(Sts_MetaSuperTokenBodyBlock* block, Sts_MetaToken* token) {
+  block->token = token;
+  block->name = (String) {0};
+  block->strict = true;
+}
 void Sts_MetaSuperTokenBodyBlock_free(Sts_MetaSuperTokenBodyBlock* block) {
   String_free(&block->name);
 }
@@ -175,14 +198,16 @@ void Sts_MetaSuperTokenBodyBlocks_freeElements(Sts_MetaSuperTokenBodyBlocks* blo
     Sts_MetaSuperTokenBodyBlock_free(&blocks->array[i]);
   }
 }
+
+void Sts_MetaSuperTokenBody_init(Sts_MetaSuperTokenBody* body, Sts_MetaSuperTokenBodyBlocks blocks) {
+  body->blocks = blocks;
+  body->ghost = false;
+}
 void Sts_MetaSuperTokenBody_free(Sts_MetaSuperTokenBody* body) {
   Sts_MetaSuperTokenBodyBlocks_freeElements(&body->blocks);
 }
 
-void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name, Sts_MetaSuperTokens* superTokens) {
-  if (Sts_MetaSuperTokens_contains(superTokens, name)) {
-    errno = 1; return;
-  }
+void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name) {
   superToken->name = name;
   superToken->ghost = false;
   superToken->openTrigger = (String) {0};
@@ -221,6 +246,7 @@ void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
   Sts_MetaZonesMap_init(&metaFile->zones);
   Sts_MetaTokens_init(&metaFile->tokens);
   Sts_MetaSuperTokens_init(&metaFile->superTokens);
+  metaFile->mainZone = 0;
   metaFile->properties.name = (String) {0};
   metaFile->properties.sources = (Sources) {0};
 }
@@ -237,3 +263,34 @@ void Sts_MetaFile_free(Sts_MetaFile* metaFile) {
   Sources_free(&metaFile->properties.sources);
 }
 
+
+void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, Sts_MetaZone* zone) {
+  if (Sts_MetaZonesMap_contains(metaFile->zones, zone->name)) {
+    errno = 1; return;
+  }
+  Sts_MetaZonesMap_set(metaFile->zones, zone->name, zone);
+  errno = 0; return;
+}
+void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token) {
+  if (Sts_MetaZonesMap_contains(metaFile->zones, token->name)) {
+    errno = 1; return;
+  }
+  Sts_MetaZonesMap_set(metaFile->zones, token->name, token);
+  errno = 0; return;
+}
+void_errno Sts_MetaFile_regSuperToken(Sts_MetaFile* metaFile, Sts_MetaSuperToken* superToken) {
+  if (Sts_MetaSuperTokens_contains(metaFile->superTokens, superToken->name)) {
+    errno = 1; return;
+  }
+  Sts_MetaSuperTokens_set(metaFile->superTokens, superToken->name, superToken);
+  errno = 0; return;
+}
+
+Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, const String name) {
+  Sts_MetaZone* zone = Sts_MetaZonesMap_get(metaFile->zones, name);
+  if (errno != 0) {
+    Sts_MetaZone_init(zone);
+    Sts_MetaZonesMap_set(metaFile->zones, name, zone);
+  }
+  return zone;
+}

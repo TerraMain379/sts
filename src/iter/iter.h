@@ -1,6 +1,6 @@
 #include "sources.h"
 
 typedef struct Iter {
-  const char* ch;
+  String str;
   Sources sources;
 } Iter;

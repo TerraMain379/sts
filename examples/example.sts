@@ -1,19 +1,30 @@
-# hello world
+# . Зона
+# . Токен
+# . Группа
+# . Генерик
+# . Супер токен
 
-/hello"world"/
 
-- world (
-  < global;
-  events {
-    hex: "dadada";
-  }
+- zone1 (
+
 )
 
+TOKEN1 {
+  regex: "/name//endw/";
+  group: g1;
+}
 
+* group1 (
 
-- world {
-  < name;
-  events {
+)
 
-  }
+GENERIC1 <param1> {
+  regex: param1;
+  group: genericing;
+}
+
+[SUPER_TOKEN] {
+  [
+    
+  ]
 }

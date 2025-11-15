@@ -8,3 +8,5 @@
 
 #define void_errno void
 #define type_errno(type) type
+
+#define void_stop void

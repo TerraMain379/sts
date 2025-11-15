@@ -17,3 +17,6 @@ void String_free(String* string);
 
 bool Strings_equals(const String string1, const String string2);
 size_t Strings_getLen(const char* str);
+
+inline bool Chars_isLetter(char c);
+inline bool Chars_isVoid(char c);

@@ -23,7 +23,8 @@ typedef struct Sts_MetaFile Sts_MetaFile;
 struct Sts_MetaRegex {
   String regex;
 };
-void Sts_MetaRegex_free(Sts_MetaRegex* regex);
+void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex);
+void Sts_MetaRegex_free(Sts_MetaRegex* metaRegex);
 
 #define NAME Sts_MetaRegexes
 #define TYPE Sts_MetaRegex
@@ -38,6 +39,7 @@ void Sts_MetaRegexes_freeElements(Sts_MetaRegexes* regexes);
 struct Sts_MetaEvent {
   String code;
 };
+void Sts_MetaEvent_init(Sts_MetaEvent* event, String code);
 void Sts_MetaEvent_free(Sts_MetaEvent* event);
 
 #define NAME Sts_MetaEvents
@@ -68,10 +70,10 @@ void Sts_MetaVariables_freeElements(Sts_MetaVariables* variables);
 
 
 enum Sts_MetaStaticParamType {
-  NON = 0,
-  NAME,
-  STRING,
-  NUMBER
+  Sts_MetaStaticParamType_NON = 0,
+  Sts_MetaStaticParamType_NAME,
+  Sts_MetaStaticParamType_STRING,
+  Sts_MetaStaticParamType_NUMBER
 };
 
 struct Sts_MetaStaticParam {
@@ -82,6 +84,10 @@ struct Sts_MetaStaticParam {
   } value;
   Sts_MetaStaticParamType type;
 };
+void Sts_MetaStaticParam_non(Sts_MetaStaticParam* staticParam);
+void Sts_MetaStaticParam_name(Sts_MetaStaticParam* staticParam, String name);
+void Sts_MetaStaticParam_string(Sts_MetaStaticParam* staticParam, String string);
+void Sts_MetaStaticParam_number(Sts_MetaStaticParam* staticParam, double number);
 void Sts_MetaStaticParam_free(Sts_MetaStaticParam* staticParam);
 
 #define NAME Sts_MetaStaticParams
@@ -125,7 +131,7 @@ struct Sts_MetaZone {
   Sts_MetaVariables variables;
   Sts_MetaEvents events;
 };
-void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name, Sts_MetaZonesMap* zonesMap);
+void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name);
 void Sts_MetaZone_free(Sts_MetaZone* zone);
 
 // moved to resolve declaration order constraints
@@ -158,7 +164,7 @@ struct Sts_MetaToken {
   Sts_MetaVariables variables;
   Sts_MetaEvents events;
 };
-void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name, Sts_MetaTokens* tokens);
+void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name);
 void Sts_MetaToken_free(Sts_MetaToken* token);
 
 // moved to resolve declaration order constraints
@@ -175,6 +181,7 @@ struct Sts_MetaSuperTokenBodyBlock {
   String name;
   bool strict;
 };
+void Sts_MetaSuperTokenBodyBlock_init(Sts_MetaSuperTokenBodyBlock* block, Sts_MetaToken* token);
 void Sts_MetaSuperTokenBodyBlock_free(Sts_MetaSuperTokenBodyBlock* block);
 
 #define NAME Sts_MetaSuperTokenBodyBlocks
@@ -190,6 +197,7 @@ struct Sts_MetaSuperTokenBody {
   Sts_MetaSuperTokenBodyBlocks blocks;
   bool ghost;
 };
+void Sts_MetaSuperTokenBody_init(Sts_MetaSuperTokenBody* body, Sts_MetaSuperTokenBodyBlocks blocks);
 void Sts_MetaSuperTokenBody_free(Sts_MetaSuperTokenBody* body);
 
 
@@ -212,7 +220,7 @@ struct Sts_MetaSuperToken {
   Sts_MetaVariables variables;
   Sts_MetaEvents events;
 };
-void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name, Sts_MetaSuperTokens* superTokens);
+void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name);
 void Sts_MetaSuperToken_free(Sts_MetaSuperToken* superToken);
 
 // moved to resolve declaration order constraints
@@ -229,6 +237,9 @@ struct Sts_MetaFile {
   Sts_MetaZonesMap zones;
   Sts_MetaTokens tokens;
   Sts_MetaSuperTokens superTokens;
+
+  Sts_MetaZone* mainZone;
+
   struct {
     String name;
     Sources sources;
@@ -236,3 +247,14 @@ struct Sts_MetaFile {
 };
 void Sts_MetaFile_init(Sts_MetaFile* metaFile);
 void Sts_MetaFile_free(Sts_MetaFile* metaFile);
+
+// Sts_MetaZone Sts_MetaFile_getZone(Sts_MetaFile* metaFile, String name);
+// Sts_MetaToken Sts_MetaFile_getToken(Sts_MetaFile* metaFile, String name);
+// Sts_MetaSuperToken Sts_MetaFile_getSuperToken(Sts_MetaFile* metaFile, String name);
+
+
+void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, Sts_MetaZone* zone);
+void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token);
+void_errno Sts_MetaFile_regSuperToken(Sts_MetaFile* metaFile, Sts_MetaSuperToken* superToken);
+
+Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, const String name);

@@ -65,62 +65,9 @@ size_t Strings_getLen(const char* str) {
   }
 }
 
-
-/*
-bool String_equals(String string1, String string2) {
-  if (string1.length != string2.length) return false;
-  
-  size_t length = string1.length;
-  
-  uintptr_t ptr1 = string1.buffer;
-  uintptr_t ptr2 = string2.buffer;
-  size_t i = 0;
-  if (length >= 8 && ptr1 % 4 == ptr2 % 4) {
-    while (ptr1 % 4 != 0) {
-      char c1 = *(char*) ptr1;
-      char c2 = *(char*) ptr2;
-      if (c1 != c2) return false;
-      ptr1++;
-      ptr2++;
-      i++;
-    }
-    while (i+3 < length) {
-      int v1 = *(int*) ptr1;
-      int v2 = *(int*) ptr2;
-      if (v1 != v2) {
-        return false;
-      }
-      ptr1+=4;
-      ptr2+=4;
-      i+=4;
-    }
-    while (i < length) {
-      char c1 = *(char*) ptr1;
-      char c2 = *(char*) ptr2;
-      if (c1 != c2) return false;
-      ptr1++;
-      ptr2++;
-      i++;
-    }
-  }
-  else if (length == 0) return true;
-  else if (length == 1) {
-    return string1.buffer[0] == string2.buffer[1];
-  }
-  else {
-    switch (length % 8) {
-      case 0: while (i < length) {
-        if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 1: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 2: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 3: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 4: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 5: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 6: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-        case 7: if ((char) *ptr1 != (char) *ptr2) return false; i++;
-      }
-    }
-    return true;
-  }
+inline bool Chars_isLetter(char c) {
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
-*/
+inline bool Chars_isVoid(char c) {
+  return c == ' ' || c == '\r' || c == '\n' || c == '\t';
+}
