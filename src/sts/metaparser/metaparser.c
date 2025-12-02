@@ -11,17 +11,15 @@ typedef Sts_MetaParser_Context Context;
 void parseLoop(Context* context);
 
 
-void Sts_MetaParser_parse(Sts_MetaFile* metaFile, Iter* iter, Sts_MetaParserArguments* args) {
+void Sts_MetaParser_parse(Sts_MetaFile* metaFile, const String input, Sts_MetaParserArguments* args) {
   String errLocation = String_const("Sts_MetaParser_parse");
   if (metaFile == 0) Errors_internal_nullPointer(String_const("Sts_MetaFile* metaFile"), errLocation);
-  if (iter == 0) Errors_internal_nullPointer(String_const("Iter* iter"), errLocation);
-  if (iter->ch == 0) Errors_internal_nullPointer(String_const("char* iter.ch"), errLocation);
   if (args == 0) Errors_internal_nullPointer(String_const("Sts_MetaParserArguments args"), errLocation);
   
   Context context = {
     .metaFile = metaFile,
-    .startIter = *iter;
-    .iter = iter,
+    .input = input,
+    .iter = Iter_new(input),
     .args = args
   };
   

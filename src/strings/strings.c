@@ -4,21 +4,21 @@
 
 #include "allocator.h"
 
-inline String String_new(char* buffer, size_t length, bool bufferOnHeap) {
+inline String String_new(const char* const buffer, const size_t length, const bool bufferOnHeap) {
   return (String) {
     .buffer = buffer,
     .length = length,
     .bufferOnHeap = bufferOnHeap
   };
 }
-String String_const(const char* str) {
+String String_const(const char* const str) {
   return (String) {
     .buffer = str,
     .length = Strings_getLen(str),
     .bufferOnHeap = false
   };
 }
-String String_of(char* str) {
+String String_of(const char* const str) {
   return (String) {
     .buffer = str,
     .length = Strings_getLen(str),

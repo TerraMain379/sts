@@ -10,3 +10,5 @@
 #define type_errno(type) type
 
 #define void_stop void
+
+#define take

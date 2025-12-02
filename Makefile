@@ -33,10 +33,13 @@ INCLUDE_DIRS = \
 	src/memutils \
 	src/strings \
 	src/sts \
-	src/sts/metaparser \
-	src/sts/contentparser \
 
-SRC_DIRS = $(INCLUDE_DIRS) src/sts/metaparser/metaparsermodules
+SRC_DIRS = $(INCLUDE_DIRS) \
+	src/sts/metaparser \
+	src/sts/metaparser/modules \
+	src/sts/metaparser/parseutils \
+	src/sts/metaparser/iter \
+
 TESTS_INCLUDE_DIRS = \
 	tests \
 	tests/unity \
