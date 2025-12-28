@@ -19,7 +19,7 @@ typedef struct NAME NAME;
 struct NAME {
   size_t size;
   size_t capacity;
-  TYPE* array;
+  OWNER(TYPE) array;
 };
 
 void FUNCTION(NAME, doubleCapacity)(NAME* list);
@@ -30,7 +30,7 @@ void FUNCTION(NAME, add)(NAME* list, TYPE value);
 void_errno FUNCTION(NAME, insert)(NAME* list, TYPE value, size_t index);
 type_errno(TYPE) FUNCTION(NAME, set)(NAME* list, TYPE value, size_t index);
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* list, size_t index);
-type_errno(TYPE*) FUNCTION(NAME, get)(NAME* list, size_t index);
+type_errno(MUT_WEAK(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) list, size_t index);
 void FUNCTION(NAME, free)(NAME* list);
 
 #undef CONCAT

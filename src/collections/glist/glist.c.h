@@ -77,7 +77,7 @@ type_errno(TYPE) FUNCTION(NAME, remove)(NAME* list, size_t index) {
   list->size--;
   errno = 0; return value;
 }
-type_errno(TYPE*) FUNCTION(NAME, get)(NAME* list, size_t index) {
+type_errno(MUT_WEAK(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) list, size_t index) {
   if (index >= list->size) {
     errno = 1; return 0;
   }

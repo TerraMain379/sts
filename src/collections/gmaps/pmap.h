@@ -19,17 +19,17 @@ static inline ELEMENT(Map)* FUNCTION(PNAME, getElementByHash)(PNAME* map, int ha
 static inline ELEMENT(Map)* FUNCTION(PNAME, getElement)(PNAME* map, const String key) {
   return Map_getElement(map, key);
 }
-static inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* map, const String key) {
-  return (PTYPE*) Map_get(map, key);
+static inline type_errno(WAKE(PTYPE)) FUNCTION(PNAME, get)(PNAME* map, const String key) {
+  return (WAKE(PTYPE)) Map_get(map, key);
 }
 static inline bool FUNCTION(PNAME, contains)(PNAME* map, const String key) {
   return Map_contains(map, key);
 }
-static inline type_errno(PTYPE*) FUNCTION(PNAME, set)(PNAME* map, const String key, PTYPE* value) {
-  return (PTYPE*) Map_set(map, key, value);
+static inline type_errno(PTYPE) FUNCTION(PNAME, set)(PNAME* map, const String key, PTYPE value) {
+  return (PTYPE) Map_set(map, key, value);
 }
-static inline type_errno(PTYPE*) FUNCTION(PNAME, remove)(PNAME* map, const String key) {
-  return (PTYPE*) Map_remove(map, key);
+static inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* map, const String key) {
+  return (PTYPE) Map_remove(map, key);
 }
 static inline void FUNCTION(PNAME, free)(PNAME* map) {
   Map_free(map);

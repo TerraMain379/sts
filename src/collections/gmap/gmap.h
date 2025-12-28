@@ -24,8 +24,8 @@ typedef struct ELEMENT(NAME) ELEMENT(NAME);
 // gmap
 struct NAME {
   size_t size;
-  ELEMENT(NAME)* first;
-  ELEMENT(NAME)* last;
+  OWNER(ELEMENT(NAME)) first;
+  OWNER(ELEMENT(NAME)) last;
 };
 
 // gmap_element
@@ -33,19 +33,19 @@ struct ELEMENT(NAME) {
   String key;
   int hash;
   TYPE value;
-  ELEMENT(NAME)* next;
+  MUT_WEAK(ELEMENT(NAME)) next;
 };
 
 int FUNCTION(NAME, getHash)(const char* key);
 
 void FUNCTION(NAME, init)(NAME* map);
-ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash);
-ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key);
-type_errno(TYPE*) FUNCTION(NAME, get)(NAME* map, const String key);
-bool FUNCTION(NAME, contains)(NAME* map, const String key);
+WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash);
+WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const String key);
+type_errno(WAKE(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) map, const String key);
+bool FUNCTION(NAME, contains)(BORROW(NAME) map, const String key);
 type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value);
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key);
-void FUNCTION(NAME, free)(NAME* map);
+void FUNCTION(NAME, free)(BORROW(NAME) map);
 
 #undef __NAME
 #undef _NAME

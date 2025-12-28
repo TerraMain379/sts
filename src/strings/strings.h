@@ -2,21 +2,32 @@
 
 #include "utils.h"
 
-typedef struct {
-  const char* const buffer;
-  const size_t length;
-  const bool bufferOnHeap;
+typedef struct ViewString {
+  WAKE(char) buffer;
+  size_t size;
+} ViewString;
+
+typedef struct String /* extends ViewString */ {
+  OWNER(char) buffer;
+  size_t size;
+  bool bufferOnHeap;
 } String;
 
-String String_new(const char* const buffer, const size_t length, const bool bufferOnHeap);
-String String_const(const char* const str); // heap = false
-String String_of(const char* const str); // heap = true
-String String_by(const char* const str, const size_t length); // heap = true
-String String_copy(const String string); // heap = true
-void String_free(String* string);
+String String_new(OWNER(char) buffer, size_t size, bool bufferOnHeap);
+String String_of(OWNER(char) buffer);
+String String_by(BORROW(char) buffer);
 
-bool Strings_equals(const String string1, const String string2);
-size_t Strings_getLen(const char* const str);
+ViewString ViewString_new(WAKE(char) buffer, size_t size);
+ViewString ViewString_of(WAKE(char) buffer);
+ViewString ViewString_by(BORROW(String) string);
+
+void String_free(BORROW(String) string);
+void ViewString_free(BORROW(ViewString) vstring);
+
+bool ViewStrings_equals(BORROW(ViewString) vstring1, BORROW(ViewString) vstring2);
+bool Strings_equals(BORROW(String) string1, BORROW(String) string2);
+
+OWNER(String) Strings_copy(BORROW(ViewString) vstring);
 
 inline bool Chars_isLetter(const char c);
 inline bool Chars_isVoid(const char c);

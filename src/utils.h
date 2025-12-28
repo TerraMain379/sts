@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include "memtypes.h"
 
 #define void_errno void
 #define type_errno(type) type

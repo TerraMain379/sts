@@ -37,7 +37,7 @@ void FUNCTION(NAME, init)(NAME* map) {
   map->first = 0;
   map->last = 0;
 }
-ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash) {
+WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash) {
   if (map->size == 0) return 0;
   ELEMENT(NAME)* element = map->first;
   do {
@@ -47,7 +47,7 @@ ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash) {
   return 0;
 }
 
-ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key) {
+WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const String key) {
   int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* element = FUNCTION(NAME, getElementByHash)(map, hash);
   if (!element) return 0;
@@ -68,18 +68,18 @@ ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, const String key) {
   return 0;
 }
 
-type_errno(TYPE*) FUNCTION(NAME, get)(NAME* map, const String key) {
+type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, const String key) {
   ELEMENT(NAME)* element = FUNCTION(NAME, getElement)(map, key);
   if (element) {
     errno = 0; return & element->value;
   }
   errno = 1; return 0;
 }
-bool FUNCTION(NAME, contains)(NAME* map, const String key) {
+bool FUNCTION(NAME, contains)(BORROW(NAME) map, const String key) {
   ELEMENT(NAME)* element = FUNCTION(NAME, getElement)(map, key);
   return (bool) element;
 }
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value) { // true if new element is gen
+type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value) {
   int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
@@ -152,7 +152,7 @@ type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key) {
   }
   errno = 1; return NULLV;
 }
-void FUNCTION(NAME, free)(NAME* map) {
+void FUNCTION(NAME, free)(BORROW(NAME) map) {
   ELEMENT(NAME)* element = map->first;
   while (element) {
     ELEMENT(NAME)* next = element->next;

@@ -101,53 +101,33 @@ void Sts_MetaStaticParams_freeElements(Sts_MetaStaticParams* staticParams);
 
 
 // moved to resolve declaration order constraints
+  #define PNAME Sts_OwnedMetaTokens
+  #define PTYPE OWNER(Sts_MetaToken)
+  #include "pmap.h"
+  #undef PNAME
+  #undef PTYPE
+// 
+// moved to resolve declaration order constraints (2)
   #define PNAME Sts_MetaTokens
-  #define PTYPE Sts_MetaToken
+  #define PTYPE WAKE(Sts_MetaToken)
   #include "pmap.h"
   #undef PNAME
   #undef PTYPE
 // 
 // moved to resolve declaration order constraints
-  #define PNAME Sts_MetaZones
-  #define PTYPE Sts_MetaZone
-  #include "plist.h"
-  #undef PNAME
-  #undef PTYPE
-//
-// moved to resolve declaration order constraints
-  #define PNAME Sts_MetaZonesMap
-  #define PTYPE Sts_MetaZone
+  #define PNAME Sts_OwnedMetaZonesMap
+  #define PTYPE OWNER(Sts_MetaZone)
   #include "pmap.h"
   #undef PNAME
   #undef PTYPE
 //
-struct Sts_MetaZone {
-  String name;
-
-  Sts_MetaTokens tokens;
-  Sts_MetaZones expandZones;
-
-  Sts_MetaStaticParams staticParams;
-  Sts_MetaVariables variables;
-  Sts_MetaEvents events;
-};
-void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name);
-void Sts_MetaZone_free(Sts_MetaZone* zone);
-
 // moved to resolve declaration order constraints
-// #define PNAME Sts_MetaZones
-// #define PTYPE Sts_MetaZone
-// #include "plist.h"
-// #undef PNAME
-// #undef PTYPE
-
-// moved to resolve declaration order constraints
-// #define PNAME Sts_MetaZonesMap
-// #define PTYPE Sts_MetaZone
-// #include "pmap.h"
-// #undef PNAME
-// #undef PTYPE
-void Sts_MetaZonesMap_freeElements(Sts_MetaZonesMap* zonesMap);
+  #define PNAME Sts_MetaZones
+  #define PTYPE WAKE(Sts_MetaZone)
+  #include "plist.h"
+  #undef PNAME
+  #undef PTYPE
+//
 
 
 struct Sts_MetaToken {
@@ -167,17 +147,31 @@ struct Sts_MetaToken {
 void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name);
 void Sts_MetaToken_free(Sts_MetaToken* token);
 
-// moved to resolve declaration order constraints
-// #define PNAME Sts_MetaTokens
-// #define PTYPE Sts_MetaToken
-// #include "pmap.h"
-// #undef PNAME
-// #undef PTYPE
-void Sts_MetaTokens_freeElements(Sts_MetaTokens* tokens);
+// Map Sts_OwnedMetaTokens
+void Sts_OwnedMetaTokens_freeElements(Sts_OwnedMetaTokens* tokens);
+// Map Sts_MetaTokens
+
+
+struct Sts_MetaZone {
+  String name;
+
+  Sts_MetaTokens tokens;
+  Sts_MetaZones expandZones;
+
+  Sts_MetaStaticParams staticParams;
+  Sts_MetaVariables variables;
+  Sts_MetaEvents events;
+};
+void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name);
+void Sts_MetaZone_free(Sts_MetaZone* zone);
+
+// Map Sts_OwnedMetaZonesMap
+void Sts_OwnedMetaZonesMap_freeElements(Sts_OwnedMetaZonesMap* zones);
+// List Sts_MetaZones
 
 
 struct Sts_MetaSuperTokenBodyBlock {
-  Sts_MetaToken* token;
+  WAKE(Sts_MetaToken) token;
   String name;
   bool strict;
 };
@@ -202,8 +196,8 @@ void Sts_MetaSuperTokenBody_free(Sts_MetaSuperTokenBody* body);
 
 
 // moved to resolve declaration order constraints
-  #define PNAME Sts_MetaSuperTokens
-  #define PTYPE Sts_MetaSuperToken
+  #define PNAME Sts_OwnedMetaSuperTokens
+  #define PTYPE Sts_MetaSuperToken*
   #include "pmap.h"
   #undef PNAME
   #undef PTYPE
@@ -223,20 +217,15 @@ struct Sts_MetaSuperToken {
 void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name);
 void Sts_MetaSuperToken_free(Sts_MetaSuperToken* superToken);
 
-// moved to resolve declaration order constraints
-// #define PNAME Sts_MetaSuperTokens
-// #define PTYPE Sts_MetaSuperToken
-// #include "pmap.h"
-// #undef PNAME
-// #undef PTYPE
-void Sts_MetaSuperTokens_freeElements(Sts_MetaSuperTokens* tokens);
+// Map Sts_OwnedMetaSuperTokens
+void Sts_OwnedMetaSuperTokens_freeElements(Sts_MetaSuperTokens* tokens);
 
 
 struct Sts_MetaFile {
   Sts_MetaRegexes regexes;
-  Sts_MetaZonesMap zones;
-  Sts_MetaTokens tokens;
-  Sts_MetaSuperTokens superTokens;
+  Sts_OwnedMetaZonesMap zones;
+  Sts_OwnedMetaTokens tokens;
+  Sts_OwnedMetaSuperTokens superTokens;
 
   Sts_MetaZone* mainZone;
 

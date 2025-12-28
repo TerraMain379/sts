@@ -4,70 +4,90 @@
 
 #include "allocator.h"
 
-inline String String_new(const char* const buffer, const size_t length, const bool bufferOnHeap) {
+size_t getSize(BORROW(char) buffer) {
+  return strlen(buffer);
+}
+
+String String_new(OWNER(char) buffer, size_t size, bool bufferOnHeap) {
   return (String) {
     .buffer = buffer,
-    .length = length,
+    .size = size,
     .bufferOnHeap = bufferOnHeap
   };
 }
-String String_const(const char* const str) {
+String String_of(OWNER(char) buffer) {
   return (String) {
-    .buffer = str,
-    .length = Strings_getLen(str),
-    .bufferOnHeap = false
-  };
-}
-String String_of(const char* const str) {
-  return (String) {
-    .buffer = str,
-    .length = Strings_getLen(str),
+    .buffer = buffer,
+    .size = getSize(buffer),
     .bufferOnHeap = true
   };
 }
-String String_by(char* str, size_t length) {
-  char* buffer = A_loc((length + 1) * sizeof(char));
-  strncpy(buffer, str, length);
-  buffer[length] = '\0';
-  return String_new(buffer, length, true);
-}
-String String_copy(const String* string) {
-  size_t length = string->length;
-  char* buffer = A_loc((length + 1) * sizeof(char));
-  strncpy(buffer, string->buffer, length);
-  buffer[length] = '\0';
-  return String_new(buffer, length, true);
-}
-void String_free(String* string) {
-  if (string->bufferOnHeap) A_free(string->buffer);
-  string->buffer = 0;
-  string->length = -1;
-  string->bufferOnHeap = false;
+String String_by(BORROW(char) buffer) {
+  size_t size = getSize(buffer);
+  OWNER(char) newBuffer = A_loc(sizeof(char)*(size+1));
+  strcpy(newBuffer, buffer);
+  return (String) {
+    .buffer = newBuffer,
+    .size = size,
+    .bufferOnHeap = true
+  };
 }
 
-bool Strings_equals(const String string1, const String string2) {
-  if (string1.length != string2.length) return false;
-  if (string1.length == 0) return true;
-  char* ch1 = string1.buffer;
-  char* ch2 = string2.buffer;
-  size_t length = string1.length;
-  for (size_t i = 0; i < length; i++) {
-    if (*ch1 != *ch2) return false;
-    ch1++;
-    ch2++;
+ViewString ViewString_new(WAKE(char) buffer, size_t size) {
+  return (ViewString) {
+    .buffer = buffer,
+    .size = size
+  };
+}
+ViewString ViewString_of(WAKE(char) buffer) {
+  return (ViewString) {
+    .buffer = buffer,
+    .size = getSize(buffer)
+  };
+}
+ViewString ViewString_by(BORROW(String) string) {
+  return (ViewString) {
+    .buffer = string->buffer,
+    .size = getSize(buffer)
+  };
+}
+
+void String_free(BORROW(String) string) {
+  if (string->bufferOnHeap) {
+    A_free(string->buffer);
+  }
+  string->buffer = 0;
+  string->bufferOnHeap = false;
+}
+void ViewString_free(BORROW(ViewString) vstring) {
+  vstring->buffer = 0;
+}
+
+bool ViewStrings_equals(BORROW(ViewString) const vstring1, BORROW(ViewString) const vstring2) {
+  if (vstring1->size != vstring2->size) return false;
+  WAKE(char) buffer1 = vstring1->buffer;
+  WAKE(char) buffer2 = vstring2->buffer;
+  for (size_t i = 0; i < vstring->size; i++) {
+    if (buffer1[i] != buffer2[i]) {
+      return false;
+    }
   }
   return true;
 }
-size_t Strings_getLen(const char* str) {
-  for (int i = 0; ; i++) {
-    if (*str == '\0') return i;
-    str++;
-  }
+bool Strings_equals(BORROW(String) const string1, BORROW(String) const string2) {
+  return ViewStrings_equals(
+    (ViewString*) string1,
+    (ViewString*) string2
+  );
 }
 
-inline bool Chars_isLetter(char c) {
+OWNER(String) Strings_copy(BORROW(ViewString) const vstring) {
+  return String_by(vstring->buffer);
+}
+
+inline bool Chars_isLetter(const char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
-inline bool Chars_isVoid(char c) {
-  return c == ' ' || c == '\r' || c == '\n' || c == '\t';
+inline bool Chars_isVoid(const char c) {
+  return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
 }
