@@ -72,7 +72,8 @@ void parseLoop(Context* context) {
       parseRegexLink(context);
     }
     else if (c == '[') {
-      parseSuperToken(context); // TODO:
+      // TODO: supertokens deleted
+
     }
     else if (c == '*') {
       parseGroup(context); // TODO:
