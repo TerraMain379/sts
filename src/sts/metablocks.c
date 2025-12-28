@@ -32,14 +32,6 @@
 #undef TYPE
 #undef NULLV
 
-#define NAME Sts_MetaSuperTokenBodyBlocks
-#define TYPE Sts_MetaSuperTokenBodyBlock
-#define NULLV (Sts_MetaSuperTokenBodyBlock) {0}
-#include "glist.c.h"
-#undef NAME
-#undef TYPE
-#undef NULLV
-
 
 void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex) {
   metaRegex->regex = regex;
@@ -184,68 +176,10 @@ void Sts_MetaTokens_freeElements(Sts_MetaTokens* tokens) {
   }
 }
 
-void Sts_MetaSuperTokenBodyBlock_init(Sts_MetaSuperTokenBodyBlock* block, Sts_MetaToken* token) {
-  block->token = token;
-  block->name = (String) {0};
-  block->strict = true;
-}
-void Sts_MetaSuperTokenBodyBlock_free(Sts_MetaSuperTokenBodyBlock* block) {
-  String_free(&block->name);
-}
-void Sts_MetaSuperTokenBodyBlocks_freeElements(Sts_MetaSuperTokenBodyBlocks* blocks) {
-  size_t size = blocks->size;
-  for (size_t i = 0; i < size; i++) {
-    Sts_MetaSuperTokenBodyBlock_free(&blocks->array[i]);
-  }
-}
-
-void Sts_MetaSuperTokenBody_init(Sts_MetaSuperTokenBody* body, Sts_MetaSuperTokenBodyBlocks blocks) {
-  body->blocks = blocks;
-  body->ghost = false;
-}
-void Sts_MetaSuperTokenBody_free(Sts_MetaSuperTokenBody* body) {
-  Sts_MetaSuperTokenBodyBlocks_freeElements(&body->blocks);
-}
-
-void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name) {
-  superToken->name = name;
-  superToken->ghost = false;
-  superToken->openTrigger = (String) {0};
-  superToken->closeTrigger = (String) {0};
-  superToken->body = 0;
-
-  Sts_MetaStaticParams_init(&superToken->staticParams);
-  Sts_MetaVariables_init(&superToken->variables, 1);
-  Sts_MetaEvents_init(&superToken->events);
-  errno = 0; return;
-}
-void Sts_MetaSuperToken_free(Sts_MetaSuperToken* superToken) {
-  String_free(&superToken->name);
-  String_free(&superToken->openTrigger);
-  String_free(&superToken->closeTrigger);
-  Sts_MetaSuperTokenBody_free(superToken->body);
-
-  Sts_MetaStaticParams_freeElements(&superToken->staticParams);
-  Sts_MetaStaticParams_free(&superToken->staticParams);
-  Sts_MetaVariables_freeElements(&superToken->variables);
-  Sts_MetaVariables_free(&superToken->variables);
-  Sts_MetaEvents_freeElements(&superToken->events);
-  Sts_MetaEvents_free(&superToken->events);
-}
-void Sts_MetaSuperTokens_freeElements(Sts_MetaSuperTokens* tokens) {
-  Sts_MetaSuperTokens_element* el = tokens->first;
-  while (el != 0) {
-    Sts_MetaSuperToken* token = el->value;
-    Sts_MetaSuperToken_free(token);
-    el = el->next;
-  }
-}
-
 void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
   Sts_MetaRegexes_init(&metaFile->regexes);
   Sts_MetaZonesMap_init(&metaFile->zones);
   Sts_MetaTokens_init(&metaFile->tokens);
-  Sts_MetaSuperTokens_init(&metaFile->superTokens);
   metaFile->mainZone = 0;
   metaFile->properties.name = (String) {0};
   metaFile->properties.sources = (Sources) {0};
@@ -257,8 +191,6 @@ void Sts_MetaFile_free(Sts_MetaFile* metaFile) {
   Sts_MetaZonesMap_free(&metaFile->zones);
   Sts_MetaTokens_freeElements(&metaFile->tokens);
   Sts_MetaTokens_free(&metaFile->tokens);
-  Sts_MetaSuperTokens_freeElements(&metaFile->superTokens);
-  Sts_MetaSuperTokens_free(&metaFile->superTokens);
   String_free(&metaFile->properties.name);
   Sources_free(&metaFile->properties.sources);
 }
@@ -276,13 +208,6 @@ void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token) {
     errno = 1; return;
   }
   Sts_MetaZonesMap_set(metaFile->zones, token->name, token);
-  errno = 0; return;
-}
-void_errno Sts_MetaFile_regSuperToken(Sts_MetaFile* metaFile, Sts_MetaSuperToken* superToken) {
-  if (Sts_MetaSuperTokens_contains(metaFile->superTokens, superToken->name)) {
-    errno = 1; return;
-  }
-  Sts_MetaSuperTokens_set(metaFile->superTokens, superToken->name, superToken);
   errno = 0; return;
 }
 

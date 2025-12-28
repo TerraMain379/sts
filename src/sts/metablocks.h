@@ -12,9 +12,6 @@ typedef enum Sts_MetaStaticParamType Sts_MetaStaticParamType;
 typedef struct Sts_MetaStaticParam Sts_MetaStaticParam;
 typedef struct Sts_MetaZone Sts_MetaZone;
 typedef struct Sts_MetaToken Sts_MetaToken;
-typedef struct Sts_MetaSuperTokenBodyBlock Sts_MetaSuperTokenBodyBlock;
-typedef struct Sts_MetaSuperTokenBody Sts_MetaSuperTokenBody;
-typedef struct Sts_MetaSuperToken Sts_MetaSuperToken;
 typedef struct Sts_MetaFile Sts_MetaFile;
 
 
@@ -170,62 +167,10 @@ void Sts_OwnedMetaZonesMap_freeElements(Sts_OwnedMetaZonesMap* zones);
 // List Sts_MetaZones
 
 
-struct Sts_MetaSuperTokenBodyBlock {
-  WAKE(Sts_MetaToken) token;
-  String name;
-  bool strict;
-};
-void Sts_MetaSuperTokenBodyBlock_init(Sts_MetaSuperTokenBodyBlock* block, Sts_MetaToken* token);
-void Sts_MetaSuperTokenBodyBlock_free(Sts_MetaSuperTokenBodyBlock* block);
-
-#define NAME Sts_MetaSuperTokenBodyBlocks
-#define TYPE Sts_MetaSuperTokenBodyBlock
-#define NULLV (Sts_MetaSuperTokenBodyBlock) {0}
-#include "glist.h"
-#undef NAME
-#undef TYPE
-#undef NULLV
-void Sts_MetaSuperTokenBodyBlocks_freeElements(Sts_MetaSuperTokenBodyBlocks* blocks);
-
-struct Sts_MetaSuperTokenBody {
-  Sts_MetaSuperTokenBodyBlocks blocks;
-  bool ghost;
-};
-void Sts_MetaSuperTokenBody_init(Sts_MetaSuperTokenBody* body, Sts_MetaSuperTokenBodyBlocks blocks);
-void Sts_MetaSuperTokenBody_free(Sts_MetaSuperTokenBody* body);
-
-
-// moved to resolve declaration order constraints
-  #define PNAME Sts_OwnedMetaSuperTokens
-  #define PTYPE Sts_MetaSuperToken*
-  #include "pmap.h"
-  #undef PNAME
-  #undef PTYPE
-//
-struct Sts_MetaSuperToken {
-  String name;
-  bool ghost;
-
-  String openTrigger;
-  String closeTrigger;
-  Sts_MetaSuperTokenBody* body;
-
-  Sts_MetaStaticParams staticParams;
-  Sts_MetaVariables variables;
-  Sts_MetaEvents events;
-};
-void_errno Sts_MetaSuperToken_init(Sts_MetaSuperToken* superToken, String name);
-void Sts_MetaSuperToken_free(Sts_MetaSuperToken* superToken);
-
-// Map Sts_OwnedMetaSuperTokens
-void Sts_OwnedMetaSuperTokens_freeElements(Sts_MetaSuperTokens* tokens);
-
-
 struct Sts_MetaFile {
   Sts_MetaRegexes regexes;
   Sts_OwnedMetaZonesMap zones;
   Sts_OwnedMetaTokens tokens;
-  Sts_OwnedMetaSuperTokens superTokens;
 
   Sts_MetaZone* mainZone;
 
@@ -239,11 +184,9 @@ void Sts_MetaFile_free(Sts_MetaFile* metaFile);
 
 // Sts_MetaZone Sts_MetaFile_getZone(Sts_MetaFile* metaFile, String name);
 // Sts_MetaToken Sts_MetaFile_getToken(Sts_MetaFile* metaFile, String name);
-// Sts_MetaSuperToken Sts_MetaFile_getSuperToken(Sts_MetaFile* metaFile, String name);
 
 
 void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, Sts_MetaZone* zone);
 void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token);
-void_errno Sts_MetaFile_regSuperToken(Sts_MetaFile* metaFile, Sts_MetaSuperToken* superToken);
 
 Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, const String name);
