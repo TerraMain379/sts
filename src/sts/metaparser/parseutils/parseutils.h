@@ -1,18 +1,17 @@
-#include "iter.h"
-#include "metablocks.h"
+#include "metaparser_ctx.h"
 #include "metaparser.h"
-typedef Sts_MetaParser_Context Context;
+#include "iter.h"
 
 String readName(Context* ctx);
 void skipVoid(Context* ctx);
 void readChar(Context* ctx, char c);
 
-typedef struct Param Param;
+typedef struct Sts_MetaBodyLine {
+  Sts_MetaBodyLineType type;
+} Sts_MetaBodyLine;
 
-#define PNAME Params
-#define PTYPE Param
-#include "plist.h"
-#undef PNAME
-#undef PTYPE
-
-Params readParams(Context* ctx);
+typedef enum Sts_MetaBodyLineType {
+  Sts_MetaBodyLineType_Param,
+  Sts_MetaBodyLineType_Variable,
+  Sts_MetaBodyLineType_Events,
+} Sts_MetaBodyLineType;

@@ -1,25 +1,36 @@
 #include "metaparser.h"
-#include "errors.h"
+#include "metaparser_ctx.h"
+#include "metaparser_errors.h"
 
+#include "modules/group.h"
 #include "modules/regexlink.h"
+#include "modules/setmainzone.h"
+#include "modules/sstsfunction.h"
+#include "modules/token.h"
+#include "modules/zone.h"
 
-#define String_one(c) (String_const((char[]) {c, '\0'}))
-#define String_two(c1, c2) (String_const((char[]) {c1, c2, '\0'}))
 
-typedef Sts_MetaParser_Context Context;
+void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {
+  // TODO:
+}
+void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments) {
+  // TODO:
+}
+
+#define vs_one(c) (ViewString_of((char[]) {c, '\0'}))
+#define vs_two(c1, c2) (ViewString_of((char[]) {c1, c2, '\0'}))
 
 void parseLoop(Context* context);
 
 
-void Sts_MetaParser_parse(Sts_MetaFile* metaFile, const String input, Sts_MetaParserArguments* args) {
+void Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
   String errLocation = String_const("Sts_MetaParser_parse");
   if (metaFile == 0) Errors_internal_nullPointer(String_const("Sts_MetaFile* metaFile"), errLocation);
-  if (args == 0) Errors_internal_nullPointer(String_const("Sts_MetaParserArguments args"), errLocation);
+  if (args == 0) Errors_internal_nullPointer(String_const("Sts_MetaParser_Arguments* args"), errLocation);
   
   Context context = {
     .metaFile = metaFile,
-    .input = input,
-    .iter = Iter_new(input),
+    .iter = iter,
     .args = args
   };
   
@@ -27,10 +38,10 @@ void Sts_MetaParser_parse(Sts_MetaFile* metaFile, const String input, Sts_MetaPa
 }
 
 void parseLoop(Context* context) {
-  Iter* iter = context->iter;
+  Iter* iter = &context->iter;
 
   bool flagModificator;
-  Iter_foreachChars(char c, iter) {
+  Iter_foreachChars(c, iter) {
     // TODO: In the future, it's worth switching to the dispatch table.
 
     if (c == '#') { 
@@ -52,7 +63,7 @@ void parseLoop(Context* context) {
       }
       else {
         Iter_unsafeBackChar(iter);
-        Errors_metaparser_unkownToken(String_two('~','~'), iter);
+        Errors_metaparser_unkownToken(vs_two('~','~'), context);
       }
     }
     else if (c == '-') {
@@ -73,13 +84,16 @@ void parseLoop(Context* context) {
     }
     else if (c == '[') {
       // TODO: supertokens deleted
-
+      Errors_metaparser_unkownToken(vs_one('['), context);
     }
     else if (c == '*') {
       parseGroup(context); // TODO:
     }
     else if (c == ':') { 
       parseSstsFunction(context); // TODO:
+    }
+    else {
+      Errors_metaparser_unkownToken(vs_one(c), context);
     }
   }
 }
