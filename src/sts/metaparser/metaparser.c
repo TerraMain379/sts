@@ -1,13 +1,14 @@
 #include "metaparser.h"
-#include "metaparser_ctx.h"
+#define Context Sts_MetaParser_Context
+// #define Arguments Sts_MetaParser_Arguments
 #include "metaparser_errors.h"
 
-#include "modules/group.h"
-#include "modules/regexlink.h"
-#include "modules/setmainzone.h"
-#include "modules/sstsfunction.h"
-#include "modules/token.h"
-#include "modules/zone.h"
+#include "mpmodules/group.h"
+#include "mpmodules/regexlink.h"
+#include "mpmodules/setmainzone.h"
+#include "mpmodules/sstsfunction.h"
+#include "mpmodules/token.h"
+#include "mpmodules/zone.h"
 
 
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {

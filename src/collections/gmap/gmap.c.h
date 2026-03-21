@@ -3,10 +3,12 @@
 // #define NAME ...
 // #define TYPE ...
 // #define NULLV ...
+// #define FREEFUN ...
 // #include "gmap.c.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
+// #undef FREEFUN
 
 
 // logic for generate names for structs
@@ -163,4 +165,13 @@ void FUNCTION(NAME, free)(BORROW(NAME) map) {
   map->size = 0;
   map->first = 0;
   map->last = 0;
+}
+void FUNCTION(NAME, freeElements)(NAME* map) {
+  #ifdef FREEFUN
+    ELEMENT(NAME)* element = map->first;
+    while (element) {
+      FREEFUN(&element->value);
+      element = element->next;
+    }
+  #endif
 }

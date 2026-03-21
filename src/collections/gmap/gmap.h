@@ -4,10 +4,12 @@
 // #define NAME ...
 // #define TYPE ...
 // #define NULLV ...
+// #define FREEFUN ...
 // #include "gmap.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
+// #undef FREEFUN
 
 // logic for generate names for structs
 #define __NAME(name) _ ## name
@@ -40,12 +42,13 @@ int FUNCTION(NAME, getHash)(const char* key);
 
 void FUNCTION(NAME, init)(NAME* map);
 WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash);
-WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const String key);
-type_errno(WAKE(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) map, const String key);
-bool FUNCTION(NAME, contains)(BORROW(NAME) map, const String key);
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const String key, TYPE value);
-type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const String key);
-void FUNCTION(NAME, free)(BORROW(NAME) map);
+WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, ViewString key);
+type_errno(WAKE(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) map, ViewString key);
+bool FUNCTION(NAME, contains)(BORROW(NAME) map, ViewString key);
+type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, ViewString key, TYPE value);
+type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, ViewString key);
+void FUNCTION(NAME, free)(NAME* map);
+void FUNCTION(NAME, freeElements)(NAME* map);
 
 #undef __NAME
 #undef _NAME

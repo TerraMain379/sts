@@ -4,10 +4,12 @@
 // #define NAME ...
 // #define TYPE ...
 // #define NULLV ...
+// #define FREEFUN ...
 // #include "glist.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
+// #undef FREEFUN
 
 // logic for generate names for structs
 #define CONCAT(a, b) a ## _ ## b
@@ -32,6 +34,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* list, TYPE value, size_t index);
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* list, size_t index);
 type_errno(MUT_WEAK(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) list, size_t index);
 void FUNCTION(NAME, free)(NAME* list);
+void FUNCTION(NAME, freeElements)(NAME* list);
 
 #undef CONCAT
 #undef FUNCTION

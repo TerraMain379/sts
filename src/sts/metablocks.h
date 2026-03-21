@@ -5,16 +5,26 @@
 #include "sources.h"
 #include "stss.h"
 
-typedef struct Sts_MetaRegex Sts_MetaRegex;
-typedef struct Sts_MetaEvent Sts_MetaEvent;
-typedef struct Sts_MetaVariable Sts_MetaVariable;
-typedef enum Sts_MetaStaticParamType Sts_MetaStaticParamType;
-typedef struct Sts_MetaStaticParam Sts_MetaStaticParam;
-typedef struct Sts_MetaZone Sts_MetaZone;
-typedef struct Sts_MetaToken Sts_MetaToken;
-typedef struct Sts_MetaFile Sts_MetaFile;
+#define typedef_struct(name) typedef struct name name
+#define typedef_enum(name) typedef enum name name
+  typedef_struct(Sts_MetaRegex);
+  typedef_struct(Sts_MetaRegexLinks);
+  typedef_struct(Sts_MetaEvent);
+  typedef_struct(Sts_MetaEvents);
+  typedef_struct(Sts_MetaVariable);
+  typedef_struct(Sts_MetaElementVariables);
+  typedef_enum(Sts_MetaStaticParamType);
+  typedef_struct(Sts_MetaStaticParam);
+  typedef_struct(Sts_MetaStaticParams);
 
+  typedef_struct(Sts_OwnedMetaTokens);
+  typedef_struct(Sts_OwnedMetaTokens);
 
+  typedef_struct(Sts_MetaZone);
+  typedef_struct(Sts_MetaToken);
+  typedef_struct(Sts_MetaFile);
+#undef typedef_struct
+#undef typedef_enum
 
 
 struct Sts_MetaRegex {
@@ -23,14 +33,15 @@ struct Sts_MetaRegex {
 void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex);
 void Sts_MetaRegex_free(Sts_MetaRegex* metaRegex);
 
-#define NAME Sts_MetaRegexes
+#define NAME Sts_MetaRegexLinks
 #define TYPE Sts_MetaRegex
 #define NULLV (Sts_MetaRegex) {0}
+#define FREEFUN Sts_MetaRegex_free
 #include "gmap.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
-void Sts_MetaRegexes_freeElements(Sts_MetaRegexes* regexes);
+#undef FREEFUN
 
 
 struct Sts_MetaEvent {
@@ -42,133 +53,110 @@ void Sts_MetaEvent_free(Sts_MetaEvent* event);
 #define NAME Sts_MetaEvents
 #define TYPE Sts_MetaEvent
 #define NULLV (Sts_MetaEvent) {0}
+#define FREEFUN Sts_MetaEvent_free
 #include "gmap.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
-void Sts_MetaEvents_freeElements(Sts_MetaEvents* events);
+#undef FREEFUN
 
 
-struct Sts_MetaVariable {
-  String name;
+struct Sts_MetaElementVariable {
   Stss_Type type;
-  Stss_UntypeValue defaultValue;
+  OWNER(Stss_UntypeValue) value;
 };
-void Sts_MetaVariable_free(Sts_MetaVariable* variable);
+void Sts_MetaElementVariable_init(Sts_MetaVariable* variable);
+void Sts_MetaElementVariable_free(Sts_MetaVariable* variable);
 
-#define NAME Sts_MetaVariables
-#define TYPE Sts_MetaVariable
-#define NULLV (Sts_MetaVariable) {0};
-#include "glist.h"
+#define NAME Sts_MetaElementVariables
+#define TYPE Sts_MetaElementVariable
+#define NULLV (Sts_MetaElementVariable) {0};
+#define FREEFUN Sts_MetaElementVariable_free
+#include "gmap.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
-void Sts_MetaVariables_freeElements(Sts_MetaVariables* variables);
+#undef FREEFUN
 
-
-enum Sts_MetaStaticParamType {
-  Sts_MetaStaticParamType_NON = 0,
-  Sts_MetaStaticParamType_NAME,
-  Sts_MetaStaticParamType_STRING,
-  Sts_MetaStaticParamType_NUMBER
+struct Sts_MetaElementStaticParam {
+  Stss_Type type;
+  OWNER(Stss_UntypeValue) value;
 };
-
-struct Sts_MetaStaticParam {
-  union {
-    String name;
-    String string;
-    double number;
-  } value;
-  Sts_MetaStaticParamType type;
-};
-void Sts_MetaStaticParam_non(Sts_MetaStaticParam* staticParam);
-void Sts_MetaStaticParam_name(Sts_MetaStaticParam* staticParam, String name);
-void Sts_MetaStaticParam_string(Sts_MetaStaticParam* staticParam, String string);
-void Sts_MetaStaticParam_number(Sts_MetaStaticParam* staticParam, double number);
+void Sts_MetaStaticParam_init(Sts_MetaStaticParam* staticParam);
 void Sts_MetaStaticParam_free(Sts_MetaStaticParam* staticParam);
 
 #define NAME Sts_MetaStaticParams
 #define TYPE Sts_MetaStaticParam
 #define NULLV (Sts_MetaStaticParam) {0};
+#define FREEFUN Sts_MetaStaticParam_free
 #include "gmap.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
-void Sts_MetaStaticParams_freeElements(Sts_MetaStaticParams* staticParams);
+#undef FREEFUN
 
 
-// moved to resolve declaration order constraints
-  #define PNAME Sts_OwnedMetaTokens
-  #define PTYPE OWNER(Sts_MetaToken)
-  #include "pmap.h"
-  #undef PNAME
-  #undef PTYPE
-// 
-// moved to resolve declaration order constraints (2)
-  #define PNAME Sts_MetaTokens
-  #define PTYPE WAKE(Sts_MetaToken)
-  #include "pmap.h"
-  #undef PNAME
-  #undef PTYPE
-// 
-// moved to resolve declaration order constraints
-  #define PNAME Sts_OwnedMetaZonesMap
-  #define PTYPE OWNER(Sts_MetaZone)
-  #include "pmap.h"
-  #undef PNAME
-  #undef PTYPE
-//
-// moved to resolve declaration order constraints
-  #define PNAME Sts_MetaZones
-  #define PTYPE WAKE(Sts_MetaZone)
-  #include "plist.h"
-  #undef PNAME
-  #undef PTYPE
-//
+#define extends__Sts_MetaElement \
+  String name; \
+  Sts_MetaElementStaticParams params; \
+  Sts_MetaElementVariables variables; \
+  Sts_MetaEvents events;
+struct Sts_MetaElement {
+  extends__Sts_MetaElement;
+}
+void Sts_MetaElement_init(Sts_MetaElement* element, String name);
+void Sts_MetaElement_free(Sts_MetaElement* element)
 
 
 struct Sts_MetaToken {
-  String name;
-  String regex;
-  Sts_MetaZones parentZones;
-  bool ghost;
-
-  Sts_MetaZone* openZone;
-  Sts_MetaZone* setZone;
-  bool isCloseZone;
-  
-  Sts_MetaStaticParams staticParams;
-  Sts_MetaVariables variables;
-  Sts_MetaEvents events;
+  extends__Sts_MetaElement;
 };
 void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name);
 void Sts_MetaToken_free(Sts_MetaToken* token);
 
-// Map Sts_OwnedMetaTokens
-void Sts_OwnedMetaTokens_freeElements(Sts_OwnedMetaTokens* tokens);
-// Map Sts_MetaTokens
+#define PNAME Sts_OwnedMetaTokens
+#define PTYPE OWNER(Sts_MetaToken)
+#define PFREEFUN Sts_MetaToken_free
+#include "pmap.h"
+#undef PNAME
+#undef PTYPE
+#undef PFREEFUN
+
+#define PNAME Sts_MetaTokens
+#define PTYPE WAKE(Sts_MetaToken)
+#undef PFREEFUN
+#include "pmap.h"
+#undef PNAME
+#undef PTYPE
 
 
 struct Sts_MetaZone {
-  String name;
+  extends__Sts_MetaElement;
 
   Sts_MetaTokens tokens;
   Sts_MetaZones expandZones;
-
-  Sts_MetaStaticParams staticParams;
-  Sts_MetaVariables variables;
-  Sts_MetaEvents events;
 };
-void_errno Sts_MetaZone_init(Sts_MetaZone* zone, String name);
+void Sts_MetaZone_init(Sts_MetaZone* zone, String name);
 void Sts_MetaZone_free(Sts_MetaZone* zone);
 
-// Map Sts_OwnedMetaZonesMap
-void Sts_OwnedMetaZonesMap_freeElements(Sts_OwnedMetaZonesMap* zones);
-// List Sts_MetaZones
+#define PNAME Sts_OwnedMetaZonesMap
+#define PTYPE OWNER(Sts_MetaZone)
+#define PFREEFUN Sts_MetaZone_free
+#include "pmap.h"
+#undef PNAME
+#undef PTYPE
+#undef PFREEFUN
+
+#define PNAME Sts_MetaZones
+#define PTYPE WAKE(Sts_MetaZone)
+#undef PFREEFUN
+#include "plist.h"
+#undef PNAME
+#undef PTYPE
 
 
 struct Sts_MetaFile {
-  Sts_MetaRegexes regexes;
+  Sts_MetaRegexLinks regexes;
   Sts_OwnedMetaZonesMap zones;
   Sts_OwnedMetaTokens tokens;
 
@@ -182,11 +170,12 @@ struct Sts_MetaFile {
 void Sts_MetaFile_init(Sts_MetaFile* metaFile);
 void Sts_MetaFile_free(Sts_MetaFile* metaFile);
 
-// Sts_MetaZone Sts_MetaFile_getZone(Sts_MetaFile* metaFile, String name);
-// Sts_MetaToken Sts_MetaFile_getToken(Sts_MetaFile* metaFile, String name);
 
+void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone) zone);
+Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, ViewString zoneName);
+Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, ViewString zoneName);
+void_errno Sts_MetaFile_delZone(Sts_MetaFile* metaFile, ViewString zoneName);
 
-void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, Sts_MetaZone* zone);
-void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token);
-
-Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, const String name);
+void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, OWNER(Sts_MetaToken) token);
+Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, ViewString tokenName);
+void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, ViewString tokenName);

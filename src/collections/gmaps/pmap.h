@@ -2,6 +2,7 @@
 
 // #define PNAME ...
 // #define PTYPE ...
+// #define PFREEFUN ...
 
 #define CONCAT(a, b) a ## _ ## b
 #define ELEMENT(name) CONCAT(name, element)
@@ -33,4 +34,13 @@ static inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* map, const String
 }
 static inline void FUNCTION(PNAME, free)(PNAME* map) {
   Map_free(map);
+}
+static void FUNCTION(PNAME, freeElements)(PNAME* map) {
+  #ifdef PFREEFUN
+    ELEMENT(NAME)* element = map->first;
+    while (element) {
+      PFREEFUN(element->value);
+      element = element->next;
+    }
+  #endif
 }
