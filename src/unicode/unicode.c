@@ -1,6 +1,6 @@
 #include "unicode.h"
 
-Unicode_UCharInfo Unicode_readUChar(WAKE(char) str, size_t byteLimit) {
+Unicode_UCharInfo Unicode_readUChar(WEAK(char) str, size_t byteLimit) {
   unsigned char* s = (unsigned char*) str;
   uchar uc = 0;
   int errorCode = 0;
@@ -34,12 +34,12 @@ Unicode_UCharInfo Unicode_readUChar(WAKE(char) str, size_t byteLimit) {
   }
 
   return (Unicode_UCharInfo) {
-    .uc = uc;
-    .byteSize = len;
-    .errorCode = errorCode;
+    .uc = uc,
+    .byteSize = len,
+    .errorCode = errorCode
   };
 }
-size_t Unicode_readUCharLength(char startChar) {
+size_t Unicode_readUCharLength(unsigned char startChar) {
   if (startChar < 0x80) return 1;
   if (startChar >= 0xC0 && startChar < 0xE0) return 2;
   if (startChar >= 0xE0 && startChar < 0xF0) return 3;

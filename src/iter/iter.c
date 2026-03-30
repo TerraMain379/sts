@@ -1,12 +1,6 @@
 #include "iter.h"
 
-struct Iter {
-  WAKE(char) const start;
-  WAKE(char) curr;
-  size_t size;
-  Unicode_UCharInfo currUInfo;
-  bool currUInfoIsValid;
-};
+#include "utils.h"
 
 Iter Iter_create(const char* const str, size_t size) {
   return (Iter) {
@@ -16,11 +10,11 @@ Iter Iter_create(const char* const str, size_t size) {
     .currUInfoIsValid = false
   };
 }
-Iter Iter_new(const String string) {
+Iter Iter_new(ViewString vstring) {
   return (Iter) {
-    .start = string.buffer,
-    .curr = string.buffer,
-    .size = string.length,
+    .start = vstring.buffer,
+    .curr = vstring.buffer,
+    .size = vstring.size,
     .currUInfoIsValid = false
   };
 }
@@ -28,12 +22,14 @@ Iter Iter_new(const String string) {
 char Iter_currChar(Iter* iter) {
   return *iter->curr;
 }
-char Iter_nextChar(Iter* iter) {
-  if (iter->size == 0) return 0;
+type_errno(char) Iter_nextChar(Iter* iter) {
+  if (iter->size == 0) {
+    errno = 1; return 0;
+  }
   iter->size--;
   iter->curr++;
   iter->currUInfoIsValid = false;
-  return *iter->curr;
+  errno = 0; return *iter->curr;
 }
 
 uchar Iter_currUChar(Iter* iter) {
@@ -57,11 +53,10 @@ uchar Iter_nextUChar(Iter* iter) {
     byteSize = Unicode_readUCharLength(*iter->curr);
   }
 
-  iter->size -= byteSize;
-  if (iter->size < 0) {
-    iter->size = 0;
-    return 0;
-  }
+  if (byteSize > iter->size) iter->size = 0;
+  else iter->size -= byteSize;
+  // TODO: byteSize > iter->size => crash or exception
+
   iter->curr += byteSize;
   
   Unicode_UCharInfo uinfo = Unicode_readUChar(iter->curr, iter->size);

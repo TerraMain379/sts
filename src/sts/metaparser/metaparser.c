@@ -6,9 +6,9 @@
 #include "mpmodules/group.h"
 #include "mpmodules/regexlink.h"
 #include "mpmodules/setmainzone.h"
-#include "mpmodules/sstsfunction.h"
 #include "mpmodules/token.h"
 #include "mpmodules/zone.h"
+#include "mpmodules/ssts.h"
 
 
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {
@@ -25,9 +25,9 @@ void parseLoop(Context* context);
 
 
 void Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
-  String errLocation = String_const("Sts_MetaParser_parse");
-  if (metaFile == 0) Errors_internal_nullPointer(String_const("Sts_MetaFile* metaFile"), errLocation);
-  if (args == 0) Errors_internal_nullPointer(String_const("Sts_MetaParser_Arguments* args"), errLocation);
+  ViewString errLocation = ViewString_of("Sts_MetaParser_parse");
+  if (metaFile == 0) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
+  if (args == 0) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
   
   Context context = {
     .metaFile = metaFile,
@@ -42,7 +42,7 @@ void parseLoop(Context* context) {
   Iter* iter = &context->iter;
 
   bool flagModificator;
-  Iter_foreachChars(c, iter) {
+  char c; Iter_foreachChars(c, iter) {
     // TODO: In the future, it's worth switching to the dispatch table.
 
     if (c == '#') { 
@@ -64,13 +64,13 @@ void parseLoop(Context* context) {
       }
       else {
         Iter_unsafeBackChar(iter);
-        Errors_metaparser_unkownToken(vs_two('~','~'), context);
+        Errors_metaparser_unkownToken(vs_two('~','~'), iter);
       }
     }
     else if (c == '-') {
-      c = Iter_readChar(iter);
-      if (errno == 0) {
-        Errors_metaparser_unexpectedEnd() // TODO: 
+      c = Iter_nextChar(iter);
+      if (errno != 0) {
+        Errors_metaparser_unexpectedEnd(0, 0, 0); // TODO: 
       }
 
       if (c == '-') {
@@ -85,7 +85,7 @@ void parseLoop(Context* context) {
     }
     else if (c == '[') {
       // TODO: supertokens deleted
-      Errors_metaparser_unkownToken(vs_one('['), context);
+      Errors_metaparser_unkownToken(vs_one('['), iter); // TODO:
     }
     else if (c == '*') {
       parseGroup(context); // TODO:
@@ -94,7 +94,7 @@ void parseLoop(Context* context) {
       parseSstsFunction(context); // TODO:
     }
     else {
-      Errors_metaparser_unkownToken(vs_one(c), context);
+      Errors_metaparser_unkownToken(vs_one(c), iter); // TODO:
     }
   }
 }

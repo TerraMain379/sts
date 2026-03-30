@@ -90,8 +90,8 @@ void FUNCTION(NAME, free)(NAME* list) {
 }
 void FUNCTION(NAME, freeElements)(NAME* list) {
   #ifdef FREEFUN
-    for (int i = 0; i < list->size; i++) {
-      FREEFUN(&list->array[i])
+    for (size_t i = 0; i < list->size; i++) {
+      FREEFUN(&list->array[i]);
     }
   #endif
 }

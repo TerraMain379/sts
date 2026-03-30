@@ -2,6 +2,6 @@
 
 #include "mpmodules/utils.h"
 
-void parseToken(Context* ctx) {
+void parseSstsFunction(Context* ctx) {
   // TODO:
 }

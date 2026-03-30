@@ -1,0 +1,21 @@
+{
+    kind: "CharacterRange",
+    startIndex: 10,
+    endIndex: 13,
+    data: "forw",
+    validData: true,
+    errorCode: "E101",
+    errorName: "unkown token",
+    highlightType: "SELECT",
+    localLink: {
+        type: "PROJECT_FILE",
+        url: "file://project/main.js"
+    }
+    parent: {
+        kind: "LineRange",
+        startIndex: 602,
+        endIndex: 602,
+        data: "        forw(int i = 0; i < 10; i++) {",
+        f
+    }
+ }

@@ -41,12 +41,13 @@ struct ELEMENT(NAME) {
 int FUNCTION(NAME, getHash)(const char* key);
 
 void FUNCTION(NAME, init)(NAME* map);
-WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash);
-WAKE(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, ViewString key);
-type_errno(WAKE(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) map, ViewString key);
-bool FUNCTION(NAME, contains)(BORROW(NAME) map, ViewString key);
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, ViewString key, TYPE value);
-type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, ViewString key);
+MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash);
+MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, BORROW(ViewString) key);
+type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, BORROW(ViewString) key);
+bool FUNCTION(NAME, contains)(BORROW(NAME) map, BORROW(ViewString) key);
+type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, BORROW(ViewString) key, TYPE value);
+type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE value);
+type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, BORROW(ViewString) key);
 void FUNCTION(NAME, free)(NAME* map);
 void FUNCTION(NAME, freeElements)(NAME* map);
 

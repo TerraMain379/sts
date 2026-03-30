@@ -26,17 +26,22 @@ INCLUDE_DIRS = \
 	src/collections \
 	src/collections/gmap \
 	src/collections/gmaps \
+	src/collections/gmaps/pmap \
 	src/collections/glist \
 	src/collections/glists \
+	src/collections/glists/plist \
 	src/errors \
 	src/iter \
 	src/memutils \
 	src/strings \
 	src/sts \
+	src/unicode \
+	src/sources \
+	src/sts/metaparser \
+	src/sts/metaparser/errors \
 
 SRC_DIRS = $(INCLUDE_DIRS) \
-	src/sts/metaparser \
-	src/sts/metaparser/modules \
+	src/sts/metaparser/mpmodules \
 	src/sts/metaparser/parseutils \
 	src/sts/metaparser/iter \
 

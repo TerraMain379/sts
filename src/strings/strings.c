@@ -32,14 +32,17 @@ String String_by(BORROW(char) buffer) {
     .bufferOnHeap = true
   };
 }
+String String_copy(BORROW(ViewString) const vstring) {
+  return String_by(vstring->buffer);
+}
 
-ViewString ViewString_new(WAKE(char) buffer, size_t size) {
+ViewString ViewString_new(WEAK(char) buffer, size_t size) {
   return (ViewString) {
     .buffer = buffer,
     .size = size
   };
 }
-ViewString ViewString_of(WAKE(char) buffer) {
+ViewString ViewString_of(WEAK(char) buffer) {
   return (ViewString) {
     .buffer = buffer,
     .size = getSize(buffer)
@@ -48,26 +51,26 @@ ViewString ViewString_of(WAKE(char) buffer) {
 ViewString ViewString_by(BORROW(String) string) {
   return (ViewString) {
     .buffer = string->buffer,
-    .size = getSize(buffer)
+    .size = getSize(string->buffer)
   };
 }
 
-void String_free(BORROW(String) string) {
+void String_free(String* string) {
   if (string->bufferOnHeap) {
     A_free(string->buffer);
   }
   string->buffer = 0;
   string->bufferOnHeap = false;
 }
-void ViewString_free(BORROW(ViewString) vstring) {
+void ViewString_free(ViewString* vstring) {
   vstring->buffer = 0;
 }
 
-bool ViewStrings_equals(BORROW(ViewString) const vstring1, BORROW(ViewString) const vstring2) {
+bool ViewStrings_equals(BORROW(ViewString) vstring1, BORROW(ViewString) vstring2) {
   if (vstring1->size != vstring2->size) return false;
-  WAKE(char) buffer1 = vstring1->buffer;
-  WAKE(char) buffer2 = vstring2->buffer;
-  for (size_t i = 0; i < vstring->size; i++) {
+  WEAK(char) buffer1 = vstring1->buffer;
+  WEAK(char) buffer2 = vstring2->buffer;
+  for (size_t i = 0; i < vstring1->size; i++) {
     if (buffer1[i] != buffer2[i]) {
       return false;
     }
@@ -79,15 +82,4 @@ bool Strings_equals(BORROW(String) const string1, BORROW(String) const string2) 
     (ViewString*) string1,
     (ViewString*) string2
   );
-}
-
-OWNER(String) Strings_copy(BORROW(ViewString) const vstring) {
-  return String_by(vstring->buffer);
-}
-
-inline bool Chars_isLetter(const char c) {
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-inline bool Chars_isVoid(const char c) {
-  return (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r');
 }

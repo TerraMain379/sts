@@ -1,18 +1,17 @@
-#include "modules/regexlink.h"
+#include "mpmodules/regexlink.h"
 
 #include "metablocks.h"
-#include "modules/utils.h"
+#include "mpmodules/utils.h"
 
 void parseRegexLink(Context* ctx) {
-  skipVoid(ctx);
-  String name = readName(ctx);
-  skipVoid(ctx);
-  readChar(ctx, '"');
-  String regex = readString(ctx);
-  readChar(ctx, '/');
+  Utils_Iter_skipVoid(ctx, false);
+  String name = Utils_Iter_readName(ctx);
+  Utils_Iter_skipVoid(ctx, false);
+  Utils_Iter_readChar(ctx, '"');
+  String regex = Utils_Iter_readString(ctx);
+  Utils_Iter_readChar(ctx, '/');
 
   Sts_MetaRegex metaRegex;
   Sts_MetaRegex_init(&metaRegex, regex);
-  Sts_MetaRegexes_set(ctx->metaFile->regexes, name, regex);
-  String_free(name);
+  Sts_MetaRegexLinks_setByOwnKey(&ctx->metaFile->regexes, &name, metaRegex);
 }

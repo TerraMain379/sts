@@ -1,42 +1,37 @@
-#include "list.h"
+#include "utils.h"
 
 // #define PNAME ...
 // #define PTYPE ...
 // #define PFREEFUN ...
+// #define BASE_LIST ...
 
 #define CONCAT(a, b) a ## _ ## b
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-typedef List PNAME;
+typedef BASE_LIST PNAME;
 
 static inline void FUNCTION(PNAME, init)(PNAME* list, size_t capacity) {
-  List_init(list, capacity);
+  FUNCTION(BASE_LIST, init)(list, capacity);
 }
 static inline void FUNCTION(PNAME, setCapacity)(PNAME* list, size_t capacity) {
-  List_setCapacity(list, capacity);
+  FUNCTION(BASE_LIST, setCapacity)(list, capacity);
 }
 static inline void FUNCTION(PNAME, add)(PNAME* list, PTYPE value) {
-  List_add(list, value);
+  FUNCTION(BASE_LIST, add)(list, value);
 }
 static inline void_errno FUNCTION(PNAME, insert)(PNAME* list, PTYPE value, size_t index) {
-  List_insert(list, value, index);
+  FUNCTION(BASE_LIST, insert)(list, value, index);
 }
 static inline type_errno(PTYPE) FUNCTION(PNAME, set)(PNAME* list, PTYPE value, size_t index) {
-  return (PTYPE) List_set(list, value, index);
+  return (PTYPE) FUNCTION(BASE_LIST, set)(list, value, index);
 }
 static inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* list, size_t index) {
-  return (PTYPE) List_remove(list, index);
+  return (PTYPE) FUNCTION(BASE_LIST, remove)(list, index);
 }
 static inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* list, size_t index) {
-  return (PTYPE*) List_get(list, index);
+  return (PTYPE*) FUNCTION(BASE_LIST, get)(list, index);
 }
 static inline void FUNCTION(PNAME, free)(PNAME* list) {
-  List_free(list);
+  FUNCTION(BASE_LIST, free)(list);
 }
-void FUNCTION(PNAME, freeElements)(PNAME* list) {
-  #ifdef PFREEFUN
-    for (int i = 0; i < list->size; i++) {
-      PFREEFUN(&list->array[i])
-    }
-  #endif
-}
+void FUNCTION(PNAME, freeElements)(PNAME* list);
