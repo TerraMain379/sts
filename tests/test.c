@@ -2,35 +2,23 @@
 
 #include "utils.h"
 
-void setUp() {
-  printf("RUN TESTS: ");
-}
-void tearDown() {
-  printf("TESTS END!");
-}
+void setUp() { }
+void tearDown() { }
 
 
-// #include "test_unicode.h"
-// #include "test_gmaps.h"
-// #include "test_strmap.h"
-// #include "test_lists.h"
-
-#include "test_glists.h"
-#include "test_gmaps.h"
-
-#define NAME RegexRC
-#define TYPE Regex
-#define FREE_FUN Regex_free
-#include "refcount.h"
-#undef NAME
-#undef TYPE
-#undef FREE_FUN
+#include "test_allocator.h"
+#include "test_strings.h"
 
 int main() {
   UNITY_BEGIN();
+  printf("init tests\n");
+  #ifndef BUILD_TESTS
+    printf("please, enable BUILD_TESTS macros\n");
+    return UNITY_END();
+  #endif
 
-  test_glists();
-  test_gmaps();
+  test_allocator();
+  test_strings();
 
   return UNITY_END();
 }

@@ -150,7 +150,7 @@ void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
   Sts_MetaRegexLinks_init(&metaFile->regexes);
   Sts_OwnedMetaZonesMap_init(&metaFile->zones);
   Sts_OwnedMetaTokens_init(&metaFile->tokens);
-  metaFile->mainZone = 0;
+  metaFile->mainZone = null;
   metaFile->properties.name = (String) {0};
   metaFile->properties.sources = (Sources) {0};
 }
@@ -175,15 +175,16 @@ void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone) zone
 }
 Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, ViewString* name) {
   Sts_MetaZone** zoneP = Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
-  if (errno != 0 || zoneP == 0) return 0;
+  if (errno != 0 || zoneP == null) return 0;
   return *zoneP;
 }
 Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, ViewString* name) {
   Sts_MetaZone** zoneP = Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
-  if (errno != 0 || zoneP == 0) {
+  if (errno != 0 || zoneP == null) {
     Sts_MetaZone* zone = A_loc(sizeof(Sts_MetaZone));
     Sts_MetaZone_init(zone, String_copy(name));
     Sts_OwnedMetaZonesMap_set(&metaFile->zones, name, zone);
+    return zone;
   }
   return *zoneP;
 }
@@ -200,7 +201,7 @@ void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token) {
 }
 Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, ViewString* name) {
   Sts_MetaToken** tokenP = Sts_OwnedMetaTokens_get(&metaFile->tokens, name);
-  if (errno != 0 || tokenP == 0) return 0;
+  if (errno != 0 || tokenP == null) return 0;
   return *tokenP;
 }
 void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, ViewString* name) {

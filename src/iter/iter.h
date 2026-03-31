@@ -1,3 +1,5 @@
+#pragma once
+
 #include "utils.h"
 #include "strings.h"
 #include "unicode.h"
@@ -25,14 +27,14 @@ void Iter_unsafeBackUChar(Iter* iter);
 
 // iter: Iter*
 #define Iter_foreachChars(c, iter) \
-  for( \
-    c = Iter_currChar(iter); \
-    c != '\0'; \
-    c = Iter_nextChar(iter) \
+  for ( \
+    (c) = Iter_currChar(iter); \
+    (c) != '\0'; \
+    (c) = Iter_nextChar(iter) \
   )
 #define Iter_foreachUChars(uc, iter) \
-  for( \
-    uchar uc = Iter_currUChar(iter); \
-    uc != 0; \
-    uc = Iter_nextUChar(iter) \
+  for ( \
+    (uc) = Iter_currUChar(iter); \
+    (uc) != 0; \
+    (uc) = Iter_nextUChar(iter) \
   )

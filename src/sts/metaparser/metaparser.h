@@ -1,3 +1,5 @@
+#pragma once
+
 #include "metablocks.h"
 #include "iter.h"
 #include "string.h"

@@ -38,23 +38,23 @@ int FUNCTION(NAME, getHash)(const char* key) {
 
 void FUNCTION(NAME, init)(NAME* map) {
   map->size = 0;
-  map->first = 0;
-  map->last = 0;
+  map->first = null;
+  map->last = null;
 }
 MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash) {
-  if (map->size == 0) return 0;
+  if (map->size == 0) return null;
   ELEMENT(NAME)* element = map->first;
   do {
     if (element->hash == hash) return element;
     element = element->next;
   } while (element);
-  return 0;
+  return null;
 }
 
 MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const ViewString* key) {
   int hash = FUNCTION(NAME, getHash)(key->buffer);
   ELEMENT(NAME)* element = FUNCTION(NAME, getElementByHash)(map, hash);
-  if (!element) return 0;
+  if (!element) return null;
   ELEMENT(NAME)* next = element->next;
   if (next && next->hash == hash) {
     do {
@@ -69,7 +69,7 @@ MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const ViewS
       return element;
     }
   }
-  return 0;
+  return null;
 }
 
 type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, const ViewString* key) {
@@ -77,7 +77,7 @@ type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, const ViewString* key) {
   if (element) {
     errno = 0; return & element->value;
   }
-  errno = 1; return 0;
+  errno = 1; return null;
 }
 bool FUNCTION(NAME, contains)(BORROW(NAME) map, const ViewString* key) {
   ELEMENT(NAME)* element = FUNCTION(NAME, getElement)(map, key);
@@ -92,7 +92,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
     newElement->key = String_copy(key);
     newElement->hash = hash;
     newElement->value = value;
-    newElement->next = 0;
+    newElement->next = null;
     ELEMENT(NAME)* last = map->last;
     if (last) {
       last->next = newElement;
@@ -136,7 +136,7 @@ type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE 
     newElement->key = *key;
     newElement->hash = hash;
     newElement->value = value;
-    newElement->next = 0;
+    newElement->next = null;
     ELEMENT(NAME)* last = map->last;
     if (last) {
       last->next = newElement;
@@ -175,7 +175,7 @@ type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE 
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const ViewString* key) {
   int hash = FUNCTION(NAME, getHash)(key->buffer);
   ELEMENT(NAME)* element = map->first;
-  ELEMENT(NAME)* prev = 0;
+  ELEMENT(NAME)* prev = null;
   while (element) {
     if (element->hash == hash) {
       do {
@@ -210,8 +210,8 @@ void FUNCTION(NAME, free)(NAME* map) {
     element = next;
   }
   map->size = 0;
-  map->first = 0;
-  map->last = 0;
+  map->first = null;
+  map->last = null;
 }
 void FUNCTION(NAME, freeElements)(NAME* map) {
   #ifdef FREEFUN

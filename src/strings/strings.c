@@ -25,7 +25,7 @@ String String_of(OWNER(char) buffer) {
 String String_by(BORROW(char) buffer) {
   size_t size = getSize(buffer);
   OWNER(char) newBuffer = A_loc(sizeof(char)*(size+1));
-  strcpy(newBuffer, buffer);
+  strlcpy(newBuffer, buffer, size+1);
   return (String) {
     .buffer = newBuffer,
     .size = size,
@@ -59,11 +59,11 @@ void String_free(String* string) {
   if (string->bufferOnHeap) {
     A_free(string->buffer);
   }
-  string->buffer = 0;
+  string->buffer = null;
   string->bufferOnHeap = false;
 }
 void ViewString_free(ViewString* vstring) {
-  vstring->buffer = 0;
+  vstring->buffer = null;
 }
 
 bool ViewStrings_equals(BORROW(ViewString) vstring1, BORROW(ViewString) vstring2) {
@@ -82,4 +82,9 @@ bool Strings_equals(BORROW(String) const string1, BORROW(String) const string2) 
     (ViewString*) string1,
     (ViewString*) string2
   );
+}
+
+
+void Strings_strlcpy(char* dest, const char* src, const size_t bufferSize) {
+  strlcpy(dest, src, bufferSize);
 }

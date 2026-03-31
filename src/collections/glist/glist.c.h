@@ -1,5 +1,3 @@
-#include "glist.h"
-
 #include "allocator.h"
 
 // #define NAME ...
@@ -24,15 +22,15 @@ void FUNCTION(NAME, doubleCapacity)(NAME* list) {
 void FUNCTION(NAME, init)(NAME* list, size_t capacity) {
   list->size = 0;
   list->capacity = capacity;
-  list->array = A_loc(sizeof(TYPE)*capacity);
+  list->array = (OWNER(TYPE)) A_xloc(sizeof(TYPE)*capacity);
 }
 void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity) {
   if (capacity == 0) {
-    A_free(list->array);
-    list->array = 0;
+    A_free((void*) list->array);
+    list->array = null;
   }
   else {
-    list->array = A_reloc(list->array, sizeof(TYPE)*capacity);
+    list->array = (OWNER(TYPE)) A_xreloc((void*) list->array, sizeof(TYPE)*capacity);
   }
   list->capacity = capacity;
 }
@@ -81,12 +79,12 @@ type_errno(TYPE) FUNCTION(NAME, remove)(NAME* list, size_t index) {
 }
 type_errno(MUT_WEAK(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) list, size_t index) {
   if (index >= list->size) {
-    errno = 1; return 0;
+    errno = 1; return null;
   }
   errno = 0; return & list->array[index];
 }
 void FUNCTION(NAME, free)(NAME* list) {
-  A_free(list->array);
+  A_free((void*) list->array);
 }
 void FUNCTION(NAME, freeElements)(NAME* list) {
   #ifdef FREEFUN

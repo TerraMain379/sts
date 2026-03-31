@@ -26,8 +26,8 @@ void parseLoop(Context* context);
 
 void Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
   ViewString errLocation = ViewString_of("Sts_MetaParser_parse");
-  if (metaFile == 0) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
-  if (args == 0) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
+  if (metaFile == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
+  if (args == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
   
   Context context = {
     .metaFile = metaFile,
@@ -70,7 +70,7 @@ void parseLoop(Context* context) {
     else if (c == '-') {
       c = Iter_nextChar(iter);
       if (errno != 0) {
-        Errors_metaparser_unexpectedEnd(0, 0, 0); // TODO: 
+        Errors_metaparser_unexpectedEnd(0, null, null); // TODO: 
       }
 
       if (c == '-') {

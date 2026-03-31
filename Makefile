@@ -3,6 +3,9 @@ MAKE = make
 MAKEFILE = Makefile
 CC = gcc
 CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -O3
+TESTS_CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -O0
+SANITIZE_CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -fsanitize=address,undefined
+LDFLAGS = -fsanitize=address,undefined
 
 # output
 BIN_TARGET = main.bin
@@ -49,10 +52,12 @@ TESTS_INCLUDE_DIRS = \
 	tests \
 	tests/unity \
 	tests/collections \
-	tests/collections/glist \
-	tests/collections/glist/tgen \
-	tests/collections/gmap \
-	tests/collections/gmap/tgen \
+	tests/tests \
+
+	# tests/collections/glist \
+	# tests/collections/glist/tgen \
+	# tests/collections/gmap \
+	# tests/collections/gmap/tgen \
 
 TESTS_SRC_DIRS = $(TESTS_INCLUDE_DIRS)
 
@@ -106,9 +111,9 @@ MAKE_TRANFORM_MAIN_FILES: $(TRANSFORM_MAIN_FILES)
 MAKE_TRANFORM_TEST_FILES: $(TRANSFORM_TEST_FILES)
 
 MAKE_BIN_BY_TRANSFORM_MAIN_FILES: $(TRANSFORM_MAIN_FILES)
-	$(CC) $(TRANSFORM_MAIN_FILES) -o $(BIN_TARGET)
+	$(CC) $(LDFLAGS) $(TRANSFORM_MAIN_FILES) -o $(BIN_TARGET)
 MAKE_BIN_BY_TRANSFORM_TEST_FILES: $(TRANSFORM_TEST_FILES)
-	$(CC) $(TRANSFORM_TEST_FILES) -o $(TEST_TARGET)
+	$(CC) $(LDFLAGS) $(TRANSFORM_TEST_FILES) -o $(TEST_TARGET)
 
 # tasks after build
 SED_ENTERS_FOR_DOT_I_FILES: $(TRANSFORM_TEST_FILES)
@@ -123,24 +128,31 @@ build_bin:
 gdb_bin:
 	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 build_test:
-	$(MAKE) --file=$(MAKEFILE) clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 gdb_tests:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -g -DDEBUG -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+sanitize:
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS)" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
+sanitize_tests:
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS) -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 
 build_preprocessor:
 	$(MAKE) --file=$(MAKEFILE) TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
 		clean MAKE_TRANFORM_MAIN_FILES SED_ENTERS_FOR_DOT_I_FILES
 build_test_preprocessor:
-	$(MAKE) --file=$(MAKEFILE) TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -DBUILD_TESTS" TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
 		clean MAKE_TRANFORM_TEST_FILES SED_ENTERS_FOR_DOT_I_FILES
 
 # tasks
-test: build_test
+test: sanitize_tests
 	@printf '\n\n\n'
 	@./$(TEST_TARGET)
 
 run: build_bin
 	@./$(BIN_TARGET)
+
+clang_tidy:
+	run-clang-tidy -p . -checks='-*,clang-analyzer-*,bugprone-*,performance-*,portability-*,-portability-avoid-pragma-once, -bugprone-reserved-identifier, -bugprone-easily-swappable-parameters'
 
 tokei:
 	@echo '### SRC ###'

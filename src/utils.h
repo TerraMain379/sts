@@ -12,4 +12,6 @@
 
 #define void_stop void
 
+#define null NULL
+
 #define take
