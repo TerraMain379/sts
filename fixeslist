@@ -1,0 +1,18 @@
+added declarations model (metablocks.h|c declarations.h|c)
+completed sources.h|c (Source, Sources, SPDMode, Source_byIters)
+added print.h|c autogenerate system
+added stringbuilder.h|c
+improved mpmodules/token.c 
+added Iter#copy
+changed metaparser.h/c (added metadeta, jmp_buf for errors)
+added errors.h|c for global errors
+added macros non_call_return to create a stub after error call for the checkers
+added StringList#contains and ViewStringList#contains methods
+added Utils_Iter_skipChar and Utils_Iter_readNumber to mpmodules/utils.h|c
+improved mpmodules/utils.h|c
+improved Iter interface
+added String_atoi proxy for atoi
+changed glist#add and plist#add (now returns pointer)
+fixed mpmodules/regexlink.c 
+fixed plist#freeElements
+fixed gmap.h|c

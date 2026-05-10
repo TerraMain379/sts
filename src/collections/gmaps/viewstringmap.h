@@ -9,3 +9,5 @@
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
+
+dec_print(ViewStringMap);

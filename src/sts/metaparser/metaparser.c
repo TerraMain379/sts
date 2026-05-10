@@ -1,6 +1,6 @@
 #include "metaparser.h"
-#define Context Sts_MetaParser_Context
-// #define Arguments Sts_MetaParser_Arguments
+
+#include "errors.h"
 #include "metaparser_errors.h"
 
 #include "mpmodules/group.h"
@@ -9,6 +9,8 @@
 #include "mpmodules/token.h"
 #include "mpmodules/zone.h"
 #include "mpmodules/ssts.h"
+
+typedef Sts_MetaParser_Context Context;
 
 
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {
@@ -24,7 +26,7 @@ void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments) {
 void parseLoop(Context* context);
 
 
-void Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
+void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
   ViewString errLocation = ViewString_of("Sts_MetaParser_parse");
   if (metaFile == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
   if (args == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
@@ -32,14 +34,20 @@ void Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(S
   Context context = {
     .metaFile = metaFile,
     .iter = iter,
-    .args = args
+    .args = args,
   };
+
+  if (setjmp(context.errjmp) != 0) { // ERROR EXIT
+    errno = 1; return;
+  }
   
   parseLoop(&context);
 }
 
 void parseLoop(Context* context) {
   Iter* iter = &context->iter;
+
+  ViewString* filename = (ViewString*) &context->args->metadata.filename;
 
   bool flagModificator;
   char c; Iter_foreachChars(c, iter) {
@@ -64,13 +72,26 @@ void parseLoop(Context* context) {
       }
       else {
         Iter_unsafeBackChar(iter);
-        Errors_metaparser_unkownToken(vs_two('~','~'), iter);
+        Iter iter2 = *iter;
+        while (Iter_currChar(&iter2) != '~') {
+          Iter_unsafeBackChar(&iter2);
+        }
+        Errors_metaparser_unkownToken(context, Source_byIters(
+          filename,
+          &iter2, SPD_new2(SPDMode_CURR_CHAR),
+          iter, SPD_new2(SPDMode_CURR_CHAR)
+        ));
       }
     }
     else if (c == '-') {
       c = Iter_nextChar(iter);
       if (errno != 0) {
-        Errors_metaparser_unexpectedEnd(0, null, null); // TODO: 
+        Errors_metaparser_unexpectedEnd(context, Source_byIter(
+          filename,
+          iter,
+          SPD_new2(SPDMode_CURR_LINE),
+          SPD_new2(SPDMode_CURR_CHAR)
+        ));
       }
 
       if (c == '-') {
@@ -85,7 +106,12 @@ void parseLoop(Context* context) {
     }
     else if (c == '[') {
       // TODO: supertokens deleted
-      Errors_metaparser_unkownToken(vs_one('['), iter); // TODO:
+      Errors_metaparser_unkownToken(context, Source_byIter(
+        filename,
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
     }
     else if (c == '*') {
       parseGroup(context); // TODO:
@@ -94,7 +120,12 @@ void parseLoop(Context* context) {
       parseSstsFunction(context); // TODO:
     }
     else {
-      Errors_metaparser_unkownToken(vs_one(c), iter); // TODO:
+      Errors_metaparser_unkownToken(context, Source_byIter(
+        filename,
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
     }
   }
 }

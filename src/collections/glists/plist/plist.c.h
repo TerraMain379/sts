@@ -8,8 +8,9 @@
 
 void FUNCTION(PNAME, freeElements)(PNAME* list) {
   #ifdef PFREEFUN
-    for (int i = 0; i < list->size; i++) {
-      PFREEFUN(&list->array[i])
+    for (size_t i = 0; i < list->size; i++) {
+      PFREEFUN(list->array[i]);
+      A_free(list->array[i]);
     }
   #endif
 }

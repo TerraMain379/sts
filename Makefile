@@ -35,6 +35,7 @@ INCLUDE_DIRS = \
 	src/collections/glists/plist \
 	src/errors \
 	src/iter \
+	src/stringbuilder \
 	src/memutils \
 	src/strings \
 	src/sts \
@@ -126,7 +127,7 @@ SED_ENTERS_FOR_DOT_I_FILES: $(TRANSFORM_TEST_FILES)
 build_bin:
 	$(MAKE) --file=$(MAKEFILE) clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 gdb_bin:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 build_test:
 	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 gdb_tests:

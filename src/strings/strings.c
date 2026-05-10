@@ -1,6 +1,7 @@
 #include "strings.h"
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "allocator.h"
 
@@ -87,4 +88,7 @@ bool Strings_equals(BORROW(String) const string1, BORROW(String) const string2) 
 
 void Strings_strlcpy(char* dest, const char* src, const size_t bufferSize) {
   strlcpy(dest, src, bufferSize);
+}
+int Strings_atoi(const char* string) {
+  return atoi(string);
 }

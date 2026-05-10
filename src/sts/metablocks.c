@@ -1,5 +1,7 @@
 #include "metablocks.h"
 
+#include "stringbuilder.h"
+
 #define NAME Sts_MetaRegexLinks
 #define TYPE Sts_MetaRegex
 #define NULLV (Sts_MetaRegex) {0}
@@ -78,6 +80,71 @@
 #undef PTYPE
 #undef BASE_LIST
 
+#define NAME Sts_MetaDeclarationValueList
+#define TYPE Sts_MetaDeclarationValue
+#define NULLV (Sts_MetaDeclarationValue) {0}
+#define FREEFUN Sts_MetaDeclarationValue_free
+#include "glist.c.h"
+#undef NAME
+#undef TYPE
+#undef NULLV
+#undef FREEFUN
+
+#define NAME Sts_MetaSuperRegexDeclarationElements
+#define TYPE Sts_MetaSuperRegexDeclarationElement
+#define NULLV (Sts_MetaSuperRegexDeclarationElement) {0}
+#define FREEFUN Sts_MetaSuperRegexDeclarationElement_free
+#include "glist.c.h"
+#undef NAME
+#undef TYPE
+#undef NULLV
+#undef FREEFUN
+
+#define PNAME Sts_MetaDeclarationList
+#define PTYPE OWNER(Sts_MetaDeclaration)
+#define PFREEFUN Sts_MetaDeclaration_free
+#define BASE_LIST List
+#include "plist.c.h"
+#undef PNAME
+#undef PTYPE
+#undef PFREEFUN
+#undef BASE_LIST
+
+#define PNAME Sts_MetaDeclarationValuesWeakList
+#define PTYPE WEAK(Sts_MetaDeclarationValue)
+#undef PFREEFUN
+#define BASE_LIST ConstList
+#include "plist.c.h"
+#undef PNAME
+#undef PTYPE
+#undef BASE_LIST
+dec_print(Sts_MetaDeclarationValuesWeakList);
+
+#define NAME Sts_MetaDeclarationValuesLinks
+#define TYPE Sts_MetaDeclarationValuesWeakList
+#define NULLV (Sts_MetaDeclarationValuesWeakList) {0}
+#define FREEFUN Sts_MetaDeclarationValuesWeakList_free
+#include "gmap.c.h"
+#undef NAME
+#undef TYPE
+#undef NULLV
+#undef FREEFUN
+Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, ViewString* key) {
+  if (!Sts_MetaDeclarationValuesLinks_contains(valuesLinks, key)) {
+    Sts_MetaDeclarationValuesWeakList list;
+    Sts_MetaDeclarationValuesWeakList_init(&list, 2);
+    Sts_MetaDeclarationValuesLinks_set(valuesLinks, key, list);
+  }
+  return Sts_MetaDeclarationValuesLinks_get(valuesLinks, key);
+}
+void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, Sts_MetaDeclarationValue* decValue) {
+  Sts_MetaDeclarationValuesWeakList* valuesWeakList = Sts_MetaDeclarationValuesLinks_getOrCreate(
+    valuesLinks,
+    (ViewString*) &decValue->value.linkName
+  );
+  Sts_MetaDeclarationValuesWeakList_add(valuesWeakList, decValue);
+}
+
 
 void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex) {
   metaRegex->regex = regex;
@@ -132,6 +199,87 @@ void Sts_MetaToken_free(Sts_MetaToken* token) {
   Sts_MetaElement_free((Sts_MetaElement*) token);
 }
 
+void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue) {
+  Sts_MetaDeclarationValueType type = decValue->type;
+  if (type == Sts_MetaDeclarationValueType_NAME) {
+    String_free(&decValue->value.name);
+  }
+  else if (type == Sts_MetaDeclarationValueType_STRING) {
+    String_free(&decValue->value.string);
+  }
+  else if (type == Sts_MetaDeclarationValueType_EXPRESSION) {
+    Sts_MetaDeclarationExpression_free(decValue->value.expression);
+    A_free(decValue->value.expression);
+  }
+  else if (type == Sts_MetaDeclarationValueType_LINK) {
+    String_free(&decValue->value.linkName);
+  }
+}
+void Sts_MetaDeclarationExpression_free(Sts_MetaDeclarationExpression* decExpression) {
+  Sts_MetaDeclarationValue_free(&decExpression->value1);
+  Sts_MetaDeclarationValue_free(&decExpression->value2);
+}
+void Sts_MetaDeclarationTyping_free(Sts_MetaDeclarationTyping* decTyping) {
+  // TODO: 
+}
+void Sts_MetaParamDeclaration_free(Sts_MetaParamDeclaration* paramDec) {
+  Sts_MetaDeclarationValue_free(&paramDec->name);
+  Sts_MetaDeclarationValueList_freeElements(&paramDec->values);
+  Sts_MetaDeclarationValueList_free(&paramDec->values);
+}
+void Sts_MetaVariableDeclaration_free(Sts_MetaVariableDeclaration* variableDec) {
+  Sts_MetaDeclarationValue_free(&variableDec->name);
+  Sts_MetaDeclarationValue_free(&variableDec->value);
+  Sts_MetaDeclarationTyping_free(&variableDec->typing);
+}
+void Sts_MetaEventDeclaration_free(Sts_MetaEventDeclaration* eventDec) {
+  Sts_MetaDeclarationValue_free(&eventDec->name);
+  Sts_MetaDeclarationValue_free(&eventDec->event);
+}
+void Sts_MetaZoneExtendDeclaration_free(Sts_MetaZoneExtendDeclaration* zoneExtendDec) {
+  Sts_MetaDeclarationValue_free(&zoneExtendDec->zoneName);
+}
+void Sts_MetaSuperRegexDeclarationElement_free(Sts_MetaSuperRegexDeclarationElement* regexDecElement) {
+  Sts_MetaDeclarationValue_free(&regexDecElement->token);
+  Sts_MetaDeclarationValue_free(&regexDecElement->name);
+}
+void Sts_MetaSuperRegexDeclaration_free(Sts_MetaSuperRegexDeclaration* regexDec) {
+  Sts_MetaSuperRegexDeclarationElements_freeElements(&regexDec->elements);
+  Sts_MetaSuperRegexDeclarationElements_free(&regexDec->elements);
+}
+void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
+  Sts_MetaDeclarationType type = declaration->type;
+  if (type == Sts_MetaDeclarationType_PARAM) {
+    Sts_MetaParamDeclaration_free(&declaration->value.param);
+  }
+  else if (type == Sts_MetaDeclarationType_VARIABLE) {
+    Sts_MetaVariableDeclaration_free(&declaration->value.variable);
+  }
+  else if (type == Sts_MetaDeclarationType_EVENT) {
+    Sts_MetaEventDeclaration_free(&declaration->value.event);
+  }
+  else if (type == Sts_MetaDeclarationType_ZONE_EXTEND) {
+    Sts_MetaZoneExtendDeclaration_free(&declaration->value.zoneExtend);
+  }
+  else if (type == Sts_MetaDeclarationType_SUPER_REGEX) {
+    Sts_MetaSuperRegexDeclaration_free(&declaration->value.superRegex);
+  }
+}
+
+void Sts_MetaDeclarationsBlock_init(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationsBlockType type) {
+  decBlock->type = type;
+  Sts_MetaDeclarationList_init(&decBlock->declarations, 5);
+  StringList_init(&decBlock->linkNames, 1);
+  Sts_MetaDeclarationValuesLinks_init(&decBlock->links);
+}
+void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock) {
+  Sts_MetaDeclarationList_freeElements(&decBlock->declarations);
+  Sts_MetaDeclarationList_free(&decBlock->declarations);
+  StringList_freeElements(&decBlock->linkNames);
+  StringList_free(&decBlock->linkNames);
+  Sts_MetaDeclarationValuesLinks_freeElements(&decBlock->links);
+  Sts_MetaDeclarationValuesLinks_free(&decBlock->links);
+}
 
 void Sts_MetaZone_init(Sts_MetaZone* zone, String name) {
   Sts_MetaElement_init((Sts_MetaElement*) zone, name);

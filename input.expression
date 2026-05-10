@@ -1,0 +1,7 @@
+g: abc;
+abc: g;
+operations: -a + b / 1 - c * 2 ** 3 ** 4;
+a: ++a--;
+parentZones: mainZone, helperZone, utilsZone, generic;
+parentZones: a ** c;
+closeZone;

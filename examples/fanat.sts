@@ -135,22 +135,22 @@ CLASS_LINKLIST_NEXT! {
 [_CLASS_ANY] <class_type> {
   openTrigger: class_type;
   closeTrigger: CLASS_END;
-  Body! {
+  regex! {
     ?MODIFICATORS modificators;
     class_type class;
     ?CLASS_NAME name;
     ?CLASS_EXTEND extend;
     ?CLASS_IMPLEMENT implement;
     ?CLASS_BODY body;
-    CLASS_END end;
+    CLASS_END;
   }
-  $modificators'token = modificators;
-  $name's = name.$text;
-  $extends'[token] = extend.$childs;
-  $implements'[token] = implements.$childs;
-  $body'token = body;
+  $[modificators:obj] = modificators;
+  $[name:str] = name.$text;
+  $[extends:[obj]] = extend.$childs;
+  $[implements:[token]] = implements.$childs;
+  $[body:token] = body;
 }
-[CLASS] <- _CLASS_ANY <CLASS_CLASS> {}
-[STRUCT] <- _CLASS_ANY <CLASS_STRUCT> {}
-[ENUM] <- _CLASS_ANY <CLASS_ENUM> {}
-[INTERFACE] <- _CLASS_ANY <CLASS_INTERFACE> {}
+[CLASS] <- _CLASS_ANY <CLASS_CLASS>;
+[STRUCT] <- _CLASS_ANY <CLASS_STRUCT>;
+[ENUM] <- _CLASS_ANY <CLASS_ENUM>;
+[INTERFACE] <- _CLASS_ANY <CLASS_INTERFACE>;

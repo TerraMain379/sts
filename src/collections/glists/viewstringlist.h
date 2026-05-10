@@ -9,3 +9,6 @@
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
+
+dec_print(ViewStringList);
+bool ViewStringList_contains(ViewStringList* list, BORROW(ViewString) vs);

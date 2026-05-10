@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "print.h"
 
 typedef struct ViewString {
   WEAK(char) buffer;
@@ -13,11 +14,13 @@ typedef struct String /* extends ViewString */ {
   bool bufferOnHeap;
 } String;
 
+dec_print(String);
 String String_new(OWNER(char) buffer, size_t size, bool bufferOnHeap);
 String String_of(OWNER(char) buffer); // use buffer; bufferOnHeap = true
 String String_by(BORROW(char) buffer); // copy buffer; bufferOnHeap = true
 String String_copy(BORROW(ViewString) vstring); // bufferOnHeap = true
 
+dec_print(ViewString);
 ViewString ViewString_new(WEAK(char) buffer, size_t size);
 ViewString ViewString_of(WEAK(char) buffer);
 ViewString ViewString_by(BORROW(String) string);
@@ -41,3 +44,4 @@ static inline bool Chars_isVoid(const char c) {
 
 
 void Strings_strlcpy(char* dest, const char* src, const size_t bufferSize);
+int Strings_atoi(const char* string);

@@ -28,3 +28,96 @@ GENERIC1 <param1> {
     
   ]
 }
+
+
+
+tokens:
+  TOKEN { }
+  TOKEN! { }
+  TOKEN : AB, CD { }
+  TOKEN : AB, CD;
+  TOKEN! : AB, CD { }
+  TOKEN! : AB, CD;
+  TOKEN : AB<n, m>, CD { }
+  TOKEN : AB<n, m>, CD;
+  TOKEN! : AB<n, m>, CD { }
+  TOKEN! : AB<n, m>, CD;
+tokens generics:
+  TOKEN<N, M> { }
+  TOKEN<N, M> : AB, CD { }
+  TOKEN<N, M> : AB<n, m>, CD { }
+
+
+# parseToken
+READ_NAME
+SKIP_VOID false
+switch: (strict = false)
+  '!':
+    isGhost = true;
+    SKIP_VOID false
+  '<':
+    isGeneric = true;
+    loop:
+      SKIP_VOID false
+      READ_NAME > list
+      SKIP_VOID false
+      switch:
+        '>': break
+        ',': continue
+        else: error
+switch:
+  ':':
+    loop:
+      SKIP_VOID false
+      READ_NAME > list
+      SKIP_VOID false
+      switch:
+        '<': # read use generic params
+          loop:
+            SKIP_VOID false
+            READ_PARAM > list
+            SKIP_VOID false
+            switch:
+              '>': break
+              ',': continue
+              else: error
+        '{': break
+        ',': continue
+        else: error
+  '{': break
+  else: error
+READ_BODY
+
+
+
+# 1. chars shift
+Sourse_byIter(
+  ITER = iter,
+  LEFT_POINT = {
+    mode = CHAR_BACK_SHIFT,
+    value = 2,
+  },
+  RIGHT_POINT = {
+    mode = CHAR_BACK_SHIFT,
+    value = 1,
+  },
+)
+# 2. lines
+Sourse_byIter(
+  ITER = iter,
+  LEFT_POINT = {
+    mode = LINE_BACK_SHIFT,
+    value = 1,
+  },
+  RIGHT_POINT = {
+    mode = LINE,
+  },
+)
+
+
+TOKEN {
+  parentZone: a, b, c;
+  priority: TOKEN2.priority + 1; # impossible with current arch
+}
+
+# на данный момент все статические поля могут просто содержать значение или значения. Никаких сложных объектов или математический операций

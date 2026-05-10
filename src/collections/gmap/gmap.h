@@ -27,7 +27,7 @@ typedef struct ELEMENT(NAME) ELEMENT(NAME);
 struct NAME {
   size_t size;
   OWNER(ELEMENT(NAME)) first;
-  OWNER(ELEMENT(NAME)) last;
+  MUT_WEAK(ELEMENT(NAME)) last;
 };
 
 // gmap_element
@@ -35,7 +35,7 @@ struct ELEMENT(NAME) {
   String key;
   int hash;
   TYPE value;
-  MUT_WEAK(ELEMENT(NAME)) next;
+  OWNER(ELEMENT(NAME)) next;
 };
 
 int FUNCTION(NAME, getHash)(const char* key);
@@ -46,7 +46,7 @@ MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, BORROW(View
 type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, BORROW(ViewString) key);
 bool FUNCTION(NAME, contains)(BORROW(NAME) map, BORROW(ViewString) key);
 type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, BORROW(ViewString) key, TYPE value);
-type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE value);
+type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value);
 type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, BORROW(ViewString) key);
 void FUNCTION(NAME, free)(NAME* map);
 void FUNCTION(NAME, freeElements)(NAME* map);

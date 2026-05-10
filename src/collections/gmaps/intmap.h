@@ -8,3 +8,5 @@
 #undef NAME
 #undef TYPE
 #undef NULLV
+
+dec_print(IntMap);

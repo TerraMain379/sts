@@ -12,6 +12,9 @@
 
 #define void_stop void
 
+// non_call_return for after void_stop non checkers target return
+#define non_call_return return
+
 #define null NULL
 
 #define take

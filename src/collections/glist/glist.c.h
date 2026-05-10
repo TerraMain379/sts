@@ -34,12 +34,14 @@ void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity) {
   }
   list->capacity = capacity;
 }
-void FUNCTION(NAME, add)(NAME* list, TYPE value) {
+TYPE* FUNCTION(NAME, add)(NAME* list, TYPE value) {
   if (list->size == list->capacity) {
     FUNCTION(NAME, doubleCapacity)(list);
   }
   list->array[list->size] = value;
+  TYPE* ptr = &list->array[list->size];
   list->size++;
+  return ptr;
 }
 void_errno FUNCTION(NAME, insert)(NAME* list, TYPE value, size_t index) {
   if (index >= list->size) {

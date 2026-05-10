@@ -88,7 +88,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
   if (!hashElement) {
-    ELEMENT(NAME)* newElement = A_loc(sizeof(ELEMENT(NAME)));
+    ELEMENT(NAME)* newElement = A_xloc(sizeof(ELEMENT(NAME)));
     newElement->key = String_copy(key);
     newElement->hash = hash;
     newElement->value = value;
@@ -117,7 +117,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
     element = element->next;
   } while (element && element->hash == hash);
 
-  ELEMENT(NAME)* newElement = A_loc(sizeof(ELEMENT(NAME)));
+  ELEMENT(NAME)* newElement = A_xloc(sizeof(ELEMENT(NAME)));
   newElement->key = String_copy(key);
   newElement->hash = hash;
   newElement->value = value;
@@ -127,13 +127,13 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
   map->size++;
   errno = 0; return NULLV;
 }
-type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE value) {
-  int hash = FUNCTION(NAME, getHash)(key->buffer);
+type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value) {
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
   if (!hashElement) {
-    ELEMENT(NAME)* newElement = A_loc(sizeof(ELEMENT(NAME)));
-    newElement->key = *key;
+    ELEMENT(NAME)* newElement = A_xloc(sizeof(ELEMENT(NAME)));
+    newElement->key = key;
     newElement->hash = hash;
     newElement->value = value;
     newElement->next = null;
@@ -153,17 +153,16 @@ type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, TYPE 
 
   ELEMENT(NAME)* element = hashElement;
   do {
-    if (ViewStrings_equals((ViewString*) key, (ViewString*) &element->key)) {
+    if (Strings_equals(&key, &element->key)) {
       TYPE oldValue = element->value;
       element->value = value;
-      String_free(key);
       errno = 1; return oldValue;
     }
     element = element->next;
   } while (element && element->hash == hash);
 
-  ELEMENT(NAME)* newElement = A_loc(sizeof(ELEMENT(NAME)));
-  newElement->key = *key;
+  ELEMENT(NAME)* newElement = A_xloc(sizeof(ELEMENT(NAME)));
+  newElement->key = key;
   newElement->hash = hash;
   newElement->value = value;
 

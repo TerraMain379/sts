@@ -5,6 +5,8 @@
 
 String Utils_Iter_readName(Context* ctx);
 void Utils_Iter_skipVoid(Context* ctx, bool strict);
-void Utils_Iter_readChar(Context* ctx, char c);
+bool Utils_Iter_readChar(Context* ctx, char c);
+void_stop Utils_Iter_skipChar(Context* ctx, char c);
 String Utils_Iter_readString(Context* ctx);
+double Utils_Iter_readNumber(Context* ctx);
 

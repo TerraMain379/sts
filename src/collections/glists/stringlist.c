@@ -9,3 +9,11 @@
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
+
+bool StringList_contains(StringList* list, BORROW(ViewString) vs) {
+  for (size_t i = 0; i < list->size; i++) {
+    String* s = &list->array[i];
+    if (ViewStrings_equals((ViewString*) s, vs)) return true;
+  }
+  return false;
+}
