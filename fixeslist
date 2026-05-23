@@ -1,18 +1,26 @@
-added declarations model (metablocks.h|c declarations.h|c)
-completed sources.h|c (Source, Sources, SPDMode, Source_byIters)
-added print.h|c autogenerate system
-added stringbuilder.h|c
-improved mpmodules/token.c 
-added Iter#copy
-changed metaparser.h/c (added metadeta, jmp_buf for errors)
-added errors.h|c for global errors
-added macros non_call_return to create a stub after error call for the checkers
-added StringList#contains and ViewStringList#contains methods
-added Utils_Iter_skipChar and Utils_Iter_readNumber to mpmodules/utils.h|c
-improved mpmodules/utils.h|c
-improved Iter interface
-added String_atoi proxy for atoi
-changed glist#add and plist#add (now returns pointer)
-fixed mpmodules/regexlink.c 
-fixed plist#freeElements
-fixed gmap.h|c
+changed memtypes macros to visual annotations (disabled automatic * addition)
+implemented functions in errors.c
+implemented functions in metaparser_errors.c
+added declarations list (Sts_MetaDeclarationsBlocks) to Sts_MetaFile
+added logger.h/c
+added printers based on print.h|c (generate files, declaration macros, implements for debug printing)
+changed Strings and ViewStrings to pass by value throughout the project
+updated Utils_Iter_skipChar: comments support
+added SPDModes for SourcePointDescription system: CURR_WORD, BACK_WORD_SHIFT, FORWARD_WORD_SHIFT
+changed Source structure: added SourceSpan and SourceCoords
+fixed spelling of "unknown"
+added ViewStrings_toJson
+added String_copyString
+added String_const
+added Strings_getLen
+added StringBuilder#addCharBuffer
+added Errors_metaparser_emptyExpression
+added location tracking to allocator for error messages
+refactored sources.c (some logic is encapsulated)
+changed Iter_new and Iter_copy to accept arguments by value
+added "bear" task to Makefile
+added tests to test_strings.c
+edited Sts_MetaParser_Context
+refactored declaration.c
+refactored regexlink.c, token.c, setmainzone.c
+fixed Makefile LDFLAGS

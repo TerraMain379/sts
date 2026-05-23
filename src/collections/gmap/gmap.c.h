@@ -18,16 +18,8 @@
 #define ELEMENT(name) CONCAT(name, element)
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-// void FUNCTION(NAME, init)(NAME* map);
-// ELEMENT(NAME)* FUNCTION(NAME, getElementByHash)(NAME* map, int hash);
-// ELEMENT(NAME)* FUNCTION(NAME, getElement)(NAME* map, ViewString key);
-// type_errno(TYPE) FUNCTION(NAME, get)(NAME* map, ViewString key);
-// bool FUNCTION(NAME, contains)(NAME* map, ViewString key);ViewString key
-// type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, ViewString key, TYPE value);
-// type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, ViewString key);
-// void FUNCTION(NAME, free)(NAME* map);
 
-int FUNCTION(NAME, getHash)(const char* key) {
+int FUNCTION(NAME, getHash)(BORROW(char*) key) {
   int hash = 0;
   while (*key) {
     hash = hash * 31 + *key;
@@ -41,7 +33,7 @@ void FUNCTION(NAME, init)(NAME* map) {
   map->first = null;
   map->last = null;
 }
-MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash) {
+MUT_WEAK(ELEMENT(NAME)*) FUNCTION(NAME, getElementByHash)(BORROW(NAME*) map, int hash) {
   if (map->size == 0) return null;
   ELEMENT(NAME)* element = map->first;
   do {
@@ -51,40 +43,40 @@ MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int h
   return null;
 }
 
-MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, const ViewString* key) {
-  int hash = FUNCTION(NAME, getHash)(key->buffer);
+MUT_WEAK(ELEMENT(NAME)*) FUNCTION(NAME, getElement)(BORROW(NAME*) map, BORROW(ViewString) key) {
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* element = FUNCTION(NAME, getElementByHash)(map, hash);
   if (!element) return null;
   ELEMENT(NAME)* next = element->next;
   if (next && next->hash == hash) {
     do {
-      if (ViewStrings_equals(key, (ViewString*) &element->key)) {
+      if (ViewStrings_equals(key, ViewString_by(element->key))) {
         return element;
       }
       element = element->next;
     } while (element && element->hash == hash);
   }
   else {
-    if (ViewStrings_equals(key, (ViewString*) &element->key)) {
+    if (ViewStrings_equals(key, ViewString_by(element->key))) {
       return element;
     }
   }
   return null;
 }
 
-type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, const ViewString* key) {
+type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME*) map, BORROW(ViewString) key) {
   ELEMENT(NAME)* element = FUNCTION(NAME, getElement)(map, key);
   if (element) {
     errno = 0; return & element->value;
   }
   errno = 1; return null;
 }
-bool FUNCTION(NAME, contains)(BORROW(NAME) map, const ViewString* key) {
+bool FUNCTION(NAME, contains)(BORROW(NAME*) map, BORROW(ViewString) key) {
   ELEMENT(NAME)* element = FUNCTION(NAME, getElement)(map, key);
   return (bool) element;
 }
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE value) {
-  int hash = FUNCTION(NAME, getHash)(key->buffer);
+type_errno(OWNER(TYPE)) FUNCTION(NAME, set)(NAME* map, BORROW(ViewString) key, OWNER(TYPE) value) {
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
   if (!hashElement) {
@@ -109,7 +101,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
 
   ELEMENT(NAME)* element = hashElement;
   do {
-    if (ViewStrings_equals(key, (ViewString*) &element->key)) {
+    if (ViewStrings_equals(key, ViewString_by(element->key))) {
       TYPE oldValue = element->value;
       element->value = value;
       errno = 1; return oldValue;
@@ -127,7 +119,7 @@ type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, const ViewString* key, TYPE valu
   map->size++;
   errno = 0; return NULLV;
 }
-type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value) {
+type_errno(OWNER(TYPE)) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, OWNER(TYPE) value) {
   int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* hashElement = FUNCTION(NAME, getElementByHash)(map, hash);
 
@@ -153,7 +145,7 @@ type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value) 
 
   ELEMENT(NAME)* element = hashElement;
   do {
-    if (Strings_equals(&key, &element->key)) {
+    if (Strings_equals(key, element->key)) {
       TYPE oldValue = element->value;
       element->value = value;
       errno = 1; return oldValue;
@@ -171,21 +163,21 @@ type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value) 
   map->size++;
   errno = 0; return NULLV;
 }
-type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, const ViewString* key) {
-  int hash = FUNCTION(NAME, getHash)(key->buffer);
+type_errno(OWNER(TYPE)) FUNCTION(NAME, remove)(NAME* map, BORROW(ViewString) key) {
+  int hash = FUNCTION(NAME, getHash)(key.buffer);
   ELEMENT(NAME)* element = map->first;
   ELEMENT(NAME)* prev = null;
   while (element) {
     if (element->hash == hash) {
       do {
-        if (ViewStrings_equals(key, (ViewString*) &element->key)) {
+        if (ViewStrings_equals(key, ViewString_by(element->key))) {
           TYPE value = element->value;
 
           if (prev) prev->next = element->next;
           else if (map->first == element) map->first = element->next;
           if (map->last == element) map->last = prev;
 
-          String_free(& element->key);
+          String_free(&element->key);
           A_free(element);
 
           map->size--;
@@ -204,7 +196,7 @@ void FUNCTION(NAME, free)(NAME* map) {
   ELEMENT(NAME)* element = map->first;
   while (element) {
     ELEMENT(NAME)* next = element->next;
-    String_free(& element->key);
+    String_free(&element->key);
     A_free(element);
     element = next;
   }

@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "allocator.h"
 
-String Files_readFile(ViewString filename) {
+OWNER(String) Files_readFile(BORROW(ViewString) filename) {
   const char* filenameBuffer;
   char buffer[filename.size + 1];
   if (filename.buffer[filename.size] == '\0') {
@@ -40,7 +40,7 @@ String Files_readFile(ViewString filename) {
     return String_new(null, 0, false);
   }
   
-  OWNER(char) data = A_xloc(sizeof(char) * (fileSize + 1));
+  OWNER(char*) data = A_xloc(sizeof(char) * (fileSize + 1));
   
   size_t bytesRead = fread(data, sizeof(char), fileSize, file);
   data[bytesRead] = '\0';

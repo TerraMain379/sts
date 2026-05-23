@@ -22,7 +22,7 @@ void FUNCTION(NAME, doubleCapacity)(NAME* list) {
 void FUNCTION(NAME, init)(NAME* list, size_t capacity) {
   list->size = 0;
   list->capacity = capacity;
-  list->array = (OWNER(TYPE)) A_xloc(sizeof(TYPE)*capacity);
+  list->array = (OWNER(TYPE*)) A_xloc(sizeof(TYPE)*capacity);
 }
 void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity) {
   if (capacity == 0) {
@@ -30,11 +30,11 @@ void FUNCTION(NAME, setCapacity)(NAME* list, size_t capacity) {
     list->array = null;
   }
   else {
-    list->array = (OWNER(TYPE)) A_xreloc((void*) list->array, sizeof(TYPE)*capacity);
+    list->array = (OWNER(TYPE*)) A_xreloc((void*) list->array, sizeof(TYPE)*capacity);
   }
   list->capacity = capacity;
 }
-TYPE* FUNCTION(NAME, add)(NAME* list, TYPE value) {
+MUT_BORROW(TYPE*) FUNCTION(NAME, add)(NAME* list, OWNER(TYPE) value) {
   if (list->size == list->capacity) {
     FUNCTION(NAME, doubleCapacity)(list);
   }
@@ -43,7 +43,7 @@ TYPE* FUNCTION(NAME, add)(NAME* list, TYPE value) {
   list->size++;
   return ptr;
 }
-void_errno FUNCTION(NAME, insert)(NAME* list, TYPE value, size_t index) {
+void_errno FUNCTION(NAME, insert)(NAME* list, OWNER(TYPE) value, size_t index) {
   if (index >= list->size) {
     errno = 1; return;
   }
@@ -58,28 +58,28 @@ void_errno FUNCTION(NAME, insert)(NAME* list, TYPE value, size_t index) {
   
   errno = 0; return;
 }
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* list, TYPE value, size_t index) {
+type_errno(OWNER(TYPE)) FUNCTION(NAME, set)(NAME* list, OWNER(TYPE) value, size_t index) {
   if (index >= list->size) {
     errno = 1; return NULLV;
   }
-  TYPE oldValue = list->array[index];
+  OWNER(TYPE) oldValue = list->array[index];
   list->array[index] = value;
 
   errno = 0; return oldValue;
 }
-type_errno(TYPE) FUNCTION(NAME, remove)(NAME* list, size_t index) {
+type_errno(OWNER(TYPE)) FUNCTION(NAME, remove)(NAME* list, size_t index) {
   if (index >= list->size) {
     errno = 1; return NULLV;
   }
 
-  TYPE value = list->array[index];
+  OWNER(TYPE) value = list->array[index];
   for (size_t i = index; i < list->size - 1; i++) {
     list->array[i] = list->array[i + 1];
   }
   list->size--;
   errno = 0; return value;
 }
-type_errno(MUT_WEAK(TYPE)) FUNCTION(NAME, get)(BORROW(NAME) list, size_t index) {
+type_errno(MUT_BORROW(TYPE*)) FUNCTION(NAME, get)(BORROW(NAME*) list, size_t index) {
   if (index >= list->size) {
     errno = 1; return null;
   }

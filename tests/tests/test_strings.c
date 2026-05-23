@@ -4,7 +4,6 @@
 
 #include "strings.h"
 #include "allocator.h"
-#include "utils.h"
 
 void test_string_new1() {
   char text[6] = "hello";
@@ -43,6 +42,7 @@ void test_string_of() {
   char* text = A_xloc(sizeof(char)*9);
   Strings_strlcpy(text, "text 123", 9);
   String string = String_of(text);
+  TEST_ASSERT_EQUAL_PTR(string.buffer, text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);
 
@@ -61,6 +61,7 @@ void test_string_by() {
   char* text = A_xloc(sizeof(char)*9);
   Strings_strlcpy(text, "text 123", 9);
   String string = String_by(text);
+  TEST_ASSERT_NOT_EQUAL(string.buffer, text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);
 
@@ -112,7 +113,7 @@ void test_vstring_of() {
 void test_vstring_by() {
   char text[6] = "hello";
   String string = String_by(text);
-  ViewString vstring = ViewString_by(&string);
+  ViewString vstring = ViewString_by(string);
   TEST_ASSERT_EQUAL_STRING(vstring.buffer, "hello");
   TEST_ASSERT_EQUAL_UINT(vstring.size, 5u);
 
@@ -142,11 +143,11 @@ void test_string_copy1() {
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);
 
-  ViewString vstring = ViewString_by(&string);
+  ViewString vstring = ViewString_by(string);
   TEST_ASSERT_EQUAL_STRING(vstring.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(vstring.size, 8u);
 
-  String string1 = String_copy(&vstring);
+  String string1 = String_copy(vstring);
   TEST_ASSERT_EQUAL_STRING(string1.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string1.size, 8u);
   char* buffer = string1.buffer;
@@ -195,7 +196,7 @@ void test_string_copy2() {
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);
 
-  String string1 = String_copy((ViewString*) &string);
+  String string1 = String_copyString(string);
   TEST_ASSERT_EQUAL_STRING(string1.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string1.size, 8u);
   char* buffer = string1.buffer;
@@ -232,18 +233,18 @@ void test_vstring_equals1() {
   ViewString vstring3 = ViewString_of("world hello");
   ViewString vstring4 = ViewString_of("text 123");
 
-  TEST_ASSERT_TRUE(ViewStrings_equals(&vstring1, &vstring2));
-  TEST_ASSERT_TRUE(ViewStrings_equals(&vstring2, &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring1, &vstring3));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring1, &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring2, &vstring3));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring2, &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring3, &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring3, &vstring2));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring3, &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring4, &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring4, &vstring2));
-  TEST_ASSERT_TRUE(!ViewStrings_equals(&vstring4, &vstring3));
+  TEST_ASSERT_TRUE(ViewStrings_equals(vstring1, vstring2));
+  TEST_ASSERT_TRUE(ViewStrings_equals(vstring2, vstring1));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring1, vstring3));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring1, vstring4));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring2, vstring3));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring2, vstring4));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring3, vstring1));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring3, vstring2));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring3, vstring4));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring4, vstring1));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring4, vstring2));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(vstring4, vstring3));
 }
 
 void test_vstring_equals2() {
@@ -252,38 +253,44 @@ void test_vstring_equals2() {
   String vstring3 = String_of("world hello");
   String vstring4 = String_of("text 123");
 
-  TEST_ASSERT_TRUE(ViewStrings_equals((ViewString*) &vstring1, (ViewString*) &vstring2));
-  TEST_ASSERT_TRUE(ViewStrings_equals((ViewString*) &vstring2, (ViewString*) &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring1, (ViewString*) &vstring3));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring1, (ViewString*) &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring2, (ViewString*) &vstring3));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring2, (ViewString*) &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring3, (ViewString*) &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring3, (ViewString*) &vstring2));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring3, (ViewString*) &vstring4));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring4, (ViewString*) &vstring1));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring4, (ViewString*) &vstring2));
-  TEST_ASSERT_TRUE(!ViewStrings_equals((ViewString*) &vstring4, (ViewString*) &vstring3));
+  TEST_ASSERT_TRUE(ViewStrings_equals(ViewString_by(vstring1), ViewString_by(vstring2)));
+  TEST_ASSERT_TRUE(ViewStrings_equals(ViewString_by(vstring2), ViewString_by(vstring1)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring1), ViewString_by(vstring3)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring1), ViewString_by(vstring4)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring2), ViewString_by(vstring3)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring2), ViewString_by(vstring4)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring3), ViewString_by(vstring1)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring3), ViewString_by(vstring2)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring3), ViewString_by(vstring4)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring4), ViewString_by(vstring1)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring4), ViewString_by(vstring2)));
+  TEST_ASSERT_TRUE(!ViewStrings_equals(ViewString_by(vstring4), ViewString_by(vstring3)));
 }
 
-void test_string_equals1() {
+void test_string_equals() {
   String vstring1 = String_of("hello world");
   String vstring2 = String_of("hello world");
   String vstring3 = String_of("world hello");
   String vstring4 = String_of("text 123");
 
-  TEST_ASSERT_TRUE(Strings_equals(&vstring1, &vstring2));
-  TEST_ASSERT_TRUE(Strings_equals(&vstring2, &vstring1));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring1, &vstring3));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring1, &vstring4));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring2, &vstring3));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring2, &vstring4));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring3, &vstring1));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring3, &vstring2));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring3, &vstring4));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring4, &vstring1));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring4, &vstring2));
-  TEST_ASSERT_TRUE(!Strings_equals(&vstring4, &vstring3));
+  TEST_ASSERT_TRUE(Strings_equals(vstring1, vstring2));
+  TEST_ASSERT_TRUE(Strings_equals(vstring2, vstring1));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring1, vstring3));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring1, vstring4));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring2, vstring3));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring2, vstring4));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring3, vstring1));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring3, vstring2));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring3, vstring4));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring4, vstring1));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring4, vstring2));
+  TEST_ASSERT_TRUE(!Strings_equals(vstring4, vstring3));
+}
+
+void test_vstring_tojson1() {
+  String json;
+  ViewString vstring = ViewString_of("string");
+  // json = ViewStrings_toJson(&vstring, )
 }
 
 void test_strings() {
@@ -298,5 +305,6 @@ void test_strings() {
   RUN_TEST(test_string_copy2);
   RUN_TEST(test_vstring_equals1);
   RUN_TEST(test_vstring_equals2);
-  RUN_TEST(test_string_equals1);
+  RUN_TEST(test_string_equals);
+  RUN_TEST(test_vstring_tojson1);
 }

@@ -1,0 +1,26 @@
+{
+  "v": 1,
+  "severity": "error",
+  "code": "metaparser.unknownToken",
+  "phase": "metaparser",
+  "method": "mpmodules/declarations.c:parseDeclarations_name",
+  "message": "Unknown token `:`",
+  "source": {
+    "filename": "fanat.sts",
+    "span": {
+      "start": { "line": 12, "char": 7 },
+      "end":   { "line": 12, "char": 8 }
+    },
+  },
+  "excerpt": {
+    "copy": ":",
+    "line": "parentZone: Hello:",
+    "shift": 17
+  },
+  "hint": "the parameter ends with the char \";\"",  // null если не нужно
+  "extra": {
+    "unknownToken": ":",
+    "recommendedToken": ";",
+  },
+  "seq": 42
+}

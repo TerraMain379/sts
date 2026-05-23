@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "utils.h"
+#include "errors.h"
 
-void A_err() {
-  fprintf(stderr, "Error: %s\n", "allocate memory error");
+void A_err(BORROW(char*) location) {
+  Errors_internal_allocateMemoryError((ViewString) {0}, ViewString_of(location));
+  // fprintf(stderr, "Error: %s\n", "allocate memory error");
   abort();
 }
 
@@ -37,37 +39,37 @@ void A_err() {
   }
 #endif
 
-inline void* A_loc(size_t size) {
+inline OWNER(void*) _A_loc(size_t size, BORROW(char*) location) {
   #ifdef BUILD_TESTS
     loc_counter++;
     counter++;
     void* ptr = malloc(size);
     locStack.ptrs[locStack.size] = (A_Element) { (intptr_t) ptr, size };
     locStack.size++;
-    if (locStack.size >= stackSize) A_err();
+    if (locStack.size >= stackSize) A_err(location);
     return ptr;
   #else
     return malloc(size);
   #endif
 }
-inline void* A_xloc(size_t size) {
+inline OWNER(void*) _A_xloc(size_t size, BORROW(char*) location) {
   void* ptr = malloc(size);
-  if (ptr == null && size > 0) A_err();
+  if (ptr == null && size > 0) A_err(location);
   #ifdef BUILD_TESTS
     loc_counter++;
     counter++;
     locStack.ptrs[locStack.size] = (A_Element) { (intptr_t) ptr, size };
     locStack.size++;
-    if (locStack.size >= stackSize) A_err();
+    if (locStack.size >= stackSize) A_err(location);
   #endif
   return ptr;
 }
-inline void* A_reloc(void* ptr, size_t size) {
+inline OWNER(void*) _A_reloc(OWNER(void*) ptr, size_t size, BORROW(char*) location) {
   #ifdef BUILD_TESTS
     intptr_t optr = (intptr_t) ptr;
     void* nptr = realloc(ptr, size);
     size_t e = searchLoc(optr);
-    if (errno != 0) A_err();
+    if (errno != 0) A_err(location);
     reloc_counter++;
     locStack.ptrs[e].ptr = (intptr_t) nptr;
     locStack.ptrs[e].size = size;
@@ -76,22 +78,22 @@ inline void* A_reloc(void* ptr, size_t size) {
     return realloc(ptr, size);
   #endif
 }
-inline void* A_xreloc(void* ptr, size_t size) {
+inline OWNER(void*) _A_xreloc(OWNER(void*) ptr, size_t size, BORROW(char*) location) {
   #ifdef BUILD_TESTS
     intptr_t optr = (intptr_t) ptr;
   #endif
   void* nptr = realloc(ptr, size);
-  if (nptr == null && size > 0) A_err();
+  if (nptr == null && size > 0) A_err(location);
   #ifdef BUILD_TESTS
     size_t e = searchLoc(optr);
-    if (errno != 0) A_err();
+    if (errno != 0) A_err(location);
     reloc_counter++;
     locStack.ptrs[e].ptr = (intptr_t) nptr;
     locStack.ptrs[e].size = size;
   #endif
   return nptr;
 }
-inline void A_free(void* ptr) {
+inline void _A_free(OWNER(void*) ptr, BORROW(char*) location) {
   #ifdef BUILD_TESTS
     intptr_t optr = (intptr_t) ptr;
   #endif
@@ -100,8 +102,8 @@ inline void A_free(void* ptr) {
     free_counter++;
     counter--;
     size_t e = searchLoc(optr);
-    if (errno != 0) A_err();
-    if (locStack.size == 0) A_err();
+    if (errno != 0) A_err(location);
+    if (locStack.size == 0) A_err(location);
     for (size_t i = e; i < locStack.size-1; i++) {
       locStack.ptrs[i] = locStack.ptrs[i+1];
     }
@@ -124,13 +126,13 @@ inline void A_free(void* ptr) {
   size_t A_getFreeCounter() {
     return free_counter;
   }
-  bool A_checkLoc(void* ptr) {
+  bool A_checkLoc(BORROW(void*) ptr) {
     searchLoc((intptr_t) ptr);  
     return errno == 0;
   }
-  size_t A_getSize(void* ptr) {
+  size_t A_getSize(BORROW(void*) ptr) {
     size_t e = searchLoc((intptr_t) ptr);  
-    if (errno != 0) A_err();
+    if (errno != 0) A_err("DEBUG__A_getSize");
     return locStack.ptrs[e].size;
   }
 #endif

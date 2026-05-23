@@ -1,28 +1,27 @@
 #pragma once
 
 #include "utils.h"
-#include "print.h"
 
 typedef struct ViewString {
-  WEAK(char) buffer;
+  WEAK(char*) buffer;
   size_t size;
 } ViewString;
 
 typedef struct String /* extends ViewString */ {
-  OWNER(char) buffer;
+  OWNER(char*) buffer;
   size_t size;
   bool bufferOnHeap;
 } String;
 
-dec_print(String);
-String String_new(OWNER(char) buffer, size_t size, bool bufferOnHeap);
-String String_of(OWNER(char) buffer); // use buffer; bufferOnHeap = true
-String String_by(BORROW(char) buffer); // copy buffer; bufferOnHeap = true
+String String_new(OWNER(char*) buffer, size_t size, bool bufferOnHeap);
+String String_of(OWNER(char*) buffer); // use buffer; bufferOnHeap = true
+String String_by(BORROW(char*) buffer); // copy buffer; bufferOnHeap = true
+String String_const(OWNER(char*) buffer); // use buffer; bufferOnHeap = false
 String String_copy(BORROW(ViewString) vstring); // bufferOnHeap = true
+String String_copyString(BORROW(String) string); // bufferOnHeap = true
 
-dec_print(ViewString);
-ViewString ViewString_new(WEAK(char) buffer, size_t size);
-ViewString ViewString_of(WEAK(char) buffer);
+ViewString ViewString_new(WEAK(char*) buffer, size_t size);
+ViewString ViewString_of(WEAK(char*) buffer);
 ViewString ViewString_by(BORROW(String) string);
 
 void String_free(String* string);
@@ -30,6 +29,8 @@ void ViewString_free(ViewString* vstring);
 
 bool ViewStrings_equals(BORROW(ViewString) vstring1, BORROW(ViewString) vstring2);
 bool Strings_equals(BORROW(String) string1, BORROW(String) string2);
+String ViewStrings_toJson(BORROW(ViewString) vs, bool forging); // implementation in stringbuilder.c
+size_t Strings_getLen(BORROW(char*) str);
 
 
 static inline bool Chars_isLetter(const char c) {
@@ -43,5 +44,5 @@ static inline bool Chars_isVoid(const char c) {
 }
 
 
-void Strings_strlcpy(char* dest, const char* src, const size_t bufferSize);
-int Strings_atoi(const char* string);
+void Strings_strlcpy(char* dest, BORROW(char*) src, const size_t bufferSize);
+int Strings_atoi(BORROW(char*) string);

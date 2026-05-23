@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils.h"
-#include "print.h"
+#include "prints.h"
 #include "sources.h"
 #include "stss.h"
 #include "map.h"
@@ -53,12 +53,12 @@
 struct Sts_MetaRegex {
   String regex;
 };
-void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex);
+void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, OWNER(String) regex);
 void Sts_MetaRegex_free(Sts_MetaRegex* metaRegex);
-dec_print(Sts_MetaRegex);
+dec_prints(Sts_MetaRegex);
 
 #define NAME Sts_MetaRegexLinks
-#define TYPE Sts_MetaRegex
+#define TYPE OWNER(Sts_MetaRegex)
 #define NULLV (Sts_MetaRegex) {0}
 #define FREEFUN Sts_MetaRegex_free
 #include "gmap.h"
@@ -66,18 +66,18 @@ dec_print(Sts_MetaRegex);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaRegexLinks);
+dec_prints(Sts_MetaRegexLinks);
 
 
 struct Sts_MetaEvent {
   String code;
 };
-void Sts_MetaEvent_init(Sts_MetaEvent* event, String code);
+void Sts_MetaEvent_init(Sts_MetaEvent* event, OWNER(String) code);
 void Sts_MetaEvent_free(Sts_MetaEvent* event);
-dec_print(Sts_MetaEvent);
+dec_prints(Sts_MetaEvent);
 
 #define NAME Sts_MetaEvents
-#define TYPE Sts_MetaEvent
+#define TYPE OWNER(Sts_MetaEvent)
 #define NULLV (Sts_MetaEvent) {0}
 #define FREEFUN Sts_MetaEvent_free
 #include "gmap.h"
@@ -85,19 +85,19 @@ dec_print(Sts_MetaEvent);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaEvents);
+dec_prints(Sts_MetaEvents);
 
 
 struct Sts_MetaElementVariable {
-  Stss_Type type;
-  OWNER(Stss_UntypeValue) value;
+  OWNER(Stss_Type) type;
+  OWNER(Stss_UntypeValue*) value;
 };
 void Sts_MetaElementVariable_init(Sts_MetaElementVariable* variable);
 void Sts_MetaElementVariable_free(Sts_MetaElementVariable* variable);
-dec_print(Sts_MetaElementVariable);
+dec_prints(Sts_MetaElementVariable);
 
 #define NAME Sts_MetaElementVariables
-#define TYPE Sts_MetaElementVariable
+#define TYPE OWNER(Sts_MetaElementVariable)
 #define NULLV (Sts_MetaElementVariable) {0};
 #define FREEFUN Sts_MetaElementVariable_free
 #include "gmap.h"
@@ -105,18 +105,18 @@ dec_print(Sts_MetaElementVariable);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaElementVariables);
+dec_prints(Sts_MetaElementVariables);
 
 struct Sts_MetaElementStaticParam {
-  Stss_Type type;
-  OWNER(Stss_UntypeValue) value;
+  OWNER(Stss_Type) type;
+  OWNER(Stss_UntypeValue*) value;
 };
 void Sts_MetaElementStaticParam_init(Sts_MetaElementStaticParam* staticParam);
 void Sts_MetaElementStaticParam_free(Sts_MetaElementStaticParam* staticParam);
-dec_print(Sts_MetaElementStaticParam);
+dec_prints(Sts_MetaElementStaticParam);
 
 #define NAME Sts_MetaElementStaticParams
-#define TYPE Sts_MetaElementStaticParam
+#define TYPE OWNER(Sts_MetaElementStaticParam)
 #define NULLV (Sts_MetaElementStaticParam) {0};
 #define FREEFUN Sts_MetaElementStaticParams_free
 #include "gmap.h"
@@ -124,7 +124,7 @@ dec_print(Sts_MetaElementStaticParam);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaElementStaticParams);
+dec_prints(Sts_MetaElementStaticParams);
 
 
 #define extends__Sts_MetaElement \
@@ -135,19 +135,20 @@ dec_print(Sts_MetaElementStaticParams);
 struct Sts_MetaElement {
   extends__Sts_MetaElement;
 };
-void Sts_MetaElement_init(Sts_MetaElement* element, String name);
+void Sts_MetaElement_init(Sts_MetaElement* element, OWNER(String) name);
 void Sts_MetaElement_free(Sts_MetaElement* element);
-dec_print(Sts_MetaElement);
+dec_prints(Sts_MetaElement);
 
 
 struct Sts_MetaToken {
   extends__Sts_MetaElement;
 };
-void_errno Sts_MetaToken_init(Sts_MetaToken* token, String name);
+void Sts_MetaToken_init(Sts_MetaToken* token, OWNER(String) name);
 void Sts_MetaToken_free(Sts_MetaToken* token);
-dec_print(Sts_MetaToken);
+dec_prints(Sts_MetaToken);
 
 #define PNAME Sts_OwnedMetaTokens
+// TODO: check ptr
 #define PTYPE OWNER(Sts_MetaToken)
 #define PFREEFUN Sts_MetaToken_free
 #define BASE_MAP Map
@@ -156,7 +157,7 @@ dec_print(Sts_MetaToken);
 #undef PTYPE
 #undef PFREEFUN
 #undef BASE_MAP
-dec_print(Sts_OwnedMetaTokens);
+dec_prints(Sts_OwnedMetaTokens);
 
 #define PNAME Sts_MetaTokens
 #define PTYPE WEAK(Sts_MetaToken)
@@ -166,14 +167,15 @@ dec_print(Sts_OwnedMetaTokens);
 #undef PNAME
 #undef PTYPE
 #undef BASE_MAP
-dec_print(Sts_MetaTokens);
+dec_prints(Sts_MetaTokens);
 
 
-void Sts_MetaZone_init(Sts_MetaZone* zone, String name);
+void Sts_MetaZone_init(Sts_MetaZone* zone, OWNER(String) name);
 void Sts_MetaZone_free(Sts_MetaZone* zone);
-dec_print(Sts_MetaZone);
+dec_prints(Sts_MetaZone);
 
 #define PNAME Sts_OwnedMetaZonesMap
+// TODO: check ptr
 #define PTYPE OWNER(Sts_MetaZone)
 #define PFREEFUN Sts_MetaZone_free
 #define BASE_MAP Map
@@ -182,9 +184,10 @@ dec_print(Sts_MetaZone);
 #undef PTYPE
 #undef PFREEFUN
 #undef BASE_MAP
-dec_print(Sts_OwnedMetaZonesMap);
+dec_prints(Sts_OwnedMetaZonesMap);
 
 #define PNAME Sts_MetaZones
+// TODO: check ptr
 #define PTYPE WEAK(Sts_MetaZone)
 #undef PFREEFUN
 #define BASE_LIST ConstList
@@ -192,7 +195,7 @@ dec_print(Sts_OwnedMetaZonesMap);
 #undef PNAME
 #undef PTYPE
 #undef BASE_LIST
-dec_print(Sts_MetaZones);
+dec_prints(Sts_MetaZones);
 
 struct Sts_MetaZone {
   extends__Sts_MetaElement;
@@ -210,19 +213,19 @@ enum Sts_MetaDeclarationValueType {
   Sts_MetaDeclarationValueType_EXPRESSION,
   Sts_MetaDeclarationValueType_LINK
 };
-dec_print(Sts_MetaDeclarationValueType);
+dec_prints(Sts_MetaDeclarationValueType);
 struct Sts_MetaDeclarationValue {
   Sts_MetaDeclarationValueType type;
   union {
     String name;
     String string;
     double number;
-    Sts_MetaDeclarationExpression* expression;
+    OWNER(Sts_MetaDeclarationExpression*) expression;
     String linkName;
   } value;
 };
 void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue);
-dec_print(Sts_MetaDeclarationValue);
+dec_prints(Sts_MetaDeclarationValue);
 
 #define NAME Sts_MetaDeclarationValueList
 #define TYPE Sts_MetaDeclarationValue
@@ -233,7 +236,7 @@ dec_print(Sts_MetaDeclarationValue);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaDeclarationValueList);
+dec_prints(Sts_MetaDeclarationValueList);
 
 enum Sts_MetaDeclarationExpressionType {
   Sts_MetaDeclarationExpressionType_SUM,
@@ -246,20 +249,20 @@ enum Sts_MetaDeclarationExpressionType {
   Sts_MetaDeclarationExpressionType_DEC,
   Sts_MetaDeclarationExpressionType_CHILD,
 };
-dec_print(Sts_MetaDeclarationExpressionType);
+dec_prints(Sts_MetaDeclarationExpressionType);
 struct Sts_MetaDeclarationExpression {
   Sts_MetaDeclarationExpressionType type;
   Sts_MetaDeclarationValue value1;
   Sts_MetaDeclarationValue value2;
 };
 void Sts_MetaDeclarationExpression_free(Sts_MetaDeclarationExpression* decExpression);
-dec_print(Sts_MetaDeclarationExpression);
+dec_prints(Sts_MetaDeclarationExpression);
 
 struct Sts_MetaDeclarationTyping { // TODO:
 
 };
 void Sts_MetaDeclarationTyping_free(Sts_MetaDeclarationTyping* decTyping);
-dec_print(Sts_MetaDeclarationTyping);
+dec_prints(Sts_MetaDeclarationTyping);
 
 
 struct Sts_MetaParamDeclaration {
@@ -267,7 +270,7 @@ struct Sts_MetaParamDeclaration {
   Sts_MetaDeclarationValueList values;
 };
 void Sts_MetaParamDeclaration_free(Sts_MetaParamDeclaration* paramDec);
-dec_print(Sts_MetaParamDeclaration);
+dec_prints(Sts_MetaParamDeclaration);
 
 struct Sts_MetaVariableDeclaration {
   Sts_MetaDeclarationValue name;
@@ -276,21 +279,21 @@ struct Sts_MetaVariableDeclaration {
   bool isInit;
 };
 void Sts_MetaVariableDeclaration_free(Sts_MetaVariableDeclaration* variableDec);
-dec_print(Sts_MetaVariableDeclaration);
+dec_prints(Sts_MetaVariableDeclaration);
 
 struct Sts_MetaEventDeclaration {
   Sts_MetaDeclarationValue name;
   Sts_MetaDeclarationValue event;
 };
 void Sts_MetaEventDeclaration_free(Sts_MetaEventDeclaration* eventDec);
-dec_print(Sts_MetaEventDeclaration);
+dec_prints(Sts_MetaEventDeclaration);
 
 struct Sts_MetaZoneExtendDeclaration {
   Sts_MetaDeclarationValue zoneName;
   bool isExport;
 };
 void Sts_MetaZoneExtendDeclaration_free(Sts_MetaZoneExtendDeclaration* zoneExtendDec);
-dec_print(Sts_MetaZoneExtendDeclaration);
+dec_prints(Sts_MetaZoneExtendDeclaration);
 
 struct Sts_MetaSuperRegexDeclarationElement {
   Sts_MetaDeclarationValue token;
@@ -299,7 +302,7 @@ struct Sts_MetaSuperRegexDeclarationElement {
   bool isNonName;
 };
 void Sts_MetaSuperRegexDeclarationElement_free(Sts_MetaSuperRegexDeclarationElement* regexDecElement);
-dec_print(Sts_MetaSuperRegexDeclarationElement);
+dec_prints(Sts_MetaSuperRegexDeclarationElement);
 
 #define NAME Sts_MetaSuperRegexDeclarationElements
 #define TYPE Sts_MetaSuperRegexDeclarationElement
@@ -310,14 +313,14 @@ dec_print(Sts_MetaSuperRegexDeclarationElement);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaSuperRegexDeclarationElements);
+dec_prints(Sts_MetaSuperRegexDeclarationElements);
 
 struct Sts_MetaSuperRegexDeclaration {
   Sts_MetaSuperRegexDeclarationElements elements;
   bool isGhost;
 };
 void Sts_MetaSuperRegexDeclaration_free(Sts_MetaSuperRegexDeclaration* regexDec);
-dec_print(Sts_MetaSuperRegexDeclaration);
+dec_prints(Sts_MetaSuperRegexDeclaration);
 
 enum Sts_MetaDeclarationType {
   Sts_MetaDeclarationType_PARAM,
@@ -326,7 +329,7 @@ enum Sts_MetaDeclarationType {
   Sts_MetaDeclarationType_ZONE_EXTEND,
   Sts_MetaDeclarationType_SUPER_REGEX
 };
-dec_print(Sts_MetaDeclarationType);
+dec_prints(Sts_MetaDeclarationType);
 struct Sts_MetaDeclaration {
   Sts_MetaDeclarationType type;
   union {
@@ -338,7 +341,7 @@ struct Sts_MetaDeclaration {
   } value;
 };
 void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration);
-dec_print(Sts_MetaDeclaration);
+dec_prints(Sts_MetaDeclaration);
 
 #define PNAME Sts_MetaDeclarationList
 #define PTYPE OWNER(Sts_MetaDeclaration)
@@ -349,7 +352,7 @@ dec_print(Sts_MetaDeclaration);
 #undef PTYPE
 #undef PFREEFUN
 #undef BASE_LIST
-dec_print(Sts_MetaDeclarationList);
+dec_prints(Sts_MetaDeclarationList);
 
 #define PNAME Sts_MetaDeclarationValuesWeakList
 #define PTYPE WEAK(Sts_MetaDeclarationValue)
@@ -359,7 +362,7 @@ dec_print(Sts_MetaDeclarationList);
 #undef PNAME
 #undef PTYPE
 #undef BASE_LIST
-dec_print(Sts_MetaDeclarationValuesWeakList);
+dec_prints(Sts_MetaDeclarationValuesWeakList);
 
 #define NAME Sts_MetaDeclarationValuesLinks
 #define TYPE Sts_MetaDeclarationValuesWeakList
@@ -370,9 +373,9 @@ dec_print(Sts_MetaDeclarationValuesWeakList);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_print(Sts_MetaDeclarationValuesLinks);
-Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, ViewString* key);
-void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, Sts_MetaDeclarationValue* decValue);
+dec_prints(Sts_MetaDeclarationValuesLinks);
+Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, BORROW(ViewString) key);
+void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, WEAK(Sts_MetaDeclarationValue*) decValue);
 
 enum Sts_MetaDeclarationsBlockType {
   Sts_MetaDeclarationsBlockType_TOKEN,
@@ -380,8 +383,9 @@ enum Sts_MetaDeclarationsBlockType {
   Sts_MetaDeclarationsBlockType_GROUP,
   Sts_MetaDeclarationsBlockType_SUPER_TOKEN
 };
-dec_print(Sts_MetaDeclarationsBlockType);
+dec_prints(Sts_MetaDeclarationsBlockType);
 struct Sts_MetaDeclarationsBlock {
+  String name;
   Sts_MetaDeclarationsBlockType type;
   Sts_MetaDeclarationList declarations;
   StringList linkNames;
@@ -389,10 +393,22 @@ struct Sts_MetaDeclarationsBlock {
 };
 void Sts_MetaDeclarationsBlock_init(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationsBlockType type);
 void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock);
-dec_print(Sts_MetaDeclarationsBlock);
+dec_prints(Sts_MetaDeclarationsBlock);
+
+#define NAME Sts_MetaDeclarationsBlocks
+#define TYPE Sts_MetaDeclarationsBlock
+#define NULLV (Sts_MetaDeclarationsBlock) {0}
+#define FREEFUN Sts_MetaDeclarationsBlock_free
+#include "glist.h"
+#undef NAME
+#undef TYPE
+#undef NULLV
+#undef FREEFUN
+dec_prints(Sts_MetaDeclarationsBlocks);
 
 
 struct Sts_MetaFile {
+  Sts_MetaDeclarationsBlocks decBlocks;
   Sts_MetaRegexLinks regexes;
   Sts_OwnedMetaZonesMap zones;
   Sts_OwnedMetaTokens tokens;
@@ -406,14 +422,14 @@ struct Sts_MetaFile {
 };
 void Sts_MetaFile_init(Sts_MetaFile* metaFile);
 void Sts_MetaFile_free(Sts_MetaFile* metaFile);
-dec_print(Sts_MetaFile);
+dec_prints(Sts_MetaFile);
 
 
-void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone) zone);
-Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, ViewString* name);
-Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, ViewString* name);
-void_errno Sts_MetaFile_delZone(Sts_MetaFile* metaFile, ViewString* name);
+void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone*) zone);
+Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, BORROW(ViewString) name);
+Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, BORROW(ViewString) name);
+void_errno Sts_MetaFile_delZone(Sts_MetaFile* metaFile, BORROW(ViewString) name);
 
-void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, OWNER(Sts_MetaToken) token);
-Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, ViewString* name);
-void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, ViewString* name);
+void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, OWNER(Sts_MetaToken*) token);
+Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, BORROW(ViewString) name);
+void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, BORROW(ViewString) name);

@@ -10,4 +10,5 @@
 #undef NULLV
 #undef FREEFUN
 
-dec_print(ViewStringMap);
+#include "prints.h"
+dec_prints(ViewStringMap);

@@ -2,14 +2,19 @@
 
 #include "allocator.h"
 #include "stringbuilder.h"
+#include "metaparser_errors.h"
 
-String Utils_Iter_readName(Context* ctx) {
+type_errno(String) Utils_Iter_readName(Context* ctx) {
   Iter* iter = &ctx->iter;
+  char c = Iter_currChar(iter);
+  if (!Chars_isLetter(c) && !Chars_isDigit(c) && c != '_') {
+    errno = 1; return (String) {0};
+  }
   char* buffer = A_xloc(16);
   size_t bufferSize = 16;
   size_t nameSize = 0;
 
-  char c; Iter_foreachChars(c, iter) {
+  Iter_foreachChars(c, iter) {
     if (!Chars_isLetter(c) && !Chars_isDigit(c) && c != '_') break;
     if (bufferSize == nameSize) {
       bufferSize *= 2;
@@ -21,22 +26,47 @@ String Utils_Iter_readName(Context* ctx) {
   buffer[nameSize] = '\0';
   bufferSize = nameSize+1;
   buffer = A_reloc(buffer, bufferSize);
-  return String_new(buffer, nameSize, true);
+  errno = 0; return String_new(buffer, nameSize, true);
 }
 
 void Utils_Iter_skipVoid(Context* ctx, bool strict) {
   Iter* iter = &ctx->iter;
+  const char* start = iter->curr;
   char c;
-  if (strict) {
-    c = Iter_currChar(iter);
-    if (!Chars_isVoid(c)) {
-      // TODO: error
-      errno = 1; return;
+  Iter_foreachChars(c, iter) {
+    if (c == '#') {
+      Iter_foreachChars(c, iter) {
+        if (c == '\n') {
+          break;
+        }
+      }
+    }
+    else if (!Chars_isVoid(c)) {
+      break;
     }
   }
-  Iter_foreachChars(c, iter) {
-    if (!Chars_isVoid(c)) {
-      errno = 0; return;
+  if (strict && start == iter->curr) {
+    if (c == '\0') {
+      Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        &ctx->iter,
+        SPD_new(
+          SPDMode_BACK_CHAR_SHIFT,
+          1,
+          (SPDFlags) { .lineTransitionAfterCharShift = false }
+        ),
+        SPD_new2(SPDMode_CURR_LINE)
+      ));
+    }
+    else {
+      Iter prevCharIter = Iter_copy(iter);
+      Iter_unsafeBackChar(&prevCharIter);
+
+      Errors_metaparser_anotherTokenExpected(ctx, Source_byIters(
+        ViewString_by(ctx->filename),
+        &prevCharIter, SPD_new2(SPDMode_CURR_WORD),
+        &ctx->iter, SPD_new2(SPDMode_CURR_CHAR)
+      ), ViewString_of(" "));
     }
   }
 }
@@ -89,8 +119,8 @@ String Utils_Iter_readString(Context* ctx) {
     }
   }
   buffer[nameSize] = '\0';
-  nameSize++;
-  buffer = A_reloc(buffer, nameSize);
+  bufferSize = nameSize+1;
+  buffer = A_reloc(buffer, bufferSize);
   return String_new(buffer, nameSize, true);
 }
 

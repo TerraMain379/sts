@@ -10,5 +10,7 @@
 #undef NULLV
 #undef FREEFUN
 
-dec_print(ViewStringList);
+#include "prints.h"
+dec_prints(ViewStringList);
+
 bool ViewStringList_contains(ViewStringList* list, BORROW(ViewString) vs);

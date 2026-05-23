@@ -12,5 +12,5 @@ typedef struct Unicode_UCharInfo {
 
 #define Unicode_ERROR_CHAR 0xFFFD
 
-Unicode_UCharInfo Unicode_readUChar(WEAK(char) str, size_t byteLimit);
+Unicode_UCharInfo Unicode_readUChar(WEAK(char*) str, size_t byteLimit);
 size_t Unicode_readUCharLength(unsigned char startChar);

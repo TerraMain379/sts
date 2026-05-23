@@ -3,7 +3,7 @@
 
 #define Context Sts_MetaParser_Context
 
-String Utils_Iter_readName(Context* ctx);
+type_errno(String) Utils_Iter_readName(Context* ctx);
 void Utils_Iter_skipVoid(Context* ctx, bool strict);
 bool Utils_Iter_readChar(Context* ctx, char c);
 void_stop Utils_Iter_skipChar(Context* ctx, char c);

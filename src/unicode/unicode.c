@@ -1,6 +1,6 @@
 #include "unicode.h"
 
-Unicode_UCharInfo Unicode_readUChar(WEAK(char) str, size_t byteLimit) {
+Unicode_UCharInfo Unicode_readUChar(WEAK(char*) str, size_t byteLimit) {
   unsigned char* s = (unsigned char*) str;
   uchar uc = 0;
   int errorCode = 0;

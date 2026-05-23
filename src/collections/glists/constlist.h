@@ -9,4 +9,5 @@
 #undef TYPE
 #undef NULLV
 
-dec_print(ConstList);
+#include "prints.h"
+dec_prints(ConstList);

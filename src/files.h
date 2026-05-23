@@ -1,3 +1,3 @@
 #include "strings.h"
 
-String Files_readFile(ViewString filename);
+OWNER(String) Files_readFile(BORROW(ViewString) filename);

@@ -5,16 +5,16 @@
 #include "unicode.h"
 
 typedef struct Iter {
-  WEAK(char) start;
-  WEAK(char) curr;
+  WEAK(char*) start;
+  WEAK(char*) curr;
   size_t size;
   Unicode_UCharInfo currUInfo;
   bool currUInfoIsValid;
 } Iter;
 
-Iter Iter_create(WEAK(char) str, size_t size);
-Iter Iter_new(ViewString* vstring);
-Iter Iter_copy(BORROW(Iter) iter);
+Iter Iter_create(WEAK(char*) str, size_t size);
+Iter Iter_new(WEAK(ViewString) vstring);
+Iter Iter_copy(BORROW(Iter*) iter);
 
 char Iter_currChar(Iter* iter);
 char Iter_nextChar(Iter* iter);

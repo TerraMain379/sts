@@ -26,28 +26,28 @@ typedef struct ELEMENT(NAME) ELEMENT(NAME);
 // gmap
 struct NAME {
   size_t size;
-  OWNER(ELEMENT(NAME)) first;
-  MUT_WEAK(ELEMENT(NAME)) last;
+  OWNER(ELEMENT(NAME)*) first;
+  MUT_WEAK(ELEMENT(NAME)*) last;
 };
 
 // gmap_element
 struct ELEMENT(NAME) {
-  String key;
+  OWNER(String) key;
   int hash;
-  TYPE value;
-  OWNER(ELEMENT(NAME)) next;
+  OWNER(TYPE) value;
+  OWNER(ELEMENT(NAME)*) next;
 };
 
-int FUNCTION(NAME, getHash)(const char* key);
+int FUNCTION(NAME, getHash)(BORROW(char*) key);
 
 void FUNCTION(NAME, init)(NAME* map);
-MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElementByHash)(BORROW(NAME) map, int hash);
-MUT_WEAK(ELEMENT(NAME)) FUNCTION(NAME, getElement)(BORROW(NAME) map, BORROW(ViewString) key);
-type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME) map, BORROW(ViewString) key);
-bool FUNCTION(NAME, contains)(BORROW(NAME) map, BORROW(ViewString) key);
-type_errno(TYPE) FUNCTION(NAME, set)(NAME* map, BORROW(ViewString) key, TYPE value);
-type_errno(TYPE) FUNCTION(NAME, setByOwnKey)(NAME* map, String key, TYPE value);
-type_errno(TYPE) FUNCTION(NAME, remove)(NAME* map, BORROW(ViewString) key);
+MUT_WEAK(ELEMENT(NAME)*) FUNCTION(NAME, getElementByHash)(BORROW(NAME*) map, int hash);
+MUT_WEAK(ELEMENT(NAME)*) FUNCTION(NAME, getElement)(BORROW(NAME*) map, BORROW(ViewString) key);
+type_errno(TYPE*) FUNCTION(NAME, get)(BORROW(NAME*) map, BORROW(ViewString) key);
+bool FUNCTION(NAME, contains)(BORROW(NAME*) map, BORROW(ViewString) key);
+type_errno(OWNER(TYPE)) FUNCTION(NAME, set)(NAME* map, BORROW(ViewString) key, OWNER(TYPE) value);
+type_errno(OWNER(TYPE)) FUNCTION(NAME, setByOwnKey)(NAME* map, OWNER(String) key, OWNER(TYPE) value);
+type_errno(OWNER(TYPE)) FUNCTION(NAME, remove)(NAME* map, BORROW(ViewString) key);
 void FUNCTION(NAME, free)(NAME* map);
 void FUNCTION(NAME, freeElements)(NAME* map);
 

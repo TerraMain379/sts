@@ -16,20 +16,20 @@ static inline void FUNCTION(PNAME, init)(PNAME* list, size_t capacity) {
 static inline void FUNCTION(PNAME, setCapacity)(PNAME* list, size_t capacity) {
   FUNCTION(BASE_LIST, setCapacity)(list, capacity);
 }
-static inline PTYPE FUNCTION(PNAME, add)(PNAME* list, PTYPE value) {
-  return *FUNCTION(BASE_LIST, add)(list, value);
+static inline PTYPE* FUNCTION(PNAME, add)(PNAME* list, OWNER(PTYPE*) value) {
+  return (PTYPE*) *FUNCTION(BASE_LIST, add)(list, value);
 }
-static inline void_errno FUNCTION(PNAME, insert)(PNAME* list, PTYPE value, size_t index) {
+static inline void_errno FUNCTION(PNAME, insert)(PNAME* list, OWNER(PTYPE*) value, size_t index) {
   FUNCTION(BASE_LIST, insert)(list, value, index);
 }
-static inline type_errno(PTYPE) FUNCTION(PNAME, set)(PNAME* list, PTYPE value, size_t index) {
-  return (PTYPE) FUNCTION(BASE_LIST, set)(list, value, index);
+static inline type_errno(PTYPE*) FUNCTION(PNAME, set)(PNAME* list, OWNER(PTYPE*) value, size_t index) {
+  return (PTYPE*) FUNCTION(BASE_LIST, set)(list, value, index);
 }
-static inline type_errno(PTYPE) FUNCTION(PNAME, remove)(PNAME* list, size_t index) {
-  return (PTYPE) FUNCTION(BASE_LIST, remove)(list, index);
+static inline type_errno(PTYPE*) FUNCTION(PNAME, remove)(PNAME* list, size_t index) {
+  return (PTYPE*) FUNCTION(BASE_LIST, remove)(list, index);
 }
-static inline type_errno(PTYPE*) FUNCTION(PNAME, get)(PNAME* list, size_t index) {
-  return (PTYPE*) FUNCTION(BASE_LIST, get)(list, index);
+static inline type_errno(PTYPE*) FUNCTION(PNAME, get)(BORROW(PNAME*) list, size_t index) {
+  return (PTYPE*) *FUNCTION(BASE_LIST, get)(list, index);
 }
 static inline void FUNCTION(PNAME, free)(PNAME* list) {
   FUNCTION(BASE_LIST, free)(list);

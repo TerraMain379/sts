@@ -1,9 +1,7 @@
 #include "metablocks.h"
 
-#include "stringbuilder.h"
-
 #define NAME Sts_MetaRegexLinks
-#define TYPE Sts_MetaRegex
+#define TYPE OWNER(Sts_MetaRegex)
 #define NULLV (Sts_MetaRegex) {0}
 #define FREEFUN Sts_MetaRegex_free
 #include "gmap.c.h"
@@ -13,7 +11,7 @@
 #undef FREEFUN
 
 #define NAME Sts_MetaEvents
-#define TYPE Sts_MetaEvent
+#define TYPE OWNER(Sts_MetaEvent)
 #define NULLV (Sts_MetaEvent) {0}
 #define FREEFUN Sts_MetaEvent_free
 #include "gmap.c.h"
@@ -23,7 +21,7 @@
 #undef FREEFUN
 
 #define NAME Sts_MetaElementVariables
-#define TYPE Sts_MetaElementVariable
+#define TYPE OWNER(Sts_MetaElementVariable)
 #define NULLV (Sts_MetaElementVariable) {0};
 #define FREEFUN Sts_MetaElementVariable_free
 #include "gmap.c.h"
@@ -33,7 +31,7 @@
 #undef FREEFUN
 
 #define NAME Sts_MetaElementStaticParams
-#define TYPE Sts_MetaElementStaticParam
+#define TYPE OWNER(Sts_MetaElementStaticParam)
 #define NULLV (Sts_MetaElementStaticParam) {0};
 #define FREEFUN Sts_MetaElementStaticParam_free
 #include "gmap.c.h"
@@ -129,7 +127,19 @@ dec_print(Sts_MetaDeclarationValuesWeakList);
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, ViewString* key) {
+
+#define NAME Sts_MetaDeclarationsBlocks
+#define TYPE Sts_MetaDeclarationsBlock
+#define NULLV (Sts_MetaDeclarationsBlock) {0}
+#define FREEFUN Sts_MetaDeclarationsBlock_free
+#include "glist.c.h"
+#undef NAME
+#undef TYPE
+#undef NULLV
+#undef FREEFUN
+
+
+Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, ViewString key) {
   if (!Sts_MetaDeclarationValuesLinks_contains(valuesLinks, key)) {
     Sts_MetaDeclarationValuesWeakList list;
     Sts_MetaDeclarationValuesWeakList_init(&list, 2);
@@ -137,23 +147,23 @@ Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(St
   }
   return Sts_MetaDeclarationValuesLinks_get(valuesLinks, key);
 }
-void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, Sts_MetaDeclarationValue* decValue) {
+void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, WEAK(Sts_MetaDeclarationValue*) decValue) {
   Sts_MetaDeclarationValuesWeakList* valuesWeakList = Sts_MetaDeclarationValuesLinks_getOrCreate(
     valuesLinks,
-    (ViewString*) &decValue->value.linkName
+    ViewString_by(decValue->value.linkName)
   );
   Sts_MetaDeclarationValuesWeakList_add(valuesWeakList, decValue);
 }
 
 
-void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, String regex) {
+void Sts_MetaRegex_init(Sts_MetaRegex* metaRegex, OWNER(String) regex) {
   metaRegex->regex = regex;
 }
 void Sts_MetaRegex_free(Sts_MetaRegex* metaRegex) {
   String_free(&metaRegex->regex);
 }
 
-void Sts_MetaEvent_init(Sts_MetaEvent* event, String code) {
+void Sts_MetaEvent_init(Sts_MetaEvent* event, OWNER(String) code) {
   event->code = code;
 }
 void Sts_MetaEvent_free(Sts_MetaEvent* event) {
@@ -176,7 +186,7 @@ void Sts_MetaElementStaticParam_free(Sts_MetaElementStaticParam* staticParam) {
   Stss_UntypeValue_free(staticParam->value);
 }
 
-void Sts_MetaElement_init(Sts_MetaElement* element, String name) {
+void Sts_MetaElement_init(Sts_MetaElement* element, OWNER(String) name) {
   element->name = name;
   Sts_MetaElementStaticParams_init(&element->params);
   Sts_MetaElementVariables_init(&element->variables);
@@ -192,7 +202,7 @@ void Sts_MetaElement_free(Sts_MetaElement* element) {
   Sts_MetaEvents_free(&element->events);
 }
 
-void Sts_MetaToken_init(Sts_MetaToken* token, String name) {
+void Sts_MetaToken_init(Sts_MetaToken* token, OWNER(String) name) {
   Sts_MetaElement_init((Sts_MetaElement*) token, name);
 }
 void Sts_MetaToken_free(Sts_MetaToken* token) {
@@ -267,12 +277,14 @@ void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
 }
 
 void Sts_MetaDeclarationsBlock_init(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationsBlockType type) {
+  decBlock->name = (String) {0};
   decBlock->type = type;
   Sts_MetaDeclarationList_init(&decBlock->declarations, 5);
   StringList_init(&decBlock->linkNames, 1);
   Sts_MetaDeclarationValuesLinks_init(&decBlock->links);
 }
 void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock) {
+  String_free(&decBlock->name);
   Sts_MetaDeclarationList_freeElements(&decBlock->declarations);
   Sts_MetaDeclarationList_free(&decBlock->declarations);
   StringList_freeElements(&decBlock->linkNames);
@@ -281,7 +293,7 @@ void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock) {
   Sts_MetaDeclarationValuesLinks_free(&decBlock->links);
 }
 
-void Sts_MetaZone_init(Sts_MetaZone* zone, String name) {
+void Sts_MetaZone_init(Sts_MetaZone* zone, OWNER(String) name) {
   Sts_MetaElement_init((Sts_MetaElement*) zone, name);
   Sts_MetaTokens_init(&zone->tokens);
   Sts_MetaZones_init(&zone->expandZones, 1);
@@ -295,6 +307,7 @@ void Sts_MetaZone_free(Sts_MetaZone* zone) {
 }
 
 void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
+  Sts_MetaDeclarationsBlocks_init(&metaFile->decBlocks, 50);
   Sts_MetaRegexLinks_init(&metaFile->regexes);
   Sts_OwnedMetaZonesMap_init(&metaFile->zones);
   Sts_OwnedMetaTokens_init(&metaFile->tokens);
@@ -303,6 +316,8 @@ void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
   metaFile->properties.sources = (Sources) {0};
 }
 void Sts_MetaFile_free(Sts_MetaFile* metaFile) {
+  Sts_MetaDeclarationsBlocks_freeElements(&metaFile->decBlocks);
+  Sts_MetaDeclarationsBlocks_free(&metaFile->decBlocks);
   Sts_MetaRegexLinks_freeElements(&metaFile->regexes);
   Sts_MetaRegexLinks_free(&metaFile->regexes);
   Sts_OwnedMetaZonesMap_freeElements(&metaFile->zones);
@@ -314,44 +329,40 @@ void Sts_MetaFile_free(Sts_MetaFile* metaFile) {
 }
 
 
-void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone) zone) {
-  if (Sts_OwnedMetaZonesMap_contains(&metaFile->zones, (ViewString*) &zone->name)) {
+void_errno Sts_MetaFile_regZone(Sts_MetaFile* metaFile, OWNER(Sts_MetaZone*) zone) {
+  if (Sts_OwnedMetaZonesMap_contains(&metaFile->zones, ViewString_by(zone->name))) {
     errno = 1; return;
   }
-  Sts_OwnedMetaZonesMap_set(&metaFile->zones, (ViewString*) &zone->name, zone);
+  Sts_OwnedMetaZonesMap_set(&metaFile->zones, ViewString_by(zone->name), zone);
   errno = 0; return;
 }
-Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, ViewString* name) {
-  Sts_MetaZone** zoneP = Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
-  if (errno != 0 || zoneP == null) return 0;
-  return *zoneP;
+Sts_MetaZone* Sts_MetaFile_getZone(Sts_MetaFile* metaFile, ViewString name) {
+  return Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
 }
-Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, ViewString* name) {
-  Sts_MetaZone** zoneP = Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
+Sts_MetaZone* Sts_MetaFile_getOrCreateZone(Sts_MetaFile* metaFile, ViewString name) {
+  Sts_MetaZone* zoneP = Sts_OwnedMetaZonesMap_get(&metaFile->zones, name);
   if (errno != 0 || zoneP == null) {
     Sts_MetaZone* zone = A_loc(sizeof(Sts_MetaZone));
     Sts_MetaZone_init(zone, String_copy(name));
     Sts_OwnedMetaZonesMap_set(&metaFile->zones, name, zone);
     return zone;
   }
-  return *zoneP;
+  return zoneP;
 }
-void_errno Sts_MetaFile_delZone(Sts_MetaFile* metaFile, ViewString* name) {
+void_errno Sts_MetaFile_delZone(Sts_MetaFile* metaFile, ViewString name) {
   Sts_OwnedMetaZonesMap_remove(&metaFile->zones, name);
 }
 
-void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, Sts_MetaToken* token) {
-  if (Sts_OwnedMetaTokens_contains(&metaFile->tokens, (ViewString*) &token->name)) {
+void_errno Sts_MetaFile_regToken(Sts_MetaFile* metaFile, OWNER(Sts_MetaToken*) token) {
+  if (Sts_OwnedMetaTokens_contains(&metaFile->tokens, ViewString_by(token->name))) {
     errno = 1; return;
   }
-  Sts_OwnedMetaTokens_set(&metaFile->tokens, (ViewString*) &token->name, token);
+  Sts_OwnedMetaTokens_set(&metaFile->tokens, ViewString_by(token->name), token);
   errno = 0; return;
 }
-Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, ViewString* name) {
-  Sts_MetaToken** tokenP = Sts_OwnedMetaTokens_get(&metaFile->tokens, name);
-  if (errno != 0 || tokenP == null) return 0;
-  return *tokenP;
+Sts_MetaToken* Sts_MetaFile_getToken(Sts_MetaFile* metaFile, ViewString name) {
+  return Sts_OwnedMetaTokens_get(&metaFile->tokens, name);
 }
-void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, ViewString* name) {
+void_errno Sts_MetaFile_delToken(Sts_MetaFile* metaFile, ViewString name) {
   Sts_OwnedMetaTokens_remove(&metaFile->tokens, name);
 }

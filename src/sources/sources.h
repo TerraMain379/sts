@@ -4,6 +4,7 @@
 #include "string.h"
 #include "iter.h"
 #include "list.h"
+#include "prints.h"
 
 typedef enum SPDMode {
   SPDMode_NULL = 0,
@@ -14,6 +15,10 @@ typedef enum SPDMode {
   SPDMode_CURR_LINE,
   SPDMode_BACK_LINE_SHIFT,
   SPDMode_FORWARD_LINE_SHIFT,
+
+  SPDMode_CURR_WORD,
+  SPDMode_BACK_WORD_SHIFT,
+  SPDMode_FORWARD_WORD_SHIFT,
 } SPDMode;
 
 typedef struct SPDFlags {
@@ -36,33 +41,37 @@ SourcePointDescription SPD_new2(SPDMode mode);
 
 
 
-typedef struct Coords {
+typedef struct SourceCoords {
   size_t lineNumber;
   size_t charNumber;
-} Coords;
+} SourceCoords;
+dec_prints(SourceCoords);
+typedef struct SourceSpan {
+  SourceCoords start;
+  SourceCoords end;
+} SourceSpan;
+dec_prints(SourceSpan);
 
 typedef struct Source {
-  String filename;
-
-  Coords startCoords;
-  Coords endCoords;
-
+  OWNER(String) filename;
+  SourceSpan span;
   Iter startIter;
   Iter endIter;
 
-  String cachedData;
+  OWNER(String) cachedData;
   bool cachedDataIsValid;
 } Source;
+dec_prints(Source);
 
-Source Source_byIter(BORROW(ViewString) filename, BORROW(Iter) iter, SourcePointDescription leftPoint, SourcePointDescription rightPoint);
-Source Source_byIters(BORROW(ViewString) filename, BORROW(Iter) leftIter, SourcePointDescription leftPoint, BORROW(Iter) rightIter, SourcePointDescription rightPoint);
+Source Source_byIter(BORROW(ViewString) filename, BORROW(Iter*) iter, SourcePointDescription leftPoint, SourcePointDescription rightPoint);
+Source Source_byIters(BORROW(ViewString) filename, BORROW(Iter*) leftIter, SourcePointDescription leftPoint, BORROW(Iter*) rightIter, SourcePointDescription rightPoint);
 
 void_errno Source_updateCache(Source* source);
 void Source_free(Source* source);
 
 
 #define PNAME Sources
-#define PTYPE OWNER(Source)
+#define PTYPE OWNER(Source*)
 #define PFREEFUN Source_free
 #define BASE_LIST List
 #include "plist.h"
@@ -70,3 +79,4 @@ void Source_free(Source* source);
 #undef PTYPE
 #undef PFREEFUN
 #undef BASE_LIST
+dec_prints(Sources);

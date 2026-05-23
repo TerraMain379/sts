@@ -9,4 +9,5 @@
 #undef TYPE
 #undef NULLV
 
-dec_print(Map);
+#include "prints.h"
+dec_prints(Map);

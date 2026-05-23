@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-Iter Iter_create(const char* const str, size_t size) {
+Iter Iter_create(WEAK(char*) str, size_t size) {
   return (Iter) {
     .start = str,
     .curr = str,
@@ -10,15 +10,15 @@ Iter Iter_create(const char* const str, size_t size) {
     .currUInfoIsValid = false
   };
 }
-Iter Iter_new(ViewString* vstring) {
+Iter Iter_new(WEAK(ViewString) vstring) {
   return (Iter) {
-    .start = vstring->buffer,
-    .curr = vstring->buffer,
-    .size = vstring->size,
+    .start = vstring.buffer,
+    .curr = vstring.buffer,
+    .size = vstring.size,
     .currUInfoIsValid = false
   };
 }
-Iter Iter_copy(BORROW(Iter) iter) {
+Iter Iter_copy(BORROW(Iter*) iter) {
   return *iter;
 }
 

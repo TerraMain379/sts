@@ -101,7 +101,7 @@ typedef struct Lexem {
   LexemType type;
   union {
     Sts_MetaDeclarationValue decValue;
-    WEAK(OpData) opData;
+    WEAK(OpData*) opData;
   } value;
   Source src;
 } Lexem;
@@ -139,6 +139,11 @@ void Lexem_free(Lexem* lexem) {
 #undef FREEFUN
 
 
+void registerDeclarationValue(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationValue* value) {
+  if (value->type == Sts_MetaDeclarationValueType_LINK) {
+    Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, value);
+  }
+}
 
 Lexem parseLexems_string(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 Lexem parseLexems_number(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
@@ -201,7 +206,7 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
   String name = Utils_Iter_readName(ctx);
   Sts_MetaDeclarationValue nameDec;
 
-  bool contains = StringList_contains(&decBlock->linkNames, (ViewString*) &name);
+  bool contains = StringList_contains(&decBlock->linkNames, ViewString_by(name));
   if (contains) {
     nameDec.type = Sts_MetaDeclarationValueType_LINK;
     nameDec.value.linkName = name;
@@ -222,8 +227,8 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
   else if (c == ':') openType = OpenType_VALUE;
   else if (c == ';') openType = OpenType_SHORT_CLOSE;
   else {
-    Errors_metaparser_unkownToken(ctx, Source_byIter(
-      (ViewString*) &ctx->filename,
+    Errors_metaparser_unknownToken(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
       &ctx->iter,
       SPD_new2_double(SPDMode_CURR_CHAR)
     ));
@@ -233,22 +238,22 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
 
   ViewString vs_event = ViewString_of("event");
   ViewString vs_regex = ViewString_of("regex");
-  if (ViewStrings_equals((ViewString*) &name, &vs_event) && !contains) {
+  if (ViewStrings_equals(ViewString_by(name), vs_event) && !contains) {
     if (openType == OpenType_BODY) {
-      // events
+      // TODO: events
     }
     else if (openType == OpenType_SHORT_CLOSE) {
       Iter_nextChar(&ctx->iter);
     }
     else {
       Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
-        (ViewString*) &ctx->filename,
+        ViewString_by(ctx->filename),
         &ctx->iter,
         SPD_new1_double(SPDMode_BACK_CHAR_SHIFT, 1)
       ), ViewString_of("{"));
     }
   }
-  else if (ViewStrings_equals((ViewString*) &name, &vs_regex) && openType == OpenType_BODY && !contains) {
+  else if (ViewStrings_equals(ViewString_by(name), vs_regex) && openType == OpenType_BODY && !contains) {
     // TODO: super regex
   }
   else { // default param
@@ -276,17 +281,15 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
 
       Sts_MetaDeclarationValue valueDec = parseValue(decBlock, ctx);
       Sts_MetaDeclarationValue* valueDecPtr = Sts_MetaDeclarationValueList_add(&values, valueDec);
-      if (valueDec.type == Sts_MetaDeclarationValueType_LINK) {
-        Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, valueDecPtr);
-      }
+      registerDeclarationValue(decBlock, valueDecPtr);
 
       Utils_Iter_skipVoid(ctx, false);
       c = Iter_currChar(&ctx->iter);
       Iter_nextChar(&ctx->iter);
     } while (c == ',');
     if (c != ';') {
-      Errors_metaparser_unkownToken(ctx, Source_byIter(
-        (ViewString*) &ctx->filename,
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
         &ctx->iter,
         SPD_new1_double(SPDMode_BACK_CHAR_SHIFT, 1)
       ));
@@ -294,7 +297,7 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
   }
   else {
     Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
-      (ViewString*) &ctx->filename,
+      ViewString_by(ctx->filename),
       &ctx->iter,
       SPD_new1_double(SPDMode_BACK_CHAR_SHIFT, 1)
     ), ViewString_of("{"));
@@ -303,9 +306,7 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
     .name = nameDec,
     .values = values,
   };
-  if (nameDec.type == Sts_MetaDeclarationValueType_LINK) {
-    Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, &dec->value.param.name);
-  }
+  registerDeclarationValue(decBlock, &dec->value.param.name);
   Sts_MetaDeclarationList_add(&decBlock->declarations, dec);
 }
 
@@ -314,10 +315,15 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
 typedef struct PrattContext {
   Sts_MetaParser_Context* ctx;
   Sts_MetaDeclarationsBlock* decBlock;
-  Lexems* lexems;
+  OWNER(Lexems*) lexems;
   size_t* currIndex;
-  Source expressionSrc;
+  OWNER(Source) expressionSrc;
 } PrattContext;
+void PrattContext_free(PrattContext* prattContext) {
+  Lexems_freeElements(prattContext->lexems);
+  Lexems_free(prattContext->lexems);
+  Source_free(&prattContext->expressionSrc);
+}
 
 Sts_MetaDeclarationValue pratt(PrattContext ctx, int minLbp);
 
@@ -338,6 +344,15 @@ Sts_MetaDeclarationValue pratt_paren(PrattContext ctx);
 // main parse function. Parse left and run right parse looparse left and run right parse loop
 Sts_MetaDeclarationValue pratt(PrattContext ctx, int minLbp) {
   Lexem* leftLexem = Lexems_get(ctx.lexems, *ctx.currIndex);
+  if (!leftLexem) {
+    Source expressionSrc = ctx.expressionSrc;
+    Context* ctx1 = ctx.ctx;
+    ctx.ctx = null;
+    ctx.expressionSrc = (Source) {0};
+    PrattContext_free(&ctx);
+    Errors_metaparser_emptyExpression(ctx1, expressionSrc);
+    non_call_return (Sts_MetaDeclarationValue) {};
+  }
   Sts_MetaDeclarationValue left;
   PrattCheckLeftResult result = pratt_checkLeft(ctx, &left, leftLexem);
   if (result == PrattCheckLeftResult_OK) {
@@ -429,6 +444,7 @@ Sts_MetaDeclarationValue pratt_prefix(PrattContext ctx, Lexem* op) {
     .value1 = (Sts_MetaDeclarationValue) { .type = Sts_MetaDeclarationValueType_NULL },
     .value2 = right,
   };
+  registerDeclarationValue(ctx.decBlock, &expression->value2);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -444,6 +460,8 @@ Sts_MetaDeclarationValue pratt_infix(PrattContext ctx, Lexem* op, Sts_MetaDeclar
     .value1 = left,
     .value2 = right,
   };
+  registerDeclarationValue(ctx.decBlock, &expression->value1);
+  registerDeclarationValue(ctx.decBlock, &expression->value2);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -457,6 +475,7 @@ Sts_MetaDeclarationValue pratt_postfix(PrattContext ctx, Lexem* op, Sts_MetaDecl
     .value1 = left,
     .value2 = (Sts_MetaDeclarationValue) { .type = Sts_MetaDeclarationValueType_NULL },
   };
+  registerDeclarationValue(ctx.decBlock, &expression->value1);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -479,6 +498,8 @@ Sts_MetaDeclarationValue pratt_infix_postfix(PrattContext ctx, Lexem* op, Sts_Me
       .value1 = left,
       .value2 = right,
     };
+    registerDeclarationValue(ctx.decBlock, &expression->value1);
+    registerDeclarationValue(ctx.decBlock, &expression->value2);
     return (Sts_MetaDeclarationValue) {
       .type = Sts_MetaDeclarationValueType_EXPRESSION,
       .value.expression = expression,
@@ -511,9 +532,7 @@ Sts_MetaDeclarationValue parseValue(Sts_MetaDeclarationsBlock* decBlock, Sts_Met
     .expressionSrc = expressionSrc,
   };
   Sts_MetaDeclarationValue value = pratt(prattContext, 0);
-  Source_free(&prattContext.expressionSrc);
-  Lexems_freeElements(&lexems);
-  Lexems_free(&lexems);
+  PrattContext_free(&prattContext);
   return value;
 }
 
@@ -549,7 +568,7 @@ Lexems parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* 
     // else if (c == ';' || c == ',') {
   }
   *expressionSource = Source_byIters(
-    (ViewString*) &ctx->filename,
+    ViewString_by(ctx->filename),
     &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
     iter, SPD_new2(SPDMode_CURR_CHAR)
   );
@@ -560,8 +579,18 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
 
   String name = Utils_Iter_readName(ctx);
   Sts_MetaDeclarationValue decValue;
-  decValue.type = Sts_MetaDeclarationValueType_NAME;
-  decValue.value.name = name;
+  if (StringList_contains(&decBlock->linkNames, ViewString_by(name))) {
+    decValue = (Sts_MetaDeclarationValue) {
+      .type = Sts_MetaDeclarationValueType_LINK,
+      .value = { .linkName = name },
+    };
+  }
+  else {
+    decValue = (Sts_MetaDeclarationValue) {
+      .type = Sts_MetaDeclarationValueType_NAME,
+      .value = { .name = name },
+    };
+  }
 
   Iter* iter = &ctx->iter;
   Utils_Iter_skipVoid(ctx, false);
@@ -569,7 +598,16 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
     Iter_nextChar(iter);
     Utils_Iter_skipVoid(ctx, false);
 
-    String name2 = Utils_Iter_readName(ctx);
+    type_errno(String) name2 = Utils_Iter_readName(ctx);
+    if (errno != 0) {
+      Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new1(SPDMode_BACK_WORD_SHIFT, 1),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ), ViewString_of("<name>"));
+    }
+
     Sts_MetaDeclarationValue name2DecValue;
     name2DecValue.type = Sts_MetaDeclarationValueType_NAME;
     name2DecValue.value.name = name2;
@@ -586,9 +624,9 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
   }
 
   Source lexemSrc = Source_byIters(
-    (ViewString*) &ctx->filename,
+    ViewString_by(ctx->filename),
     &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
-    &ctx->iter, SPD_new2(SPDMode_CURR_CHAR)
+    &ctx->iter, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
   );
 
   Lexem lexem = (Lexem) {
@@ -599,104 +637,115 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
   return lexem;
 }
 Lexem parseLexems_number(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter startIterClone = Iter_copy(&ctx->iter);
+
   double number = Utils_Iter_readNumber(ctx);
   Sts_MetaDeclarationValue decValue;
   decValue.type = Sts_MetaDeclarationValueType_NUMBER;
   decValue.value.number = number;
-  Lexem lexem;
-  lexem.type = LexemType_VALUE;
-  lexem.value.decValue = decValue;
-  return lexem;
+  Source lexemSrc = Source_byIters(
+    ViewString_by(ctx->filename),
+    &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
+    &ctx->iter, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+  );
+  return (Lexem) {
+    .type = LexemType_VALUE,
+    .value = { .decValue = decValue },
+    .src = lexemSrc,
+  };
 }
 Lexem parseLexems_string(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
+  Iter startIterClone = Iter_copy(iter);
+
   Iter_nextChar(iter);
   String string = Utils_Iter_readString(ctx);
   Sts_MetaDeclarationValue decValue;
   decValue.type = Sts_MetaDeclarationValueType_STRING;
   decValue.value.string = string;
-  Lexem lexem;
-  lexem.type = LexemType_VALUE;
-  lexem.value.decValue = decValue;
-  return lexem;
+  Source lexemSrc = Source_byIters(
+    ViewString_by(ctx->filename),
+    &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
+    &ctx->iter, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+  );
+  return (Lexem) {
+    .type = LexemType_VALUE,
+    .value = { .decValue = decValue },
+    .src = lexemSrc,
+  };
 }
 
 Lexem parseLexems_operator(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
+  Iter startIterClone = Iter_copy(iter);
   char c = Iter_currChar(iter);
   char c1 = Iter_nextChar(iter);
 
+  LexemType type;
+  OpData* opData;
   if (c == '+') {
     if (c1 == '+') {
       Iter_nextChar(iter);
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_INC }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_INC;
     }
     else {
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_SUM }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_SUM;
     }
   }
   else if (c == '-') {
     if (c1 == '-') {
       Iter_nextChar(iter);
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_DEC }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_DEC;
     }
     else {
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_SUB }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_SUB;
     }
   }
   else if (c == '*') {
     if (c1 == '*') {
       Iter_nextChar(iter);
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_POW }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_POW;
     }
     else {
-      return (Lexem) {
-        .type = LexemType_OPERATOR,
-        .value = { .opData = &OpData_MUL }
-      };
+      type = LexemType_OPERATOR;
+      opData = &OpData_MUL;
     }
   }
   else if (c == '/') {
-    return (Lexem) {
-      .type = LexemType_OPERATOR,
-      .value = { .opData = &OpData_DIV }
-    };
+    type = LexemType_OPERATOR;
+    opData = &OpData_DIV;
   }
   else if (c == '%') {
-    return (Lexem) {
-      .type = LexemType_OPERATOR,
-      .value = { .opData = &OpData_MOD }
-    };
+    type = LexemType_OPERATOR;
+    opData = &OpData_MOD;
   }
   else if (c == '(') {
-    return (Lexem) {
-      .type = LexemType_PAREN_OPEN,
-    };
+    type = LexemType_PAREN_OPEN;
+    opData = null;
   }
   else if (c == ')') {
-    return (Lexem) {
-      .type = LexemType_PAREN_CLOSE,
-    };
+    type = LexemType_PAREN_CLOSE;
+    opData = null;
   }
   else {
-    Errors_metaparser_unkownToken(ctx, Source_byIter(
-      (ViewString*) &ctx->filename, &ctx->iter, SPD_new2_double(SPDMode_CURR_CHAR)
+    Errors_metaparser_unknownToken(ctx, Source_byIter(
+      ViewString_by(ctx->filename), &ctx->iter, SPD_new2_double(SPDMode_CURR_CHAR)
     ));
     non_call_return (Lexem) {};
   }
+  Source lexemSrc = Source_byIters(
+    ViewString_by(ctx->filename),
+    &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
+    &ctx->iter, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+  );
+  return (Lexem) {
+    .type = type,
+    .value = { .opData = opData },
+    .src = lexemSrc,
+  };
 }

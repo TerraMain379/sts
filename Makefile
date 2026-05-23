@@ -5,7 +5,9 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -O3
 TESTS_CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -O0
 SANITIZE_CFLAGS = -Wall -Wextra -Wno-unused-variable -Wno-unused-parameter -Wcomment -fsanitize=address,undefined
-LDFLAGS = -fsanitize=address,undefined
+LDFLAGS =
+TESTS_LDFLAGS = -fsanitize=address,undefined
+SANITIZE_LDFLAGS = -fsanitize=address,undefined
 
 # output
 BIN_TARGET = main.bin
@@ -38,6 +40,8 @@ INCLUDE_DIRS = \
 	src/stringbuilder \
 	src/memutils \
 	src/strings \
+	src/printers \
+	src/logger \
 	src/sts \
 	src/unicode \
 	src/sources \
@@ -129,13 +133,13 @@ build_bin:
 gdb_bin:
 	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -g -DDEBUG" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 build_test:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -DBUILD_TESTS" LDFLAGS="$(TESTS_LDFLAGS)" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 gdb_tests:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -g -DDEBUG -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(TESTS_CFLAGS) -g -DDEBUG -DBUILD_TESTS" LDFLAGS="$(TESTS_LDFLAGS)" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 sanitize:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS)" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS)" LDFLAGS="$(SANITIZE_LDFLAGS)" clean MAKE_TRANFORM_MAIN_FILES MAKE_BIN_BY_TRANSFORM_MAIN_FILES
 sanitize_tests:
-	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS) -DBUILD_TESTS" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
+	$(MAKE) --file=$(MAKEFILE) CFLAGS="$(SANITIZE_CFLAGS) -DBUILD_TESTS" LDFLAGS="$(SANITIZE_LDFLAGS)" clean MAKE_TRANFORM_TEST_FILES MAKE_BIN_BY_TRANSFORM_TEST_FILES
 
 build_preprocessor:
 	$(MAKE) --file=$(MAKEFILE) TRANSFORM_FILES_OPERATION=E TRANSFORM_FILES_TYPE=i \
@@ -151,6 +155,9 @@ test: sanitize_tests
 
 run: build_bin
 	@./$(BIN_TARGET)
+
+bear:
+	bear -- make gdb_tests
 
 clang_tidy:
 	run-clang-tidy -p . -checks='-*,clang-analyzer-*,bugprone-*,performance-*,portability-*,-portability-avoid-pragma-once, -bugprone-reserved-identifier, -bugprone-easily-swappable-parameters'

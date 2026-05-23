@@ -3,6 +3,7 @@
 #include "errors.h"
 #include "metaparser_errors.h"
 
+#include "mpmodules/utils.h"
 #include "mpmodules/group.h"
 #include "mpmodules/regexlink.h"
 #include "mpmodules/setmainzone.h"
@@ -14,10 +15,10 @@ typedef Sts_MetaParser_Context Context;
 
 
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {
-  // TODO:
+  arguments->metadata.filename = (String) {0};
 }
 void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments) {
-  // TODO:
+  String_free(&arguments->metadata.filename);
 }
 
 #define vs_one(c) (ViewString_of((char[]) {c, '\0'}))
@@ -26,15 +27,16 @@ void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments) {
 void parseLoop(Context* context);
 
 
-void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BORROW(Sts_MetaParser_Arguments) args) {
+void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, Sts_MetaParser_Arguments args) {
   ViewString errLocation = ViewString_of("Sts_MetaParser_parse");
   if (metaFile == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
-  if (args == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
+  // if (args == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
   
   Context context = {
+    .filename = args.metadata.filename,
     .metaFile = metaFile,
     .iter = iter,
-    .args = args,
+    // .args = args,
   };
 
   if (setjmp(context.errjmp) != 0) { // ERROR EXIT
@@ -42,25 +44,20 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile) metaFile, Iter iter, BO
   }
   
   parseLoop(&context);
+  errno = 0; return;
 }
 
 void parseLoop(Context* context) {
   Iter* iter = &context->iter;
 
-  ViewString* filename = (ViewString*) &context->args->metadata.filename;
+  ViewString filename = ViewString_by(context->filename);
 
   bool flagModificator;
-  char c; Iter_foreachChars(c, iter) {
+  for (char c = Iter_currChar(iter); c != '\0'; c = Iter_currChar(iter)) {
     // TODO: In the future, it's worth switching to the dispatch table.
 
-    if (c == '#') { 
-      // skip comment
-      Iter_foreachChars(c, iter) {
-        if (c == '\n') break;
-      }
-    }
-    else if (Chars_isVoid(c)) {
-      continue;
+    if (c == '#' || Chars_isVoid(c)) { 
+      Utils_Iter_skipVoid(context, false);
     }
     else if (Chars_isLetter(c)) {
       parseToken(context); // TODO:
@@ -76,7 +73,7 @@ void parseLoop(Context* context) {
         while (Iter_currChar(&iter2) != '~') {
           Iter_unsafeBackChar(&iter2);
         }
-        Errors_metaparser_unkownToken(context, Source_byIters(
+        Errors_metaparser_unknownToken(context, Source_byIters(
           filename,
           &iter2, SPD_new2(SPDMode_CURR_CHAR),
           iter, SPD_new2(SPDMode_CURR_CHAR)
@@ -106,7 +103,7 @@ void parseLoop(Context* context) {
     }
     else if (c == '[') {
       // TODO: supertokens deleted
-      Errors_metaparser_unkownToken(context, Source_byIter(
+      Errors_metaparser_unknownToken(context, Source_byIter(
         filename,
         iter,
         SPD_new2(SPDMode_CURR_CHAR),
@@ -120,7 +117,7 @@ void parseLoop(Context* context) {
       parseSstsFunction(context); // TODO:
     }
     else {
-      Errors_metaparser_unkownToken(context, Source_byIter(
+      Errors_metaparser_unknownToken(context, Source_byIter(
         filename,
         iter,
         SPD_new2(SPDMode_CURR_CHAR),

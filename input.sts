@@ -1,11 +1,13 @@
 # comment
 
-/hello"main"/
+
+/a"main"/
+/world"foobar[a-z\"]"/
 
 TOKEN {
-
+  parentZone: 1 * 2 * 2 * 3;
+  parentZone: 1;
+  # event {
+  #   "closeZone.after": "$after = this.text";
+  # }
 }
-
-- zone (
-
-)
