@@ -1,26 +1,6 @@
-changed memtypes macros to visual annotations (disabled automatic * addition)
-implemented functions in errors.c
-implemented functions in metaparser_errors.c
-added declarations list (Sts_MetaDeclarationsBlocks) to Sts_MetaFile
-added logger.h/c
-added printers based on print.h|c (generate files, declaration macros, implements for debug printing)
-changed Strings and ViewStrings to pass by value throughout the project
-updated Utils_Iter_skipChar: comments support
-added SPDModes for SourcePointDescription system: CURR_WORD, BACK_WORD_SHIFT, FORWARD_WORD_SHIFT
-changed Source structure: added SourceSpan and SourceCoords
-fixed spelling of "unknown"
-added ViewStrings_toJson
-added String_copyString
-added String_const
-added Strings_getLen
-added StringBuilder#addCharBuffer
-added Errors_metaparser_emptyExpression
-added location tracking to allocator for error messages
-refactored sources.c (some logic is encapsulated)
-changed Iter_new and Iter_copy to accept arguments by value
-added "bear" task to Makefile
-added tests to test_strings.c
-edited Sts_MetaParser_Context
-refactored declaration.c
-refactored regexlink.c, token.c, setmainzone.c
-fixed Makefile LDFLAGS
+added events declarations parse
+improved error handling in many places
+added ghost annotation for tokens declaration parsing (token.c:`c == '!'`)
+fixed critical bug in Utils_Iter_skipChar
+added Chars_isNameStart combining Chars_isLetter and c == '_' 
+fixed expressionWasAwaitingOperator error printing

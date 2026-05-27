@@ -4,10 +4,23 @@
 /a"main"/
 /world"foobar[a-z\"]"/
 
-TOKEN {
-  parentZone: 1 * 2 * 2 * 3;
-  parentZone: 1;
+TOKEN<b, a> {
+  a: a.1.2.c;
+  a: b;
+  vector: ("a" + b) * 1 , hello;
+  event {
+    "hello."+"world": "hello world";
+    a.n: c.b;
+  }
+  OPERATIONS: -A + B / 1 - C * 2 ** 3 ** 4;
+  A: ++A--;
+}
+
+# TOKEN1 : TOKEN<text, 123>;
+
+  # parentZone: 1 * 2 * 2 * 3;
+  # parentZone: 1;
   # event {
   #   "closeZone.after": "$after = this.text";
   # }
-}
+# }

@@ -1,7 +1,5 @@
 #include "metaparser_errors.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "logger.h"
 #include "stringbuilder.h"
 
@@ -189,7 +187,7 @@ void_stop Errors_metaparser_expressionWasAwaitingOperator(Context* ctx, Source s
     .existSource = true,
     .existSource1 = true,
     .existExcerpt = true,
-    .existExcerpt1 = false,
+    .existExcerpt1 = true,
     .existHint = false,
     .existExtra = false,
   };

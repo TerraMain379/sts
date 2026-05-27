@@ -5,10 +5,25 @@
 #include "metaparser_errors.h"
 
 void parseRegexLink(Context* ctx) {
+  Iter startIter = Iter_copy(&ctx->iter);
   Utils_Iter_skipChar(ctx, '/');
   Utils_Iter_skipVoid(ctx, false);
   type_errno(String) name = Utils_Iter_readName(ctx);
-  if (errno != 0) {
+  if (errno != 0) goto goto_error_readName;
+  Utils_Iter_skipVoid(ctx, false);
+  Utils_Iter_skipChar(ctx, '"');
+  String regex = Utils_Iter_readString(ctx);
+  Utils_Iter_skipChar(ctx, '/');
+
+  Sts_MetaRegex metaRegex;
+  Sts_MetaRegex_init(&metaRegex, regex);
+  if (Sts_MetaRegexLinks_contains(&ctx->metaFile->regexes, ViewString_by(name))) {
+    goto goto_error_redefining;
+  }
+  Sts_MetaRegexLinks_setByOwnKey(&ctx->metaFile->regexes, name, metaRegex);
+  return;
+
+  goto_error_readName: {
     if (Iter_currChar(&ctx->iter) == '\0') {
       Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
         ViewString_by(ctx->filename),
@@ -27,13 +42,16 @@ void parseRegexLink(Context* ctx) {
       ), ViewString_of("<name>"));
       non_call_return;
     }
+    return;
   }
-  Utils_Iter_skipVoid(ctx, false);
-  Utils_Iter_skipChar(ctx, '"');
-  String regex = Utils_Iter_readString(ctx);
-  Utils_Iter_skipChar(ctx, '/');
-
-  Sts_MetaRegex metaRegex;
-  Sts_MetaRegex_init(&metaRegex, regex);
-  Sts_MetaRegexLinks_setByOwnKey(&ctx->metaFile->regexes, name, metaRegex);
+  goto_error_redefining: {
+    Warnings_metaparser_redefiningRegex(ctx, Source_byIters(
+      ViewString_by(ctx->filename),
+      &startIter,
+      SPD_new2(SPDMode_CURR_CHAR),
+      &ctx->iter,
+      SPD_new2(SPDMode_CURR_CHAR)
+    ), ViewString_by(name));
+    return;
+  }
 }

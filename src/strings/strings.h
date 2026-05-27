@@ -36,6 +36,9 @@ size_t Strings_getLen(BORROW(char*) str);
 static inline bool Chars_isLetter(const char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
+static inline bool Chars_isNameStart(const char c) {
+  return Chars_isLetter(c) || c == '_';
+}
 static inline bool Chars_isDigit(const char c) {
   return c >= '0' && c <= '9';
 }

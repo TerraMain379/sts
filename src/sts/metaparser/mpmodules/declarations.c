@@ -161,6 +161,7 @@ typedef enum OpenType {
 void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char c);
 static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
+static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 
 void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Sts_MetaDeclarationsBlockType type = decBlock->type;
@@ -179,7 +180,7 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
     Utils_Iter_skipVoid(ctx, false);
     char c = Iter_currChar(&ctx->iter);
 
-    if (Chars_isLetter(c) || c == '_') {
+    if (Chars_isNameStart(c)) {
       parseDeclarations_name(decBlock, ctx, c);
     }
     else if (c == '$') {
@@ -198,7 +199,12 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
       break;
     }
     else {
-      // TODO: ERROR
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        &ctx->iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
     }
   }
 }
@@ -236,11 +242,10 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
   }
   Iter_nextChar(&ctx->iter);
 
-  ViewString vs_event = ViewString_of("event");
-  ViewString vs_regex = ViewString_of("regex");
-  if (ViewStrings_equals(ViewString_by(name), vs_event) && !contains) {
+  if (ViewStrings_equals(ViewString_by(name), ViewString_of("event")) && !contains) {
     if (openType == OpenType_BODY) {
-      // TODO: events
+      String_free(&name);
+      parseDeclarations_name_event(decBlock, ctx);
     }
     else if (openType == OpenType_SHORT_CLOSE) {
       Iter_nextChar(&ctx->iter);
@@ -253,7 +258,7 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
       ), ViewString_of("{"));
     }
   }
-  else if (ViewStrings_equals(ViewString_by(name), vs_regex) && openType == OpenType_BODY && !contains) {
+  else if (ViewStrings_equals(ViewString_by(name), ViewString_of("regex")) && openType == OpenType_BODY && !contains) {
     // TODO: super regex
   }
   else { // default param
@@ -300,7 +305,7 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
       ViewString_by(ctx->filename),
       &ctx->iter,
       SPD_new1_double(SPDMode_BACK_CHAR_SHIFT, 1)
-    ), ViewString_of("{"));
+    ), ViewString_of(":"));
   }
   dec->value.param = (Sts_MetaParamDeclaration) {
     .name = nameDec,
@@ -308,6 +313,40 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
   };
   registerDeclarationValue(decBlock, &dec->value.param.name);
   Sts_MetaDeclarationList_add(&decBlock->declarations, dec);
+}
+static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter* iter = &ctx->iter;
+  while (true) {
+    Utils_Iter_skipVoid(ctx, false);
+    type_errno(char) c = Iter_currChar(iter);
+    if (c == '}') {
+      Iter_nextChar(iter);
+      break;
+    }
+    else if (errno != 0) {
+      Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
+        SPD_new1(SPDMode_BACK_WORD_SHIFT, 2)
+      ));
+      non_call_return;
+    }
+    else {
+      Sts_MetaDeclaration* eventDec = A_xloc(sizeof(Sts_MetaDeclaration));
+      eventDec->type = Sts_MetaDeclarationType_EVENT;
+
+      eventDec->value.event.name = parseValue(decBlock, ctx);
+      // Utils_Iter_skipVoid(ctx, false);
+      Utils_Iter_skipChar(ctx, ':');
+      Utils_Iter_skipVoid(ctx, false);
+      eventDec->value.event.event = parseValue(decBlock, ctx);
+      // Utils_Iter_skipVoid(ctx, false);
+      Utils_Iter_skipChar(ctx, ';');
+
+      Sts_MetaDeclarationList_add(&decBlock->declarations, eventDec);
+    }
+  }
 }
 
 // This is an extended version of the Pratt parser, which allows you to process operators that can be both `infix`, `posfix`, and `prefix' at the same time.
@@ -545,8 +584,9 @@ Lexems parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* 
   Iter* iter = &ctx->iter;
   
   Iter startIterClone = Iter_copy(iter);
+  Iter endIterClone;
 
-  for (char c = Iter_currChar(iter); c != '\0'; c = Iter_currChar(iter)) {
+  for (char c = Iter_currChar(iter);; c = Iter_currChar(iter)) {
     if (Chars_isLetter(c)) {
       Lexems_add(&lexems, parseLexems_name(decBlock, ctx));
     }
@@ -562,15 +602,26 @@ Lexems parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* 
     else if (Chars_isVoid(c)) {
       Utils_Iter_skipVoid(ctx, true);
     }
+    else if (c == '\0') {
+      Errors_metaparser_unexpectedEnd(ctx, Source_byIters(
+        ViewString_by(ctx->filename),
+        &startIterClone,
+        SPD_new2(SPDMode_CURR_CHAR),
+        iter,
+        SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+      ));
+      non_call_return (Lexems) {};
+    }
     else {
+      endIterClone = Iter_copy(iter);
+      Iter_unsafeBackChar(&endIterClone);
       break;
     }
-    // else if (c == ';' || c == ',') {
   }
   *expressionSource = Source_byIters(
     ViewString_by(ctx->filename),
     &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
-    iter, SPD_new2(SPDMode_CURR_CHAR)
+    &endIterClone, SPD_new2(SPDMode_CURR_CHAR)
   );
   return lexems;
 }

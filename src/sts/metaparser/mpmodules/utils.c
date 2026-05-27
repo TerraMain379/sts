@@ -7,7 +7,7 @@
 type_errno(String) Utils_Iter_readName(Context* ctx) {
   Iter* iter = &ctx->iter;
   char c = Iter_currChar(iter);
-  if (!Chars_isLetter(c) && !Chars_isDigit(c) && c != '_') {
+  if (!Chars_isNameStart(c) && !Chars_isDigit(c)) {
     errno = 1; return (String) {0};
   }
   char* buffer = A_xloc(16);
@@ -15,7 +15,7 @@ type_errno(String) Utils_Iter_readName(Context* ctx) {
   size_t nameSize = 0;
 
   Iter_foreachChars(c, iter) {
-    if (!Chars_isLetter(c) && !Chars_isDigit(c) && c != '_') break;
+    if (!Chars_isNameStart(c) && !Chars_isDigit(c)) break;
     if (bufferSize == nameSize) {
       bufferSize *= 2;
       buffer = A_reloc(buffer, bufferSize);
@@ -79,12 +79,17 @@ bool Utils_Iter_readChar(Context* ctx, char c) {
   return false;
 }
 
-void_stop Utils_Iter_skipChar(Context* ctx, char c) {
+void_errno Utils_Iter_skipChar(Context* ctx, char c) {
   Iter* iter = &ctx->iter;
-  if (Iter_nextChar(iter) != c) {
-    // Errors_metaparser_anotherTokenExpected(iter);
-    // TODO: 
+  if (Iter_currChar(iter) != c) {
+    Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      iter,
+      SPD_new2(SPDMode_CURR_CHAR),
+      SPD_new2(SPDMode_CURR_CHAR)
+    ), ViewString_of((char[2]){c, '\0'}));
   }
+  Iter_nextChar(iter);
 }
 
 String Utils_Iter_readString(Context* ctx) {
