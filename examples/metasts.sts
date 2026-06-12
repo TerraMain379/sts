@@ -52,8 +52,8 @@ REGEX_LINK {
   parentZone: regex_link_zone;
   regex!: "\/>/nschar/";
   openZone: regex_link_name;
-  $name:s;
-  $value:s;
+  $[name:str];
+  $[value:str];
 }
 REGEX_LINK_NAME! {
   parentZone: regex_link_name;
@@ -79,7 +79,7 @@ ZONE {
   parentZone: zone_zone;
   regex!: "\->/nschar/";
   openZone: zone_name;
-  $name;
+  $[name];
 }
 ZONE_NAME! {
   parentZone: zone_name;
@@ -99,7 +99,7 @@ ZONE_PARAM_EXTEND {
   parentZone: zone_params;
   regex!: "\</vvoid/"
   openZone: zone_param_extend_name;
-  $name;
+  $[name];
 }
 ZONE_PARAM_EXTEND_NAME {
   parentZone: zone_param_extend_name;

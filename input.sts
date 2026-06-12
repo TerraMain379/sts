@@ -5,18 +5,23 @@
 /world"foobar[a-z\"]"/
 
 TOKEN<b, a> {
-  a: a.1.2.c;
-  a: b;
-  vector: ("a" + b) * 1 , hello;
-  event {
-    "hello."+"world": "hello world";
-    a.n: c.b;
-  }
-  OPERATIONS: -A + B / 1 - C * 2 ** 3 ** 4;
-  A: ++A--;
+  hello: world;
+  $    = b;
+  $[name] = value + 1;
+
+
+  # a: a.1.2.c;
+  # a: b;
+  # vector: ("a" + b) * 1 , hello;
+  # event {
+  #   "hello."+"world": "hello world";
+  #   a.n: c.b;
+  # }
+  # OPERATIONS: -A + B / 1 - C * 2 ** 3 ** 4;
+  # A: ++A--;
 }
 
-# TOKEN1 : TOKEN<text, 123>;
+# TOKEN1 : TOKEN<text, 123> {
 
   # parentZone: 1 * 2 * 2 * 3;
   # parentZone: 1;

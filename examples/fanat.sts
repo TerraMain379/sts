@@ -68,10 +68,10 @@ COMMENTS! {
 CLASS_ANY {
   parentZone: static_code;
   openZone: class_description;
-  $name's;
-  $extenders'[t];
-  $implementers'[t];
-  $params'[t];
+  $[name:str];
+  $[extenders:[token]];
+  $[implementers:[token]];
+  $[params:[token]];
 }
 CLASS_CLASS <- CLASS_ANY {
   regex: "class/endmame/";

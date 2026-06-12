@@ -35,6 +35,36 @@ void_stop Errors_metaparser_unknownToken(Context* ctx, Source src) {
   ErrorLog_free(&elog);
   end_err;
 }
+void_stop Errors_metaparser_tokenNotAvailableHere(CONTEXT* ctx, Source src, ViewString reason) {
+  StringBuilder messageBuilder;
+  StringBuilder_init(&messageBuilder);
+  StringBuilder_addCharBuffer(&messageBuilder, "token not available here: ");
+  StringBuilder_addString(&messageBuilder, reason);
+
+  ErrorLog elog = (ErrorLog) {
+    .severity = ErrorLogSeverity_ERROR,
+    .code = String_by("tokenNotAvailableHere"),
+    .category = String_by("metaparser"),
+    .method = (String) {0},
+    .message = StringBuilder_take(&messageBuilder),
+    .source = src,
+    .source1 = (Source) {0},
+    .excerpt = ErrorLogExcerpt_new(src),
+    .excerpt1 = (ErrorLogExcerpt) {0},
+    .hint = (String) {0},
+    .extra = (StringMap) {0},
+    .existMethod = false,
+    .existMessage = true,
+    .existSource = true,
+    .existSource1 = false,
+    .existExcerpt = true,
+    .existHint = false,
+    .existExtra = false,
+  };
+  ErrorLog_send(&elog);
+  ErrorLog_free(&elog);
+  end_err;
+}
 void_stop Errors_metaparser_anotherTokenExpected(Context* ctx, Source src, ViewString expectedToken) {
   StringBuilder message;
   StringBuilder_init(&message);

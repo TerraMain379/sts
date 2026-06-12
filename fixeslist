@@ -1,6 +1,6 @@
-added events declarations parse
-improved error handling in many places
-added ghost annotation for tokens declaration parsing (token.c:`c == '!'`)
-fixed critical bug in Utils_Iter_skipChar
-added Chars_isNameStart combining Chars_isLetter and c == '_' 
-fixed expressionWasAwaitingOperator error printing
+added variable declaration parsing
+added Sts_description.md to specification (only ru)
+added Errors_metaparser_tokenNotAvailableHere
+fixed OpData_SUB params
+fixed print_impls.c
+removed unreachable branches

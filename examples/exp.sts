@@ -1,0 +1,85 @@
+# hello world
+
+VOID! {...}
+- void_zone ();
+
+NUMBER {...}
+NAME {...}
+
+
+OP_SUM {...}
+OP_SUB {...}
+OP_MUL {...}
+OP_DIV {...}
+OP_POW {...}
+OP_INC {...}
+OP_DEC {...}
+* operators (
+  < OP_SUM;
+  < OP_SUB;
+  < OP_MUL;
+  < OP_DIV;
+  < OP_POW;
+  < OP_INC;
+  < OP_DEC;
+)
+
+- expression_zone (
+  < NUMBER; # токен
+  < NAME; # токен
+  < operators; # группа
+  < void_zone; # зона
+);
+
+* values (
+  < NUMBER;
+  < NAME;
+  < EXPRESSION;
+)
+
+[GEN_OP_INFIX]<_operator, _priority, _associativity> {
+  rename: EXPRESSION;
+  parentZone: expression_zone;
+  openTrigger: _operator;
+  regex {
+    values left;
+    _operator op;
+    values right;
+  }
+  priority: _priority;
+  associativity: _associativity;
+}
+[GEN_OP_PREFIX]<_operator, _priority> {
+  rename: EXPRESSION;
+  parentZone: expression_zone;
+  openTrigger: _operator;
+  regex {
+    _operator op;
+    values right;
+  }
+  priority: _priority;
+  associativity: right;
+}
+[GEN_OP_POSTFIX]<_operator, _priority> {
+  rename: EXPRESSION;
+  parentZone: expression_zone;
+  openTrigger: _operator;
+  regex {
+    values right;
+    _operator op;
+  }
+  priority: _priority;
+  associativity: left;
+}
+
+[SUM_INFIX] : GEN_OP_INFIX<OP_SUM, 10, left> ;
+[SUM_PREFIX] : GEN_OP_PREFIX<OP_SUM, 30> ;
+[SUB_INFIX] : GEN_OP_INFIX<OP_SUB, 10, left> ;
+[SUB_PREFIX] : GEN_OP_PREFIX<OP_SUB, 30> ;
+[MUL_INFIX] : GEN_OP_INFIX<OP_MUL, 20, left> ;
+[DIV_INFIX] : GEN_OP_INFIX<OP_DIV, 20, left> ;
+[POW_INFIX] : GEN_OP_INFIX<OP_POW, 40, right> ;
+[INC_PREFIX] : GEN_OP_PREFIX<OP_INC, 60> ;
+[INC_POSTFIX] : GEN_OP_POSTFIX<OP_INC, 50> ;
+[DEC_PREFIX] : GEN_OP_PREFIX<OP_DEC, 60> ;
+[DEC_POSTFIX] : GEN_OP_POSTFIX<OP_DEC, 50> ;

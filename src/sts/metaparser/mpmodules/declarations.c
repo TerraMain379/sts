@@ -36,7 +36,7 @@ OpData OpData_SUB = (OpData) { // -
   .isPrefix = true,
   .isPostfix = false,
   .binLbp = 10,
-  .unaLbp = 50,
+  .unaLbp = 30,
   .right = OpData_LEFT_ASSOCIATIVITY,
   .expType = Sts_MetaDeclarationExpressionType_SUB,
 };
@@ -162,6 +162,8 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
 static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char c);
 static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
 static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+static inline Stss_Type parseDeclarations_variable_type(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 
 void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Sts_MetaDeclarationsBlockType type = decBlock->type;
@@ -184,16 +186,7 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
       parseDeclarations_name(decBlock, ctx, c);
     }
     else if (c == '$') {
-      // TODO: variable
-    }
-    else if (c == '#') {
-      Iter* iter = &ctx->iter;
-      Iter_foreachChars(c, iter) {
-        if (c == '\n') {
-          Utils_Iter_skipVoid(ctx, false);
-          break;
-        }
-      }
+      parseDeclarations_variable(decBlock, ctx);
     }
     else if (c == exitChar || c == '\0') {
       break;
@@ -347,6 +340,107 @@ static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBl
       Sts_MetaDeclarationList_add(&decBlock->declarations, eventDec);
     }
   }
+}
+static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter* iter = &ctx->iter;
+
+  bool isInit = false;
+  String name;
+  Stss_Type type;
+  Sts_MetaDeclarationValue value = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NULL
+  };
+
+  Iter_nextChar(iter);
+  Utils_Iter_skipVoid(ctx, false);
+  char c = Iter_currChar(iter);
+  if (c == '[') {
+    isInit = true;
+    c = Iter_nextChar(iter);
+  }
+
+  if (!Chars_isNameStart(c)) {
+    Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      iter,
+      SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
+      SPD_new2(SPDMode_CURR_CHAR)
+    ), ViewString_of("<name>"));
+  }
+  name = Utils_Iter_readName(ctx);
+
+  Utils_Iter_skipVoid(ctx, false);
+  c = Iter_currChar(iter);
+
+  if (c == ':') {
+    if (!isInit) {
+      Errors_metaparser_tokenNotAvailableHere(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new2_double(SPDMode_CURR_CHAR)
+      ), ViewString_of("type is specified when declaring"));
+      non_call_return;
+    }
+    Iter_nextChar(iter);
+    type = parseDeclarations_variable_type(decBlock, ctx);
+    Utils_Iter_skipVoid(ctx, false);
+    c = Iter_currChar(iter);
+  }
+
+  if (isInit) {
+    if (c != ']') {
+      Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new2_double(SPDMode_CURR_CHAR)
+      ), ViewString_of("]"));
+      non_call_return;
+    }
+    Iter_nextChar(iter);
+    Utils_Iter_skipVoid(ctx, false);
+    c = Iter_currChar(iter);
+  }
+
+  if (c == '=') {
+    Iter_nextChar(iter);
+    value = parseValue(decBlock, ctx);
+    c = Iter_currChar(iter);
+  }
+
+  if (c != ';') {
+    Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      iter,
+      SPD_new2_double(SPDMode_CURR_CHAR)
+    ), ViewString_of(";"));
+    non_call_return;
+  }
+  Iter_nextChar(iter);
+
+  Sts_MetaDeclarationValue nameValue = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_STRING,
+    .value = {
+      .string = name
+    }
+  };
+  Sts_MetaVariableDeclaration variableDec = (Sts_MetaVariableDeclaration) {
+    .isInit = isInit,
+    .name = nameValue,
+    .typing = {/*  TODO: */},
+    .value = value
+  };
+  Sts_MetaDeclaration* declaration = A_xloc(sizeof(Sts_MetaDeclaration));
+  *declaration = (Sts_MetaDeclaration) {
+    .type = Sts_MetaDeclarationType_VARIABLE,
+    .value = {
+      .variable = variableDec
+    }
+  };
+  Sts_MetaDeclarationList_add(&decBlock->declarations, declaration);
+}
+static inline Stss_Type parseDeclarations_variable_type(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  // TODO: 
+  return (Stss_Type) {0};
 }
 
 // This is an extended version of the Pratt parser, which allows you to process operators that can be both `infix`, `posfix`, and `prefix' at the same time.

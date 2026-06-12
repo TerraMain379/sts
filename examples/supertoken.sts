@@ -19,13 +19,13 @@ BRACKET_BLOCK_CLOSE! {
 FOR_KEY {
   parentZone: main;
   regex!: "for/endw/";
-  $isForeach = false;
+  $[isForeach] = false;
 }
 
 NAME {
   parentZone: main;
-  regex!: "+$name(/wordc/)/endw/";
-  $name;
+  regex!: "+(/wordc/)/endw/";
+  $[name];
 }
 
 ENDCOMMAND {
@@ -53,3 +53,30 @@ VOID! {
   $name;
 }
 # FOR BRACKET_BLOCK
+
+
+
+
+
+% func {
+  FUNC {
+    parentZone: supports_func_zone
+    regex: "function/nn/";
+    openZone: func_head, func_body_wait;
+  }
+  ...
+}
+% class {
+  CLASS {
+    parentZone: supports_class_zone;
+    regex: "class/vvoid/\{";
+    openZone: class_zone;
+    $[currentClass] = $this;
+    $[methods:arr] = [];
+  }
+  METHOD <- func.FUNC {
+    regex: "method/nn/";
+    $[parent] = $currentClass;
+    $parent.methods += $this;
+  }
+}

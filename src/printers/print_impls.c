@@ -301,10 +301,10 @@ dec_print_json(Sts_MetaDeclarationExpression) {
 }
 
 dec_print(Sts_MetaDeclarationTyping) {
-  return String_of("");
+  return String_const("{}");
 }
 dec_print_json(Sts_MetaDeclarationTyping) {
-  return String_of("");
+  return String_const("{}");
 }
 
 dec_print(Sts_MetaParamDeclaration) {
@@ -322,16 +322,18 @@ dec_print_json(Sts_MetaParamDeclaration) {
 
 dec_print(Sts_MetaVariableDeclaration) {
   print_struct_init;
+  print_field_value(bool, isInit);
   print_field_value(Sts_MetaDeclarationValue, name);
-  print_field_value(Sts_MetaDeclarationValue, value);
   print_field_value(Sts_MetaDeclarationTyping, typing);
+  print_field_value(Sts_MetaDeclarationValue, value);
   print_struct_return;
 }
 dec_print_json(Sts_MetaVariableDeclaration) {
   print_json_struct_init;
+  print_json_field_value(bool, isInit);
   print_json_field_value(Sts_MetaDeclarationValue, name);
-  print_json_field_value(Sts_MetaDeclarationValue, value);
   print_json_field_value(Sts_MetaDeclarationTyping, typing);
+  print_json_field_value(Sts_MetaDeclarationValue, value);
   print_json_struct_return;
 }
 
