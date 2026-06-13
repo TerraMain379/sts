@@ -1,3 +1,5 @@
+#pragma once
+
 #include "metaparser.h"
 #include "strings.h"
 

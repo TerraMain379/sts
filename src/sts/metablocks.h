@@ -239,14 +239,35 @@ dec_prints(Sts_MetaDeclarationValue);
 dec_prints(Sts_MetaDeclarationValueList);
 
 enum Sts_MetaDeclarationExpressionType {
+  Sts_MetaDeclarationExpressionType_ASSIGN,
+
   Sts_MetaDeclarationExpressionType_SUM,
   Sts_MetaDeclarationExpressionType_SUB,
   Sts_MetaDeclarationExpressionType_MUL,
   Sts_MetaDeclarationExpressionType_DIV,
   Sts_MetaDeclarationExpressionType_MOD,
   Sts_MetaDeclarationExpressionType_POW,
+
+  Sts_MetaDeclarationExpressionType_NOT,
   Sts_MetaDeclarationExpressionType_INC,
   Sts_MetaDeclarationExpressionType_DEC,
+
+  Sts_MetaDeclarationExpressionType_LOGICAL_OR,
+  Sts_MetaDeclarationExpressionType_LOGICAL_AND,
+  Sts_MetaDeclarationExpressionType_BITWISE_OR,
+  Sts_MetaDeclarationExpressionType_BITWISE_XOR,
+  Sts_MetaDeclarationExpressionType_BITWISE_AND,
+
+  Sts_MetaDeclarationExpressionType_LOGICAL_EQL,
+  Sts_MetaDeclarationExpressionType_LOGICAL_NOT_EQL,
+  Sts_MetaDeclarationExpressionType_LOGICAL_GT,
+  Sts_MetaDeclarationExpressionType_LOGICAL_LT,
+  Sts_MetaDeclarationExpressionType_LOGICAL_GTE,
+  Sts_MetaDeclarationExpressionType_LOGICAL_LTE,
+
+  Sts_MetaDeclarationExpressionType_TERN_COND_IF,
+  Sts_MetaDeclarationExpressionType_TERN_COND_ELSE,
+
   Sts_MetaDeclarationExpressionType_CHILD,
 };
 dec_prints(Sts_MetaDeclarationExpressionType);

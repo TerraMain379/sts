@@ -1,6 +1,6 @@
-added variable declaration parsing
-added Sts_description.md to specification (only ru)
-added Errors_metaparser_tokenNotAvailableHere
-fixed OpData_SUB params
-fixed print_impls.c
-removed unreachable branches
+Extract declarations.{h,c} into lexems.{h,c}, pratt.{h,c} and expressions.{h,c}
+added statements lexems, keyword `of` lexem, semicolon lexem, code block lexems
+added a lot of new operators for expressions
+redesigned Expressions_parseValue interface: exit chars
+redesigned Lexems_parseLexems interface: available tokens and exit chars
+added String_moveToStack macros running on alloca.h

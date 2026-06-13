@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+#include "alloca.h"
 
 typedef struct ViewString {
   WEAK(char*) buffer;
@@ -49,3 +50,12 @@ static inline bool Chars_isVoid(const char c) {
 
 void Strings_strlcpy(char* dest, BORROW(char*) src, const size_t bufferSize);
 int Strings_atoi(BORROW(char*) string);
+
+#define String_moveToStack(string) do { \
+  char* buffer = alloca(string.size + 1); \
+  Strings_strlcpy(buffer, string.buffer, string.size + 1); \
+  A_free(string.buffer); \
+  string.buffer = buffer; \
+  string.bufferOnHeap = false; \
+} while (false); \
+

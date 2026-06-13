@@ -260,27 +260,56 @@ dec_print_json(Sts_MetaDeclarationValueList) {
 }
 
 dec_print(Sts_MetaDeclarationExpressionType) {
+  print_enum(Sts_MetaDeclarationExpressionType_ASSIGN);
   print_enum(Sts_MetaDeclarationExpressionType_SUM);
   print_enum(Sts_MetaDeclarationExpressionType_SUB);
   print_enum(Sts_MetaDeclarationExpressionType_MUL);
   print_enum(Sts_MetaDeclarationExpressionType_DIV);
   print_enum(Sts_MetaDeclarationExpressionType_MOD);
   print_enum(Sts_MetaDeclarationExpressionType_POW);
+  print_enum(Sts_MetaDeclarationExpressionType_NOT);
   print_enum(Sts_MetaDeclarationExpressionType_INC);
   print_enum(Sts_MetaDeclarationExpressionType_DEC);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_OR);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_AND);
+  print_enum(Sts_MetaDeclarationExpressionType_BITWISE_OR);
+  print_enum(Sts_MetaDeclarationExpressionType_BITWISE_XOR);
+  print_enum(Sts_MetaDeclarationExpressionType_BITWISE_AND);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_EQL);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_NOT_EQL);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_GT);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_LT);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_GTE);
+  print_enum(Sts_MetaDeclarationExpressionType_LOGICAL_LTE);
+  print_enum(Sts_MetaDeclarationExpressionType_TERN_COND_IF);
+  print_enum(Sts_MetaDeclarationExpressionType_TERN_COND_ELSE);
   print_enum(Sts_MetaDeclarationExpressionType_CHILD);
-  
   print_enum_end;
 }
 dec_print_json(Sts_MetaDeclarationExpressionType) {
+  print_json_enum(Sts_MetaDeclarationExpressionType_ASSIGN);
   print_json_enum(Sts_MetaDeclarationExpressionType_SUM);
   print_json_enum(Sts_MetaDeclarationExpressionType_SUB);
   print_json_enum(Sts_MetaDeclarationExpressionType_MUL);
   print_json_enum(Sts_MetaDeclarationExpressionType_DIV);
   print_json_enum(Sts_MetaDeclarationExpressionType_MOD);
   print_json_enum(Sts_MetaDeclarationExpressionType_POW);
+  print_json_enum(Sts_MetaDeclarationExpressionType_NOT);
   print_json_enum(Sts_MetaDeclarationExpressionType_INC);
   print_json_enum(Sts_MetaDeclarationExpressionType_DEC);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_OR);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_AND);
+  print_json_enum(Sts_MetaDeclarationExpressionType_BITWISE_OR);
+  print_json_enum(Sts_MetaDeclarationExpressionType_BITWISE_XOR);
+  print_json_enum(Sts_MetaDeclarationExpressionType_BITWISE_AND);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_EQL);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_NOT_EQL);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_GT);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_LT);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_GTE);
+  print_json_enum(Sts_MetaDeclarationExpressionType_LOGICAL_LTE);
+  print_json_enum(Sts_MetaDeclarationExpressionType_TERN_COND_IF);
+  print_json_enum(Sts_MetaDeclarationExpressionType_TERN_COND_ELSE);
   print_json_enum(Sts_MetaDeclarationExpressionType_CHILD);
   print_json_enum_end;
 }
