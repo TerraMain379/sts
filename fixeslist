@@ -1,6 +1,1 @@
-Extract declarations.{h,c} into lexems.{h,c}, pratt.{h,c} and expressions.{h,c}
-added statements lexems, keyword `of` lexem, semicolon lexem, code block lexems
-added a lot of new operators for expressions
-redesigned Expressions_parseValue interface: exit chars
-redesigned Lexems_parseLexems interface: available tokens and exit chars
-added String_moveToStack macros running on alloca.h
+fixes in Sts_description.md: title "text expressions" and "→" char
