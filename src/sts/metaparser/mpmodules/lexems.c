@@ -251,9 +251,9 @@ Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Co
       Errors_metaparser_unexpectedEnd(ctx, Source_byIters(
         ViewString_by(ctx->filename),
         &startIterClone,
-        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
         iter,
-        SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+        SPD_new2(SPDMode_CURR_CHAR)
       ));
       non_call_return (Lexems) {};
     }
@@ -263,8 +263,8 @@ Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Co
   }
   *retExpressionSource = Source_byIters(
     ViewString_by(ctx->filename),
-    &startIterClone, SPD_new2(SPDMode_CURR_CHAR),
-    iter, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+    &startIterClone, SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
+    iter, SPD_new2(SPDMode_CURR_CHAR)
   );
   return lexems;
 }

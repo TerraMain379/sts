@@ -1,1 +1,19 @@
-fixes in Sts_description.md: title "text expressions" and "→" char
+redesigned Sts_MetaVariableDeclaration and adapted his parse logic
+added Errors_metaparser_expressionWasAwaitingSubexpression
+added Expressions_parseStatements
+changed names in pratt.h
+added Strings_strtol and removed all uses of Strings_atoi
+rewrited Strings_strcpy
+redesigned struct ErrorLog
+expanded error handling in Pratt_pratt and Source_byIters
+fixed source calculation in lexems.c
+fixed Errors_internal_unexpectedBehavior log
+fixed pmap freeElements memory leak
+fixed integer overflow in hash function
+added error handling to Files_readFile
+fixed clang-tidy warning: macro argument should be enclosed in parentheses
+fixed Sources list declaration
+fixed SPDMode_BACK_WORD_SHIFT call
+fixed parseSetMainZone call
+added error handling to Sts_MetaDeclarationValue_{print,print_json}
+ErrorLogExcerpt shift type changed to long

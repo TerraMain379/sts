@@ -219,10 +219,10 @@ dec_print(Sts_MetaDeclarationValue) {
   else if (input->type == Sts_MetaDeclarationValueType_LINK) {
     print_field_value(String, value.linkName);
   }
-  else if (input->type == Sts_MetaDeclarationValueType_NULL) {
-  }
+  else if (input->type == Sts_MetaDeclarationValueType_NULL) { }
   else {
-    // TODO: ERROR
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaDeclarationValue_print_json"));
+    non_call_return (String) {};
   }
   print_struct_return;
 }
@@ -244,10 +244,10 @@ dec_print_json(Sts_MetaDeclarationValue) {
   else if (input->type == Sts_MetaDeclarationValueType_LINK) {
     print_json_field_value(String, value.linkName);
   }
-  else if (input->type == Sts_MetaDeclarationValueType_NULL) {
-  }
+  else if (input->type == Sts_MetaDeclarationValueType_NULL) { }
   else {
-    // TODO: ERROR
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaDeclarationValue_print_json"));
+    non_call_return (String) {};
   }
   print_json_struct_return;
 }
@@ -329,13 +329,6 @@ dec_print_json(Sts_MetaDeclarationExpression) {
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaDeclarationTyping) {
-  return String_const("{}");
-}
-dec_print_json(Sts_MetaDeclarationTyping) {
-  return String_const("{}");
-}
-
 dec_print(Sts_MetaParamDeclaration) {
   print_struct_init;
   print_field_value(Sts_MetaDeclarationValue, name);
@@ -353,7 +346,7 @@ dec_print(Sts_MetaVariableDeclaration) {
   print_struct_init;
   print_field_value(bool, isInit);
   print_field_value(Sts_MetaDeclarationValue, name);
-  print_field_value(Sts_MetaDeclarationTyping, typing);
+  print_field_value(Sts_MetaDeclarationValue, typing);
   print_field_value(Sts_MetaDeclarationValue, value);
   print_struct_return;
 }
@@ -361,7 +354,7 @@ dec_print_json(Sts_MetaVariableDeclaration) {
   print_json_struct_init;
   print_json_field_value(bool, isInit);
   print_json_field_value(Sts_MetaDeclarationValue, name);
-  print_json_field_value(Sts_MetaDeclarationTyping, typing);
+  print_json_field_value(Sts_MetaDeclarationValue, typing);
   print_json_field_value(Sts_MetaDeclarationValue, value);
   print_json_struct_return;
 }

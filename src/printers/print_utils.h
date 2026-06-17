@@ -49,10 +49,10 @@
 #define print_enum_init  
 
 #define print_enum(value) \
-  if (*input == value) return String_by(#value);
+  if (*input == (value)) return String_by(#value);
 
 #define print_enum_r(value, name) \
-  if (*input == value) return String_by(#name);
+  if (*input == (value)) return String_by(#name);
 
 #define print_enum_end \
   Errors_internal_unexpectedEnumType(ViewString_of("Print Module")); \

@@ -265,7 +265,7 @@ Iter calculateLeftPosition(BORROW(Iter*) origIter, SourcePointDescription leftPo
     calculateLeftPosition_currWord(iter, leftPoint);
   }
   else if (leftPoint.mode == SPDMode_BACK_WORD_SHIFT) {
-    calculateLeftPosition_backLineShift(iter, leftPoint);
+    calculateLeftPosition_backWordShift(iter, leftPoint);
   }
   else if (leftPoint.mode == SPDMode_FORWARD_WORD_SHIFT) {
     calculateLeftPosition_forwardWordShift(iter, leftPoint);
@@ -417,8 +417,8 @@ SourceCoords calculateIterCoords(BORROW(Iter*) origIter) {
 void loadCache(Iter leftIter, Iter rightIter, bool strict, String* cachedData, bool* cachedDataIsValid) {
   size_t len = rightIter.curr - leftIter.curr + 1;
   if (len < 200 || strict) {
-    char* str = A_xloc(sizeof(char)*(len+1));
-    strncpy(str, leftIter.curr, len);
+    char* str = A_xloc((len + 1) * sizeof(char));
+    Strings_strcpy(str, len + 1, leftIter.curr, len);
     str[len] = '\0';
     *cachedData = String_of(str);
     *cachedDataIsValid = true;
@@ -432,16 +432,14 @@ Source Source_byIter(BORROW(ViewString) filename, BORROW(Iter*) iter, SourcePoin
 }
 Source Source_byIters(BORROW(ViewString) filename, BORROW(Iter*) leftIter, SourcePointDescription leftPoint, BORROW(Iter*) rightIter, SourcePointDescription rightPoint) {
   if (leftIter->start != rightIter->start) {
-    // TODO: ERROR
-    Errors_internal_unexpectedBehavior(ViewString_of("Source_byIters"), ViewString_of(""));
+    Errors_internal_unexpectedBehavior(ViewString_of("Source_byIters"), ViewString_of("leftIter->start != rightIter->start"));
     non_call_return (Source) {0};
   }
   Iter l = calculateLeftPosition(leftIter, leftPoint);
   Iter r = calculateRightPosition(rightIter, rightPoint);
 
   if (l.curr > r.curr) {
-    // TODO: ERROR
-    Errors_internal_unexpectedBehavior(ViewString_of("Source_byIters"), ViewString_of(""));
+    Errors_internal_unexpectedBehavior(ViewString_of("Source_byIters"), ViewString_of("l.curr > r.curr"));
     non_call_return (Source) {0};
   }
   SourceCoords lc = calculateIterCoords(&l);

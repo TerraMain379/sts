@@ -16,7 +16,7 @@ dec_print_json(ErrorSeverity);
 typedef struct ErrorLogExcerpt {
   String copy;
   String line;
-  int shift;
+  long shift;
 } ErrorLogExcerpt;
 dec_print_json(ErrorLogExcerpt);
 
@@ -28,15 +28,25 @@ typedef struct ErrorLog {
   ErrorSeverity severity;
   String code;
   String category;
-  String method; bool existMethod;
-  String message; bool existMessage;
-  Source source; bool existSource;
-  Source source1; bool existSource1;
-  ErrorLogExcerpt excerpt; bool existExcerpt;
-  ErrorLogExcerpt excerpt1; bool existExcerpt1;
-  String hint; bool existHint;
-  StringMap extra; bool existExtra;
+  String method;
+  String message;
+  Source source;
+  Source source1;
+  ErrorLogExcerpt excerpt;
+  ErrorLogExcerpt excerpt1;
+  String hint;
+  StringMap extra;
   int seq;
+  struct {
+    bool method : 1;
+    bool message : 1;
+    bool source : 1;
+    bool source1 : 1;
+    bool excerpt : 1;
+    bool excerpt1 : 1;
+    bool hint : 1;
+    bool extra : 1;
+  } exist;
 } ErrorLog;
 dec_print_json(ErrorLog);
 

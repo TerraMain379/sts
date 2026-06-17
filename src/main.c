@@ -25,7 +25,10 @@ int main() {
   // test_print_json();
 }
 void test_parse() {
-  String data = Files_readFile(ViewString_of("input.sts"));
+  type_errno(String) data = Files_readFile(ViewString_of("input.sts"));
+  if (errno != 0) {
+    return;
+  }
   // printf("%s", data.buffer);
   Iter iter = Iter_new(ViewString_by(data));
 

@@ -52,7 +52,7 @@ void parseLoop(Context* context) {
 
   ViewString filename = ViewString_by(context->filename);
 
-  bool flagModificator;
+  bool flagModificator = false;
   for (char c = Iter_currChar(iter); c != '\0'; c = Iter_currChar(iter)) {
     // TODO: In the future, it's worth switching to the dispatch table.
 
@@ -92,6 +92,7 @@ void parseLoop(Context* context) {
       }
 
       if (c == '-') {
+        Iter_nextChar(iter);
         parseSetMainZone(context);
       }
       else {

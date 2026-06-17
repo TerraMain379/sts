@@ -103,9 +103,29 @@ size_t Strings_getLen(BORROW(char*) str) {
 }
 
 
-void Strings_strlcpy(char* dest, BORROW(char*) src, const size_t bufferSize) {
-  strlcpy(dest, src, bufferSize);
+void_errno Strings_strcpy(MUT_BORROW(char*) dest, size_t destSize, BORROW(char*) src, const size_t srcSize) {
+  if (dest == null || src == null) {
+    errno = 1; return;
+  }
+  if (destSize == 0 || srcSize == 0) {
+    if (destSize > 0) dest[0] = '\0';
+    errno = 0; return;
+  }
+  size_t size = destSize - 1 < srcSize
+    ? destSize - 1
+    : srcSize;
+
+  char* res = memccpy(dest, src, '\0', size);
+
+  if (res == null) {
+    dest[size] = '\0';
+  }
+  errno = 0; return;
 }
 int Strings_atoi(BORROW(char*) string) {
   return atoi(string);
+}
+type_errno(long) Strings_strtol(BORROW(char*) string, int basis, char** retEndPtr) {
+  errno = 0;
+  return strtol(string, retEndPtr, basis);
 }

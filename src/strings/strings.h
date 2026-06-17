@@ -48,14 +48,15 @@ static inline bool Chars_isVoid(const char c) {
 }
 
 
-void Strings_strlcpy(char* dest, BORROW(char*) src, const size_t bufferSize);
+void Strings_strcpy(MUT_BORROW(char*) dest, size_t destSize, BORROW(char*) src, const size_t srcSize);
 int Strings_atoi(BORROW(char*) string);
+type_errno(long) Strings_strtol(BORROW(char*) string, int basis, char** retEndPtr);
 
 #define String_moveToStack(string) do { \
-  char* buffer = alloca(string.size + 1); \
-  Strings_strlcpy(buffer, string.buffer, string.size + 1); \
-  A_free(string.buffer); \
-  string.buffer = buffer; \
-  string.bufferOnHeap = false; \
+  char* buffer = alloca((string).size + 1); \
+  Strings_strcpy(buffer, (string).size + 1, (string).buffer, (string).size + 1); \
+  A_free((string).buffer); \
+  (string).buffer = buffer; \
+  (string).bufferOnHeap = false; \
 } while (false); \
 

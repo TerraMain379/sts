@@ -15,6 +15,7 @@ void_stop Errors_metaparser_unexpectedEnd(CONTEXT* ctx, Source src);
 void_stop Errors_metaparser_cyclicExpanding(CONTEXT* ctx, Source src, ViewString zoneName, ViewString expandingZoneName);
 void_stop Errors_metaparser_expressionWasAwaitingOperator(CONTEXT* ctx, Source srcExpression, Source srcLexem);
 void_stop Errors_metaparser_expressionWasAwaitingOperand(CONTEXT* ctx, Source srcExpression, Source srcLexem);
+void_stop Errors_metaparser_expressionWasAwaitingSubexpression(CONTEXT* ctx, Source srcExpression, Source srcPrevLexem);
 void_stop Errors_metaparser_emptyExpression(CONTEXT* ctx, Source src);
 
 void Warnings_metaparser_unknownToken(CONTEXT* ctx, Source src);

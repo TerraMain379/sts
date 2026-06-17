@@ -12,6 +12,7 @@ void FUNCTION(PNAME, freeElements)(PNAME* map) {
     ELEMENT(PNAME)* element = map->first;
     while (element) {
       PFREEFUN(element->value);
+      A_free(element->value);
       element = element->next;
     }
   #endif

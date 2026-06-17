@@ -43,12 +43,12 @@ void StringBuilder_addChar(StringBuilder* builder, char c) {
 void StringBuilder_addCharBuffer(StringBuilder* builder, BORROW(char*) str) {
   size_t len = Strings_getLen(str);
   StringBuilder_applyCapacity(builder, builder->size + len + 1);
-  Strings_strlcpy(builder->buffer + builder->size, str, len + 1);
+  Strings_strcpy(builder->buffer + builder->size, len + 1, str, len + 1);
   builder->size += len;
 }
 void StringBuilder_addString(StringBuilder* builder, ViewString vs) {
   StringBuilder_applyCapacity(builder, builder->size + vs.size + 1);
-  Strings_strlcpy(builder->buffer + builder->size, vs.buffer, vs.size + 1);
+  Strings_strcpy(builder->buffer + builder->size, vs.size + 1, vs.buffer, vs.size + 1);
   builder->size += vs.size;
 }
 

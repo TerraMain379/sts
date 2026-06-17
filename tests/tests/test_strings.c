@@ -23,7 +23,7 @@ void test_string_new1() {
 
 void test_string_new2() {
   char* text = A_xloc(sizeof(char)*6);
-  Strings_strlcpy(text, "hello", 6);
+  Strings_strcpy(text, 6, "hello", 6);
   String string = String_new(text, 5, true);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "hello");
   TEST_ASSERT_EQUAL_UINT(string.size, 5u);
@@ -40,7 +40,7 @@ void test_string_new2() {
 
 void test_string_of() {
   char* text = A_xloc(sizeof(char)*9);
-  Strings_strlcpy(text, "text 123", 9);
+  Strings_strcpy(text, 9, "text 123", 9);
   String string = String_of(text);
   TEST_ASSERT_EQUAL_PTR(string.buffer, text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
@@ -59,7 +59,7 @@ void test_string_of() {
 
 void test_string_by() {
   char* text = A_xloc(sizeof(char)*9);
-  Strings_strlcpy(text, "text 123", 9);
+  Strings_strcpy(text, 9, "text 123", 9);
   String string = String_by(text);
   TEST_ASSERT_NOT_EQUAL(string.buffer, text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
@@ -138,7 +138,7 @@ void test_vstring_by() {
 
 void test_string_copy1() {
   char* text = A_xloc(sizeof(char)*9);
-  Strings_strlcpy(text, "text 123", 9);
+  Strings_strcpy(text, 9, "text 123", 9);
   String string = String_of(text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);
@@ -191,7 +191,7 @@ void test_string_copy1() {
 
 void test_string_copy2() {
   char* text = A_xloc(sizeof(char)*9);
-  Strings_strlcpy(text, "text 123", 9);
+  Strings_strcpy(text, 9, "text 123", 9);
   String string = String_of(text);
   TEST_ASSERT_EQUAL_STRING(string.buffer, "text 123");
   TEST_ASSERT_EQUAL_UINT(string.size, 8u);

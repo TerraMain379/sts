@@ -31,7 +31,6 @@
   typedef_struct(Sts_MetaDeclarationValue);
   typedef_enum(Sts_MetaDeclarationExpressionType);
   typedef_struct(Sts_MetaDeclarationExpression);
-  typedef_struct(Sts_MetaDeclarationTyping); // TODO:
   typedef_struct(Sts_MetaParamDeclaration);
   typedef_struct(Sts_MetaVariableDeclaration);
   typedef_struct(Sts_MetaEventDeclaration);
@@ -279,12 +278,6 @@ struct Sts_MetaDeclarationExpression {
 void Sts_MetaDeclarationExpression_free(Sts_MetaDeclarationExpression* decExpression);
 dec_prints(Sts_MetaDeclarationExpression);
 
-struct Sts_MetaDeclarationTyping { // TODO:
-
-};
-void Sts_MetaDeclarationTyping_free(Sts_MetaDeclarationTyping* decTyping);
-dec_prints(Sts_MetaDeclarationTyping);
-
 
 struct Sts_MetaParamDeclaration {
   Sts_MetaDeclarationValue name;
@@ -296,7 +289,7 @@ dec_prints(Sts_MetaParamDeclaration);
 struct Sts_MetaVariableDeclaration {
   Sts_MetaDeclarationValue name;
   Sts_MetaDeclarationValue value;
-  Sts_MetaDeclarationTyping typing;
+  Sts_MetaDeclarationValue typing;
   bool isInit;
 };
 void Sts_MetaVariableDeclaration_free(Sts_MetaVariableDeclaration* variableDec);
@@ -434,7 +427,7 @@ struct Sts_MetaFile {
   Sts_OwnedMetaZonesMap zones;
   Sts_OwnedMetaTokens tokens;
 
-  Sts_MetaZone* mainZone;
+  MUT_WEAK(Sts_MetaZone*) mainZone;
 
   struct {
     String name;

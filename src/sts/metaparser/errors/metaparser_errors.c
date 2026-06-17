@@ -23,13 +23,16 @@ void_stop Errors_metaparser_unknownToken(Context* ctx, Source src) {
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -53,13 +56,16 @@ void_stop Errors_metaparser_tokenNotAvailableHere(CONTEXT* ctx, Source src, View
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -84,13 +90,16 @@ void_stop Errors_metaparser_anotherTokenExpected(Context* ctx, Source src, ViewS
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -124,13 +133,16 @@ void_stop Errors_metaparser_invalidName(Context* ctx, Source src, ViewString inv
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = extra,
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = true,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = true,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -149,13 +161,16 @@ void_stop Errors_metaparser_unexpectedEnd(Context* ctx, Source src) {
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = false,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = false,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -187,13 +202,16 @@ void_stop Errors_metaparser_cyclicExpanding(Context* ctx, Source src, ViewString
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = extra,
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = true,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = true,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -212,14 +230,16 @@ void_stop Errors_metaparser_expressionWasAwaitingOperator(Context* ctx, Source s
     .excerpt1 = ErrorLogExcerpt_new(srcExpression),
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = false,
-    .existSource = true,
-    .existSource1 = true,
-    .existExcerpt = true,
-    .existExcerpt1 = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = false,
+      .source = true,
+      .source1 = true,
+      .excerpt = true,
+      .excerpt1 = true,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -238,14 +258,44 @@ void_stop Errors_metaparser_expressionWasAwaitingOperand(Context* ctx, Source sr
     .excerpt1 = ErrorLogExcerpt_new(srcExpression),
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = false,
-    .existSource = true,
-    .existSource1 = true,
-    .existExcerpt = true,
-    .existExcerpt1 = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = false,
+      .source = true,
+      .source1 = true,
+      .excerpt = true,
+      .excerpt1 = true,
+      .hint = false,
+      .extra = false,
+    }
+  };
+  ErrorLog_send(&elog);
+  ErrorLog_free(&elog);
+  end_err;
+}
+void_stop Errors_metaparser_expressionWasAwaitingSubexpression(CONTEXT* ctx, Source srcExpression, Source srcPrevLexem) {
+  ErrorLog elog = (ErrorLog) {
+    .severity = ErrorLogSeverity_ERROR,
+    .code = String_by("expressionWasAwaitingSubexpression"),
+    .category = String_by("metaparser"),
+    .method = (String) {0},
+    .message = (String) {0},
+    .source = srcPrevLexem,
+    .source1 = srcExpression,
+    .excerpt = ErrorLogExcerpt_new(srcPrevLexem),
+    .excerpt1 = ErrorLogExcerpt_new(srcExpression),
+    .hint = (String) {0},
+    .extra = (StringMap) {0},
+    .exist = {
+      .method = false,
+      .message = false,
+      .source = true,
+      .source1 = true,
+      .excerpt = true,
+      .excerpt1 = true,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -264,14 +314,16 @@ void_stop Errors_metaparser_emptyExpression(CONTEXT* ctx, Source src) {
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = false,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existExcerpt1 = false,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = false,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -291,13 +343,16 @@ void Warnings_metaparser_unknownToken(CONTEXT* ctx, Source src) {
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -322,14 +377,16 @@ void Warnings_metaparser_redefiningRegex(CONTEXT* ctx, Source src, ViewString re
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existExcerpt1 = false,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -348,13 +405,16 @@ void Warnings_metaparser_redefiningMainZone(CONTEXT* ctx, Source src, ViewString
     .excerpt1 = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = (StringMap) {0},
-    .existMethod = false,
-    .existMessage = true,
-    .existSource = true,
-    .existSource1 = false,
-    .existExcerpt = true,
-    .existHint = false,
-    .existExtra = false,
+    .exist = {
+      .method = false,
+      .message = true,
+      .source = true,
+      .source1 = false,
+      .excerpt = true,
+      .excerpt1 = true,
+      .hint = false,
+      .extra = false,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);

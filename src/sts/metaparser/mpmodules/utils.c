@@ -2,6 +2,7 @@
 
 #include "allocator.h"
 #include "stringbuilder.h"
+#include "errors.h"
 #include "metaparser_errors.h"
 
 type_errno(String) Utils_Iter_readName(Context* ctx) {
@@ -158,13 +159,24 @@ double Utils_Iter_readNumber(Context* ctx) {
 
   ViewString main = StringBuilder_get(&mainBuilder);
   ViewString frac = StringBuilder_get(&fracBuilder);
-  double result = Strings_atoi(main.buffer);
-  double fracResult = Strings_atoi(frac.buffer);
+
+  // TODO: redesign the interface to work more securely with large numbers, as they will now be truncated due to conversion to double
+  char* endPtr;
+  double result = (double) Strings_strtol(main.buffer, 10, &endPtr);
+  if (*endPtr != '\0') goto endPtrError;
+  double fracResult = (double) Strings_strtol(frac.buffer, 10, &endPtr);
+  if (*endPtr != '\0') goto endPtrError;
+
   for (size_t i = 0; i < frac.size; i++) {
     fracResult/=10;
   }
   StringBuilder_free(&mainBuilder);
   StringBuilder_free(&fracBuilder);
   return result + fracResult;
+
+  endPtrError: {
+    Errors_internal_unexpectedBehavior(ViewString_of("Utils_Iter_readNumber"), ViewString_of(""));
+    non_call_return 0;
+  }
 }
 

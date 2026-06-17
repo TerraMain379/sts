@@ -32,13 +32,16 @@ void_stop Errors_internal_nullPointer(ViewString varName, ViewString location) {
     .excerpt = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = extra,
-    .existMethod = true,
-    .existMessage = true,
-    .existSource = false,
-    .existSource1 = false,
-    .existExcerpt = false,
-    .existHint = false,
-    .existExtra = true,
+    .exist = {
+      .method = true,
+      .message = true,
+      .source = false,
+      .source1 = false,
+      .excerpt = false,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = true,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -60,7 +63,7 @@ void_stop Errors_internal_unexpectedBehavior(ViewString location, ViewString com
 
   ErrorLog elog = (ErrorLog) {
     .severity = ErrorLogSeverity_ERROR,
-    .code = String_const("nullPointer"),
+    .code = String_const("unexpectedBehavior"),
     .category = String_const("internal"),
     .method = String_copy(location),
     .message = StringBuilder_take(&message),
@@ -68,13 +71,16 @@ void_stop Errors_internal_unexpectedBehavior(ViewString location, ViewString com
     .excerpt = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = extra,
-    .existMethod = true,
-    .existMessage = true,
-    .existSource = false,
-    .existSource1 = false,
-    .existExcerpt = false,
-    .existHint = false,
-    .existExtra = true,
+    .exist = {
+      .method = true,
+      .message = true,
+      .source = false,
+      .source1 = false,
+      .excerpt = false,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = true,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);
@@ -125,13 +131,16 @@ void_stop Errors_internal_allocateMemoryError(ViewString varName, ViewString loc
       .excerpt = (ErrorLogExcerpt) {0},
       .hint = (String) {0},
       .extra = extra,
-      .existMethod = true,
-      .existMessage = true,
-      .existSource = false,
-    .existSource1 = false,
-      .existExcerpt = false,
-      .existHint = false,
-      .existExtra = true,
+      .exist = {
+        .method = true,
+        .message = true,
+        .source = false,
+        .source1 = false,
+        .excerpt = false,
+        .excerpt1 = false,
+        .hint = false,
+        .extra = true,
+      }
     };
     ErrorLog_send(&elog);
     ErrorLog_free(&elog);
@@ -170,13 +179,16 @@ void_stop Errors_internal_unexpectedEnumType(ViewString location) {
     .excerpt = (ErrorLogExcerpt) {0},
     .hint = (String) {0},
     .extra = extra,
-    .existMethod = true,
-    .existMessage = true,
-    .existSource = false,
-    .existSource1 = false,
-    .existExcerpt = false,
-    .existHint = false,
-    .existExtra = true,
+    .exist = {
+      .method = true,
+      .message = true,
+      .source = false,
+      .source1 = false,
+      .excerpt = false,
+      .excerpt1 = false,
+      .hint = false,
+      .extra = true,
+    }
   };
   ErrorLog_send(&elog);
   ErrorLog_free(&elog);

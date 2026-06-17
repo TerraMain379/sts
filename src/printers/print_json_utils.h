@@ -50,10 +50,10 @@
 #define print_json_enum_init  
 
 #define print_json_enum(value) \
-  if (*input == value) return ViewStrings_toJson(ViewString_of(#value), true); \
+  if (*input == (value)) return ViewStrings_toJson(ViewString_of(#value), true); \
 
 #define print_json_enum_r(value, name) \
-  if (*input == value) return ViewStrings_toJson(ViewString_of(#name), true); \
+  if (*input == (value)) return ViewStrings_toJson(ViewString_of(#name), true); \
 
 #define print_json_enum_end \
   Errors_internal_unexpectedEnumType(ViewString_of("Print JSON Module")); \

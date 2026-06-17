@@ -9,6 +9,15 @@
 #include "mpmodules/expressions.h"
 #include "sources.h"
 
+static void checkNameValueForLink(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationValue* value) {
+  if (value->type == Sts_MetaDeclarationValueType_NAME) {
+    bool contains = StringList_contains(&decBlock->linkNames, ViewString_by(value->value.name));
+    if (contains) {
+      value->type = Sts_MetaDeclarationValueType_LINK;
+      value->value.linkName = value->value.name;
+    }
+  }
+}
 static void registerDeclarationValue(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationValue* value) {
   if (value->type == Sts_MetaDeclarationValueType_LINK) {
     Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, value);
@@ -25,17 +34,15 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
 static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
 static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
-static inline Stss_Type parseDeclarations_variable_type(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 
 void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Sts_MetaDeclarationsBlockType type = decBlock->type;
-  char exitChar =
-    type == Sts_MetaDeclarationsBlockType_TOKEN ? '}' :
-    type == Sts_MetaDeclarationsBlockType_ZONE ? ')' :
-    type == Sts_MetaDeclarationsBlockType_GROUP ? ')' :
-    type == Sts_MetaDeclarationsBlockType_SUPER_TOKEN ? '}' :
-    '\0';
-  if (exitChar == '\0') {
+  char exitChar;
+  if (type == Sts_MetaDeclarationsBlockType_TOKEN) exitChar = '}';
+  else if (type == Sts_MetaDeclarationsBlockType_ZONE) exitChar = ')';
+  else if (type == Sts_MetaDeclarationsBlockType_GROUP) exitChar = ')';
+  else if (type == Sts_MetaDeclarationsBlockType_SUPER_TOKEN) exitChar = '}';
+  else {
     Errors_internal_unexpectedEnumType(ViewString_of("parseDeclarations().decBlock->type"));
     non_call_return;
   }
@@ -197,30 +204,43 @@ static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBl
 static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
 
-  bool isInit = false;
-  String name;
-  Stss_Type type;
+
+  Sts_MetaDeclarationValue name = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NULL
+  };
+  Sts_MetaDeclarationValue typing = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NULL
+  };
   Sts_MetaDeclarationValue value = (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_NULL
   };
+  bool isInit = false;
 
   Iter_nextChar(iter);
   Utils_Iter_skipVoid(ctx, false);
   char c = Iter_currChar(iter);
   if (c == '[') {
     isInit = true;
-    c = Iter_nextChar(iter);
+    Iter_nextChar(iter);
   }
 
-  if (!Chars_isNameStart(c)) {
+  type_errno(String) nameString = Utils_Iter_readName(ctx);
+  if (errno != 0) {
     Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
       ViewString_by(ctx->filename),
       iter,
       SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
       SPD_new2(SPDMode_CURR_CHAR)
     ), ViewString_of("<name>"));
+    non_call_return;
   }
-  name = Utils_Iter_readName(ctx);
+  name = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NAME,
+    .value = {
+      .name = nameString
+    }
+  };
+  checkNameValueForLink(decBlock, &name);
 
   Utils_Iter_skipVoid(ctx, false);
   c = Iter_currChar(iter);
@@ -235,7 +255,25 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBloc
       non_call_return;
     }
     Iter_nextChar(iter);
-    type = parseDeclarations_variable_type(decBlock, ctx);
+    type_errno(String) typingString = Utils_Iter_readName(ctx);
+    if (errno != 0) {
+      Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ), ViewString_of("<name>"));
+      non_call_return;
+    }
+
+    typing = (Sts_MetaDeclarationValue) {
+      .type = Sts_MetaDeclarationValueType_NAME,
+      .value = {
+        .name = typingString
+      }
+    };
+    checkNameValueForLink(decBlock, &typing);
+
     Utils_Iter_skipVoid(ctx, false);
     c = Iter_currChar(iter);
   }
@@ -256,12 +294,11 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBloc
 
   if (c == '=') {
     Iter_nextChar(iter);
-    value = Expressions_parseValue(decBlock, ctx, ViewString_of(";"));
+    value = Expressions_parseValue(decBlock, ctx, ViewString_of(";}")); // `}` for smart error log
     c = Iter_currChar(iter);
   }
 
   if (c != ';') {
-    // TODO: delete if parseValue return guarantee
     Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
       ViewString_by(ctx->filename),
       iter,
@@ -271,16 +308,10 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBloc
   }
   Iter_nextChar(iter);
 
-  Sts_MetaDeclarationValue nameValue = (Sts_MetaDeclarationValue) {
-    .type = Sts_MetaDeclarationValueType_STRING,
-    .value = {
-      .string = name
-    }
-  };
   Sts_MetaVariableDeclaration variableDec = (Sts_MetaVariableDeclaration) {
     .isInit = isInit,
-    .name = nameValue,
-    .typing = {/*  TODO: */},
+    .name = name,
+    .typing = typing,
     .value = value
   };
   Sts_MetaDeclaration* declaration = A_xloc(sizeof(Sts_MetaDeclaration));
@@ -290,9 +321,9 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBloc
       .variable = variableDec
     }
   };
+  registerDeclarationValue(decBlock, &declaration->value.variable.name);
+  registerDeclarationValue(decBlock, &declaration->value.variable.typing);
+  registerDeclarationValue(decBlock, &declaration->value.variable.value);
+
   Sts_MetaDeclarationList_add(&decBlock->declarations, declaration);
-}
-static inline Stss_Type parseDeclarations_variable_type(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
-  // TODO: 
-  return (Stss_Type) {0};
 }

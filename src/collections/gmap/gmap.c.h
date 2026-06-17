@@ -20,12 +20,12 @@
 
 
 int FUNCTION(NAME, getHash)(BORROW(char*) key) {
-  int hash = 0;
+  unsigned int hash = 0;
   while (*key) {
-    hash = hash * 31 + *key;
+    hash = hash * 31 + (unsigned char) *key;
     key++;
   }
-  return hash;
+  return (int)hash;
 }
 
 void FUNCTION(NAME, init)(NAME* map) {

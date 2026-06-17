@@ -4,7 +4,7 @@
 #include "errors.h"
 #include "mpmodules/utils.h"
 
-void PrattContext_free(PrattContext* prattContext) {
+void Pratt_Context_free(Pratt_Context* prattContext) {
   Lexems_freeElements(prattContext->lexems);
   Lexems_free(prattContext->lexems);
   Source_free(&prattContext->expressionSrc);
@@ -18,17 +18,34 @@ static void registerDeclarationValue(Sts_MetaDeclarationsBlock* decBlock, Sts_Me
 }
 
 
+typedef enum PrattCheckLeftResult {
+  PrattCheckLeftResult_OK,
+  PrattCheckLeftResult_PAREN_CLOSE,
+  PrattCheckLeftResult_ERROR,
+} PrattCheckLeftResult;
+PrattCheckLeftResult pratt_checkLeft(Pratt_Context ctx, Sts_MetaDeclarationValue* retDecValue, Lexem* leftLexem);
+
+Sts_MetaDeclarationValue pratt_loop(Pratt_Context ctx, int minLbp, Lexem* leftLexem, Sts_MetaDeclarationValue left);
+Sts_MetaDeclarationValue pratt_prefix(Pratt_Context ctx, Lexem* op);
+Sts_MetaDeclarationValue pratt_infix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left);
+Sts_MetaDeclarationValue pratt_postfix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left);
+Sts_MetaDeclarationValue pratt_infix_postfix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left, int minLbp);
+Sts_MetaDeclarationValue pratt_paren(Pratt_Context ctx);
+
+
 // main parse function. Parse left and run right parse loop
-Sts_MetaDeclarationValue pratt(PrattContext ctx, int minLbp) {
+Sts_MetaDeclarationValue Pratt_pratt(Pratt_Context ctx, int minLbp) {
   Lexem* leftLexem = Lexems_get(ctx.lexems, *ctx.currIndex);
   if (!leftLexem) {
-    Source expressionSrc = ctx.expressionSrc;
-    Context* ctx1 = ctx.ctx;
-    ctx.ctx = null;
-    ctx.expressionSrc = (Source) {0};
-    PrattContext_free(&ctx);
-    Errors_metaparser_emptyExpression(ctx1, expressionSrc);
-    non_call_return (Sts_MetaDeclarationValue) {};
+    if (*ctx.currIndex == 0) {
+      Errors_metaparser_emptyExpression(ctx.ctx, ctx.expressionSrc);
+      non_call_return (Sts_MetaDeclarationValue) {};
+    }
+    else {
+      Lexem* prevLexem = Lexems_get(ctx.lexems, *ctx.currIndex - 1);
+      Errors_metaparser_expressionWasAwaitingSubexpression(ctx.ctx, ctx.expressionSrc, prevLexem->src);
+      non_call_return (Sts_MetaDeclarationValue) {};
+    }
   }
   Sts_MetaDeclarationValue left;
   PrattCheckLeftResult result = pratt_checkLeft(ctx, &left, leftLexem);
@@ -43,8 +60,9 @@ Sts_MetaDeclarationValue pratt(PrattContext ctx, int minLbp) {
     non_call_return (Sts_MetaDeclarationValue) {}; // non run return
   }
 }
+
 // parse left value
-PrattCheckLeftResult pratt_checkLeft(PrattContext ctx, Sts_MetaDeclarationValue* retDecValue, Lexem* leftLexem) {
+PrattCheckLeftResult pratt_checkLeft(Pratt_Context ctx, Sts_MetaDeclarationValue* retDecValue, Lexem* leftLexem) {
   if (leftLexem->type == LexemType_VALUE) {
     *retDecValue = leftLexem->value.decValue;
     leftLexem->value.decValue = (Sts_MetaDeclarationValue) {0};
@@ -77,7 +95,7 @@ PrattCheckLeftResult pratt_checkLeft(PrattContext ctx, Sts_MetaDeclarationValue*
   }
 }
 // main parse loop. dont check left
-Sts_MetaDeclarationValue pratt_loop(PrattContext ctx, int minLbp, Lexem* leftLexem, Sts_MetaDeclarationValue startLeft) {
+Sts_MetaDeclarationValue pratt_loop(Pratt_Context ctx, int minLbp, Lexem* leftLexem, Sts_MetaDeclarationValue startLeft) {
   Sts_MetaDeclarationValue left = startLeft;
   while (*ctx.currIndex < ctx.lexems->size - 1) {
     bool isLastIndex = *ctx.currIndex == ctx.lexems->size - 1;
@@ -113,9 +131,9 @@ Sts_MetaDeclarationValue pratt_loop(PrattContext ctx, int minLbp, Lexem* leftLex
   return left;
 }
 
-Sts_MetaDeclarationValue pratt_prefix(PrattContext ctx, Lexem* op) {
+Sts_MetaDeclarationValue pratt_prefix(Pratt_Context ctx, Lexem* op) {
   const Lexem_OpData* opData = op->value.opData;
-  Sts_MetaDeclarationValue right = pratt(ctx, opData->unaLbp + opData->right);
+  Sts_MetaDeclarationValue right = Pratt_pratt(ctx, opData->unaLbp + opData->right);
   Sts_MetaDeclarationExpression* expression = A_xloc(sizeof(Sts_MetaDeclarationExpression));
   *expression = (Sts_MetaDeclarationExpression) {
     .type = opData->expType,
@@ -128,10 +146,10 @@ Sts_MetaDeclarationValue pratt_prefix(PrattContext ctx, Lexem* op) {
     .value.expression = expression,
   };
 }
-Sts_MetaDeclarationValue pratt_infix(PrattContext ctx, Lexem* op, Sts_MetaDeclarationValue left) {
+Sts_MetaDeclarationValue pratt_infix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left) {
   const Lexem_OpData* opData = op->value.opData;
   *ctx.currIndex += 1;
-  Sts_MetaDeclarationValue right = pratt(ctx, opData->binLbp + opData->right);
+  Sts_MetaDeclarationValue right = Pratt_pratt(ctx, opData->binLbp + opData->right);
   Sts_MetaDeclarationExpression* expression = A_xloc(sizeof(Sts_MetaDeclarationExpression));
   *expression = (Sts_MetaDeclarationExpression) {
     .type = opData->expType,
@@ -145,7 +163,7 @@ Sts_MetaDeclarationValue pratt_infix(PrattContext ctx, Lexem* op, Sts_MetaDeclar
     .value.expression = expression,
   };
 }
-Sts_MetaDeclarationValue pratt_postfix(PrattContext ctx, Lexem* op, Sts_MetaDeclarationValue left) {
+Sts_MetaDeclarationValue pratt_postfix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left) {
   const Lexem_OpData* opData = op->value.opData;
   Sts_MetaDeclarationExpression* expression = A_xloc(sizeof(Sts_MetaDeclarationExpression));
   *expression = (Sts_MetaDeclarationExpression) {
@@ -159,7 +177,7 @@ Sts_MetaDeclarationValue pratt_postfix(PrattContext ctx, Lexem* op, Sts_MetaDecl
     .value.expression = expression,
   };
 }
-Sts_MetaDeclarationValue pratt_infix_postfix(PrattContext ctx, Lexem* op, Sts_MetaDeclarationValue left, int minLbp) {
+Sts_MetaDeclarationValue pratt_infix_postfix(Pratt_Context ctx, Lexem* op, Sts_MetaDeclarationValue left, int minLbp) {
   const Lexem_OpData* opData = op->value.opData;
 
   Lexem* rightLexem = Lexems_get(ctx.lexems, *ctx.currIndex);
@@ -191,8 +209,8 @@ Sts_MetaDeclarationValue pratt_infix_postfix(PrattContext ctx, Lexem* op, Sts_Me
     return left;
   }
 }
-Sts_MetaDeclarationValue pratt_paren(PrattContext ctx) {
-  Sts_MetaDeclarationValue value = pratt(ctx, 0);
+Sts_MetaDeclarationValue pratt_paren(Pratt_Context ctx) {
+  Sts_MetaDeclarationValue value = Pratt_pratt(ctx, 0);
   *ctx.currIndex += 1;
   return value;
 }

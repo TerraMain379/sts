@@ -1,3 +1,3 @@
 #include "strings.h"
 
-OWNER(String) Files_readFile(BORROW(ViewString) filename);
+type_errno(OWNER(String)) Files_readFile(BORROW(ViewString) filename);

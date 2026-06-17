@@ -229,9 +229,6 @@ void Sts_MetaDeclarationExpression_free(Sts_MetaDeclarationExpression* decExpres
   Sts_MetaDeclarationValue_free(&decExpression->value1);
   Sts_MetaDeclarationValue_free(&decExpression->value2);
 }
-void Sts_MetaDeclarationTyping_free(Sts_MetaDeclarationTyping* decTyping) {
-  // TODO: 
-}
 void Sts_MetaParamDeclaration_free(Sts_MetaParamDeclaration* paramDec) {
   Sts_MetaDeclarationValue_free(&paramDec->name);
   Sts_MetaDeclarationValueList_freeElements(&paramDec->values);
@@ -240,7 +237,7 @@ void Sts_MetaParamDeclaration_free(Sts_MetaParamDeclaration* paramDec) {
 void Sts_MetaVariableDeclaration_free(Sts_MetaVariableDeclaration* variableDec) {
   Sts_MetaDeclarationValue_free(&variableDec->name);
   Sts_MetaDeclarationValue_free(&variableDec->value);
-  Sts_MetaDeclarationTyping_free(&variableDec->typing);
+  Sts_MetaDeclarationValue_free(&variableDec->typing);
 }
 void Sts_MetaEventDeclaration_free(Sts_MetaEventDeclaration* eventDec) {
   Sts_MetaDeclarationValue_free(&eventDec->name);

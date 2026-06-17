@@ -71,7 +71,7 @@ void Source_free(Source* source);
 
 
 #define PNAME Sources
-#define PTYPE OWNER(Source*)
+#define PTYPE OWNER(Source)
 #define PFREEFUN Source_free
 #define BASE_LIST List
 #include "plist.h"

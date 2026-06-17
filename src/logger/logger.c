@@ -24,14 +24,14 @@ dec_print_json(ErrorLog) {
   print_json_field_value(ErrorSeverity, severity);
   print_json_field_value(String, code);
   print_json_field_value(String, category);
-  if (input->existMethod) { print_json_field_value(String, method); }
-  if (input->existMessage) { print_json_field_value(String, message); }
-  if (input->existSource) { print_json_field_value(Source, source); }
-  if (input->existExcerpt) { print_json_field_value(ErrorLogExcerpt, excerpt); }
-  if (input->existSource1) { print_json_field_value(Source, source1); }
-  if (input->existExcerpt1) { print_json_field_value(ErrorLogExcerpt, excerpt1); }
-  if (input->existHint) { print_json_field_value(String, hint); }
-  if (input->existExtra) { print_json_field_value(StringMap, extra); }
+  if (input->exist.method) { print_json_field_value(String, method); }
+  if (input->exist.message) { print_json_field_value(String, message); }
+  if (input->exist.source) { print_json_field_value(Source, source); }
+  if (input->exist.excerpt) { print_json_field_value(ErrorLogExcerpt, excerpt); }
+  if (input->exist.source1) { print_json_field_value(Source, source1); }
+  if (input->exist.excerpt1) { print_json_field_value(ErrorLogExcerpt, excerpt1); }
+  if (input->exist.hint) { print_json_field_value(String, hint); }
+  if (input->exist.extra) { print_json_field_value(StringMap, extra); }
   print_json_field_value(int, seq);
   print_json_struct_return;
 }
