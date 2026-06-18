@@ -1,19 +1,12 @@
-redesigned Sts_MetaVariableDeclaration and adapted his parse logic
-added Errors_metaparser_expressionWasAwaitingSubexpression
-added Expressions_parseStatements
-changed names in pratt.h
-added Strings_strtol and removed all uses of Strings_atoi
-rewrited Strings_strcpy
-redesigned struct ErrorLog
-expanded error handling in Pratt_pratt and Source_byIters
-fixed source calculation in lexems.c
-fixed Errors_internal_unexpectedBehavior log
-fixed pmap freeElements memory leak
-fixed integer overflow in hash function
-added error handling to Files_readFile
-fixed clang-tidy warning: macro argument should be enclosed in parentheses
-fixed Sources list declaration
-fixed SPDMode_BACK_WORD_SHIFT call
-fixed parseSetMainZone call
-added error handling to Sts_MetaDeclarationValue_{print,print_json}
-ErrorLogExcerpt shift type changed to long
+created Declarations_parseDeclarationsBlockHeader based on old token.c implementation
+added Sts_MetaDeclarationExtendElement and Sts_MetaDeclarationExtendElementList
+implemented parseZone
+added zone expand parsing (parseDeclarations_zoneExpand)
+renamed parseDeclarations to Declarations_parseDeclarations
+renamed Sts_MetaZoneExtendDeclaration to Sts_MetaZoneExpandDeclaration
+added `extenders` param to Sts_MetaDeclarationsBlock
+removed `links` param from Sts_MetaDeclarationsBlock (and all related logic)
+`name` param type in Sts_MetaDeclarationsBlock changed to Sts_MetaDeclarationValue
+added `exitChar` param to Declarations_parseDeclarations
+removed deprecated Utils_Iter_readChar
+fixed Utils_Iter_readName

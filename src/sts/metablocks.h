@@ -34,11 +34,12 @@
   typedef_struct(Sts_MetaParamDeclaration);
   typedef_struct(Sts_MetaVariableDeclaration);
   typedef_struct(Sts_MetaEventDeclaration);
-  typedef_struct(Sts_MetaZoneExtendDeclaration);
+  typedef_struct(Sts_MetaZoneExpandDeclaration);
   typedef_struct(Sts_MetaSuperRegexDeclarationElement);
   typedef_struct(Sts_MetaSuperRegexDeclaration);
   typedef_enum(Sts_MetaDeclarationType);
   typedef_struct(Sts_MetaDeclaration);
+  typedef_struct(Sts_MetaDeclarationExtendElement);
   typedef_enum(Sts_MetaDeclarationsBlockType);
   typedef_struct(Sts_MetaDeclarationsBlock);
 
@@ -227,7 +228,7 @@ void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue);
 dec_prints(Sts_MetaDeclarationValue);
 
 #define NAME Sts_MetaDeclarationValueList
-#define TYPE Sts_MetaDeclarationValue
+#define TYPE OWNER(Sts_MetaDeclarationValue)
 #define NULLV (Sts_MetaDeclarationValue) {0}
 #define FREEFUN Sts_MetaDeclarationValue_free
 #include "glist.h"
@@ -302,12 +303,12 @@ struct Sts_MetaEventDeclaration {
 void Sts_MetaEventDeclaration_free(Sts_MetaEventDeclaration* eventDec);
 dec_prints(Sts_MetaEventDeclaration);
 
-struct Sts_MetaZoneExtendDeclaration {
+struct Sts_MetaZoneExpandDeclaration {
   Sts_MetaDeclarationValue zoneName;
   bool isExport;
 };
-void Sts_MetaZoneExtendDeclaration_free(Sts_MetaZoneExtendDeclaration* zoneExtendDec);
-dec_prints(Sts_MetaZoneExtendDeclaration);
+void Sts_MetaZoneExpandDeclaration_free(Sts_MetaZoneExpandDeclaration* zoneExpandDec);
+dec_prints(Sts_MetaZoneExpandDeclaration);
 
 struct Sts_MetaSuperRegexDeclarationElement {
   Sts_MetaDeclarationValue token;
@@ -340,7 +341,7 @@ enum Sts_MetaDeclarationType {
   Sts_MetaDeclarationType_PARAM,
   Sts_MetaDeclarationType_VARIABLE,
   Sts_MetaDeclarationType_EVENT,
-  Sts_MetaDeclarationType_ZONE_EXTEND,
+  Sts_MetaDeclarationType_ZONE_EXPAND,
   Sts_MetaDeclarationType_SUPER_REGEX
 };
 dec_prints(Sts_MetaDeclarationType);
@@ -350,7 +351,7 @@ struct Sts_MetaDeclaration {
     Sts_MetaParamDeclaration param;
     Sts_MetaVariableDeclaration variable;
     Sts_MetaEventDeclaration event;
-    Sts_MetaZoneExtendDeclaration zoneExtend;
+    Sts_MetaZoneExpandDeclaration zoneExpand;
     Sts_MetaSuperRegexDeclaration superRegex;
   } value;
 };
@@ -378,18 +379,25 @@ dec_prints(Sts_MetaDeclarationList);
 #undef BASE_LIST
 dec_prints(Sts_MetaDeclarationValuesWeakList);
 
-#define NAME Sts_MetaDeclarationValuesLinks
-#define TYPE Sts_MetaDeclarationValuesWeakList
-#define NULLV (Sts_MetaDeclarationValuesWeakList) {0}
-#define FREEFUN Sts_MetaDeclarationValuesWeakList_free
-#include "gmap.h"
+
+struct Sts_MetaDeclarationExtendElement {
+  Sts_MetaDeclarationValue name;
+  Sts_MetaDeclarationValueList linksValues;
+};
+void Sts_MetaDeclarationExtendElement_free(Sts_MetaDeclarationExtendElement* extendName);
+dec_prints(Sts_MetaDeclarationExtendElement);
+
+#define NAME Sts_MetaDeclarationExtendElementList
+#define TYPE OWNER(Sts_MetaDeclarationExtendElement)
+#define NULLV (Sts_MetaDeclarationExtendElement) {0}
+#define FREEFUN Sts_MetaDeclarationExtendElement_free
+#include "glist.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
-dec_prints(Sts_MetaDeclarationValuesLinks);
-Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, BORROW(ViewString) key);
-void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, WEAK(Sts_MetaDeclarationValue*) decValue);
+dec_prints(Sts_MetaDeclarationExtendElementList);
+
 
 enum Sts_MetaDeclarationsBlockType {
   Sts_MetaDeclarationsBlockType_TOKEN,
@@ -399,11 +407,11 @@ enum Sts_MetaDeclarationsBlockType {
 };
 dec_prints(Sts_MetaDeclarationsBlockType);
 struct Sts_MetaDeclarationsBlock {
-  String name;
   Sts_MetaDeclarationsBlockType type;
-  Sts_MetaDeclarationList declarations;
+  Sts_MetaDeclarationValue name;
   StringList linkNames;
-  Sts_MetaDeclarationValuesLinks links;
+  Sts_MetaDeclarationExtendElementList extenders;
+  Sts_MetaDeclarationList declarations;
 };
 void Sts_MetaDeclarationsBlock_init(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationsBlockType type);
 void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock);

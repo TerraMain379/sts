@@ -28,8 +28,8 @@ void parseSetMainZone(Context* ctx) {
       non_call_return;
     }
   }
-  Utils_Iter_readChar(ctx, '-');
-  Utils_Iter_readChar(ctx, '-');
+  Utils_Iter_skipChar(ctx, '-');
+  Utils_Iter_skipChar(ctx, '-');
 
   Sts_MetaZone* mainZone = Sts_MetaFile_getOrCreateZone(ctx->metaFile, ViewString_by(name));
   if (ctx->metaFile->mainZone) {

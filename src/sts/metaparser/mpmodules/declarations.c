@@ -4,7 +4,6 @@
 #include "iter.h"
 #include "metablocks.h"
 #include "metaparser_errors.h"
-#include "errors.h"
 #include "mpmodules/utils.h"
 #include "mpmodules/expressions.h"
 #include "sources.h"
@@ -18,11 +17,215 @@ static void checkNameValueForLink(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaD
     }
   }
 }
-static void registerDeclarationValue(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationValue* value) {
-  if (value->type == Sts_MetaDeclarationValueType_LINK) {
-    Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, value);
+
+static void_stop error_readName(Context* ctx, int backCharsDistance) {
+  if (Iter_currChar(&ctx->iter) == '\0') {
+    Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      &ctx->iter,
+      SPD_new1(SPDMode_BACK_CHAR_SHIFT, backCharsDistance),
+      SPD_new1(SPDMode_BACK_CHAR_SHIFT, 1)
+    ));
   }
+  else {
+    Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      &ctx->iter,
+      SPD_new1(SPDMode_BACK_CHAR_SHIFT, backCharsDistance),
+      SPD_new2(SPDMode_CURR_CHAR)
+    ), ViewString_of("<name>"));
+  }
+  non_call_return;
 }
+
+
+static inline char parseDeclarationsBlockHeader_ghost(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+static inline char parseDeclarationsBlockHeader_links(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+static inline char parseDeclarationsBlockHeader_extend(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char exitChar);
+static inline char parseDeclarationsBlockHeader_extend_links(Sts_MetaDeclarationExtendElement* decName, Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+
+void Declarations_parseDeclarationsBlockHeader(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, OWNER(String) name, char exitChar) {
+  Iter* iter = &ctx->iter;
+  Sts_MetaDeclarationValue nameValue = {
+    .type = Sts_MetaDeclarationValueType_NAME,
+    .value = { .name = name },
+  };
+  decBlock->name = nameValue;
+  Utils_Iter_skipVoid(ctx, false);
+
+  char c = Iter_currChar(iter);
+  
+  bool isGeneric = false;
+
+  if (c == '!') {
+    c = parseDeclarationsBlockHeader_ghost(decBlock, ctx);
+  }
+  else if (c == '<') {
+    isGeneric = true;
+    c = parseDeclarationsBlockHeader_links(decBlock, ctx);
+  }
+
+  if (c == ':') {
+    c = parseDeclarationsBlockHeader_extend(decBlock, ctx, exitChar);
+  }
+
+  // if (c == exitChar) {
+    // Iter_nextChar(iter);
+    // parseDeclarations(decBlock, ctx);
+    // c = Iter_currChar(iter);
+    // Utils_Iter_skipChar(ctx, '}');
+  // }
+  if (c != exitChar) {
+    Errors_metaparser_unknownToken(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      iter,
+      SPD_new2(SPDMode_CURR_CHAR),
+      SPD_new2(SPDMode_CURR_CHAR)
+    ));
+  }
+  Iter_nextChar(&ctx->iter);
+}
+static inline char parseDeclarationsBlockHeader_ghost(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter* iter = &ctx->iter;
+  Sts_MetaDeclaration* dec = A_xloc(sizeof(Sts_MetaDeclaration));
+  *dec = (Sts_MetaDeclaration) {
+    .type = Sts_MetaDeclarationType_PARAM,
+    .value = {
+      .param = {
+        .name = {
+          .type = Sts_MetaDeclarationValueType_NAME,
+          .value = { .name = String_by("isGhost") }
+        },
+        .values = {/* */},
+      }
+    }
+  };
+  Sts_MetaDeclarationValueList_init(&dec->value.param.values, 1);
+  Sts_MetaDeclarationValueList_add(&dec->value.param.values, (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NUMBER,
+    .value = { .number = 1 },
+  });
+  Sts_MetaDeclarationList_add(&decBlock->declarations, dec);
+
+  Iter_nextChar(iter);
+  Utils_Iter_skipVoid(ctx, false);
+  return Iter_currChar(iter);
+}
+static inline char parseDeclarationsBlockHeader_links(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter* iter = &ctx->iter;
+  Iter_nextChar(iter);
+  while (true) {
+    Utils_Iter_skipVoid(ctx, false);
+    type_errno(String) linkName = Utils_Iter_readName(ctx);
+    if (errno != 0) {
+      error_readName(ctx, 1);
+      non_call_return 0;
+    }
+    StringList_add(&decBlock->linkNames, linkName);
+    Utils_Iter_skipVoid(ctx, false);
+    char c = Iter_currChar(iter);
+    if (c == '>') break;
+    else if (c == ',') {
+      Iter_nextChar(iter);
+    }
+    else {
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
+      non_call_return 0;
+    }
+  }
+  Iter_nextChar(iter);
+  Utils_Iter_skipVoid(ctx, false);
+  return Iter_currChar(iter);
+}
+static inline char parseDeclarationsBlockHeader_extend(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char exitChar) {
+  Iter* iter = &ctx->iter;
+  char c;
+  Iter_nextChar(iter);
+  do {
+    Utils_Iter_skipVoid(ctx, false);
+    type_errno(String) extendName = Utils_Iter_readName(ctx);
+    if (errno != 0) {
+      error_readName(ctx, 1);
+      non_call_return 0;
+    }
+
+    Sts_MetaDeclarationValue extendNameValue = {
+      .type = Sts_MetaDeclarationValueType_NAME,
+      .value = {
+        .name = extendName
+      }
+    };
+    checkNameValueForLink(decBlock, &extendNameValue);
+    Sts_MetaDeclarationExtendElement decName = {
+      .name = extendNameValue,
+      .linksValues = {}
+    };
+    Sts_MetaDeclarationValueList_init(&decName.linksValues, 1);
+
+
+    Utils_Iter_skipVoid(ctx, false);
+    c = Iter_currChar(iter);
+    if (c == '<') {
+      parseDeclarationsBlockHeader_extend_links(&decName, decBlock, ctx);
+      Utils_Iter_skipVoid(ctx, false);
+      c = Iter_currChar(iter);
+    }
+
+    Sts_MetaDeclarationExtendElementList_add(&decBlock->extenders, decName);
+
+    if (c == exitChar) {
+      break;
+    }
+    else if (c != ',') {
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
+      non_call_return 0;
+    }
+    Iter_nextChar(iter);
+  } while (true);
+  return c;
+}
+static inline char parseDeclarationsBlockHeader_extend_links(Sts_MetaDeclarationExtendElement* decName, Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+  Iter* iter = &ctx->iter;
+  Iter_nextChar(iter);
+  while (true) {
+    Utils_Iter_skipVoid(ctx, false);
+    Sts_MetaDeclarationValue linkValue = Expressions_parseValue(decBlock, ctx, ViewString_of(",>"));
+    Sts_MetaDeclarationValueList_add(&decName->linksValues, linkValue);
+
+    // TODO: StringList_add(&decBlock->linkNames, linkName);
+
+    char c = Iter_currChar(iter);
+    if (c == '>') break;
+    else if (c == ',') {
+      Iter_nextChar(iter);
+    }
+    else {
+      // TODO: delete if parseValue proccess this case
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
+      non_call_return 0;
+    }
+  }
+  Iter_nextChar(iter);
+  Utils_Iter_skipVoid(ctx, false);
+  return Iter_currChar(iter);
+}
+
+
 
 typedef enum OpenType {
   OpenType_BODY,
@@ -34,18 +237,10 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, S
 static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
 static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
 static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
+static inline void parseDeclarations_zoneExpand(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, bool isExport);
 
-void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+void Declarations_parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char exitChar) {
   Sts_MetaDeclarationsBlockType type = decBlock->type;
-  char exitChar;
-  if (type == Sts_MetaDeclarationsBlockType_TOKEN) exitChar = '}';
-  else if (type == Sts_MetaDeclarationsBlockType_ZONE) exitChar = ')';
-  else if (type == Sts_MetaDeclarationsBlockType_GROUP) exitChar = ')';
-  else if (type == Sts_MetaDeclarationsBlockType_SUPER_TOKEN) exitChar = '}';
-  else {
-    Errors_internal_unexpectedEnumType(ViewString_of("parseDeclarations().decBlock->type"));
-    non_call_return;
-  }
   
   while (true) {
     Utils_Iter_skipVoid(ctx, false);
@@ -57,8 +252,22 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
     else if (c == '$') {
       parseDeclarations_variable(decBlock, ctx);
     }
-    else if (c == exitChar || c == '\0') {
+    else if (c == '<') {
+      parseDeclarations_zoneExpand(decBlock, ctx, false);
+    }
+    else if (c == '>') {
+      parseDeclarations_zoneExpand(decBlock, ctx, true);
+    }
+    else if (c == exitChar) {
+      Iter_nextChar(&ctx->iter);
       break;
+    }
+    else if (c == '\0') {
+      Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        &ctx->iter,
+        SPD_new1_double(SPDMode_BACK_CHAR_SHIFT, 1)
+      ));
     }
     else {
       Errors_metaparser_unknownToken(ctx, Source_byIter(
@@ -69,6 +278,7 @@ void parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
       ));
     }
   }
+  Iter_nextChar(&ctx->iter);
 }
 static inline void parseDeclarations_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char c) {
   String name = Utils_Iter_readName(ctx);
@@ -148,7 +358,6 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
 
       Sts_MetaDeclarationValue valueDec = Expressions_parseValue(decBlock, ctx, ViewString_of(",;"));
       Sts_MetaDeclarationValue* valueDecPtr = Sts_MetaDeclarationValueList_add(&values, valueDec);
-      registerDeclarationValue(decBlock, valueDecPtr);
 
       Utils_Iter_skipVoid(ctx, false);
       c = Iter_currChar(&ctx->iter);
@@ -166,7 +375,6 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationsBlock* decBl
     .name = nameDec,
     .values = values,
   };
-  registerDeclarationValue(decBlock, &dec->value.param.name);
   Sts_MetaDeclarationList_add(&decBlock->declarations, dec);
 }
 static inline void parseDeclarations_name_event(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
@@ -321,9 +529,36 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationsBlock* decBloc
       .variable = variableDec
     }
   };
-  registerDeclarationValue(decBlock, &declaration->value.variable.name);
-  registerDeclarationValue(decBlock, &declaration->value.variable.typing);
-  registerDeclarationValue(decBlock, &declaration->value.variable.value);
 
+  Sts_MetaDeclarationList_add(&decBlock->declarations, declaration);
+}
+static inline void parseDeclarations_zoneExpand(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, bool isExport) {
+  Iter_nextChar(&ctx->iter);
+  Utils_Iter_skipVoid(ctx, false);
+  type_errno(String) name = Utils_Iter_readName(ctx);
+  if (errno != 0) {
+    Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+      ViewString_by(ctx->filename),
+      &ctx->iter,
+      SPD_new2_double(SPDMode_CURR_CHAR)
+    ), ViewString_of("<name>"));
+    non_call_return;
+  }
+  Sts_MetaDeclarationValue nameValue = (Sts_MetaDeclarationValue) {
+    .type = Sts_MetaDeclarationValueType_NAME,
+    .value = { .name = name },
+  };
+  checkNameValueForLink(decBlock, &nameValue);
+  Utils_Iter_skipVoid(ctx, false);
+  Utils_Iter_skipChar(ctx, ';');
+  Sts_MetaZoneExpandDeclaration expandDec = (Sts_MetaZoneExpandDeclaration) {
+    .zoneName = nameValue,
+    .isExport = isExport,
+  };
+  Sts_MetaDeclaration* declaration = A_xloc(sizeof(Sts_MetaDeclaration));
+  *declaration = (Sts_MetaDeclaration) {
+    .type = Sts_MetaDeclarationType_ZONE_EXPAND,
+    .value = { .zoneExpand = expandDec },
+  };
   Sts_MetaDeclarationList_add(&decBlock->declarations, declaration);
 }

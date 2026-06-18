@@ -2,19 +2,11 @@
 
 #include "metaparser_errors.h"
 #include "errors.h"
-#include "mpmodules/utils.h"
 
 void Pratt_Context_free(Pratt_Context* prattContext) {
   Lexems_freeElements(prattContext->lexems);
   Lexems_free(prattContext->lexems);
   Source_free(&prattContext->expressionSrc);
-}
-
-
-static void registerDeclarationValue(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationValue* value) {
-  if (value->type == Sts_MetaDeclarationValueType_LINK) {
-    Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(&decBlock->links, value);
-  }
 }
 
 
@@ -140,7 +132,6 @@ Sts_MetaDeclarationValue pratt_prefix(Pratt_Context ctx, Lexem* op) {
     .value1 = (Sts_MetaDeclarationValue) { .type = Sts_MetaDeclarationValueType_NULL },
     .value2 = right,
   };
-  registerDeclarationValue(ctx.decBlock, &expression->value2);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -156,8 +147,6 @@ Sts_MetaDeclarationValue pratt_infix(Pratt_Context ctx, Lexem* op, Sts_MetaDecla
     .value1 = left,
     .value2 = right,
   };
-  registerDeclarationValue(ctx.decBlock, &expression->value1);
-  registerDeclarationValue(ctx.decBlock, &expression->value2);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -171,7 +160,6 @@ Sts_MetaDeclarationValue pratt_postfix(Pratt_Context ctx, Lexem* op, Sts_MetaDec
     .value1 = left,
     .value2 = (Sts_MetaDeclarationValue) { .type = Sts_MetaDeclarationValueType_NULL },
   };
-  registerDeclarationValue(ctx.decBlock, &expression->value1);
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_EXPRESSION,
     .value.expression = expression,
@@ -194,8 +182,6 @@ Sts_MetaDeclarationValue pratt_infix_postfix(Pratt_Context ctx, Lexem* op, Sts_M
       .value1 = left,
       .value2 = right,
     };
-    registerDeclarationValue(ctx.decBlock, &expression->value1);
-    registerDeclarationValue(ctx.decBlock, &expression->value2);
     return (Sts_MetaDeclarationValue) {
       .type = Sts_MetaDeclarationValueType_EXPRESSION,
       .value.expression = expression,

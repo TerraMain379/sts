@@ -96,7 +96,7 @@ void parseLoop(Context* context) {
         parseSetMainZone(context);
       }
       else {
-        parseZone(context); // TODO:
+        parseZone(context);
       }
     }
     else if (c == '/') { 

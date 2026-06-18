@@ -8,7 +8,7 @@
 type_errno(String) Utils_Iter_readName(Context* ctx) {
   Iter* iter = &ctx->iter;
   char c = Iter_currChar(iter);
-  if (!Chars_isNameStart(c) && !Chars_isDigit(c)) {
+  if (!Chars_isNameStart(c)) {
     errno = 1; return (String) {0};
   }
   char* buffer = A_xloc(16);
@@ -70,14 +70,6 @@ void Utils_Iter_skipVoid(Context* ctx, bool strict) {
       ), ViewString_of(" "));
     }
   }
-}
-
-bool Utils_Iter_readChar(Context* ctx, char c) {
-  Iter* iter = &ctx->iter;
-  char readChar = Iter_nextChar(iter);
-  if (readChar == c) return true;
-  Iter_unsafeBackChar(iter);
-  return false;
 }
 
 void_errno Utils_Iter_skipChar(Context* ctx, char c) {

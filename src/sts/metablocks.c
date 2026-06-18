@@ -118,11 +118,12 @@
 #undef BASE_LIST
 dec_print(Sts_MetaDeclarationValuesWeakList);
 
-#define NAME Sts_MetaDeclarationValuesLinks
-#define TYPE Sts_MetaDeclarationValuesWeakList
-#define NULLV (Sts_MetaDeclarationValuesWeakList) {0}
-#define FREEFUN Sts_MetaDeclarationValuesWeakList_free
-#include "gmap.c.h"
+
+#define NAME Sts_MetaDeclarationExtendElementList
+#define TYPE OWNER(Sts_MetaDeclarationExtendElement)
+#define NULLV (Sts_MetaDeclarationExtendElement) {0}
+#define FREEFUN Sts_MetaDeclarationExtendElement_free
+#include "glist.c.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
@@ -139,20 +140,10 @@ dec_print(Sts_MetaDeclarationValuesWeakList);
 #undef FREEFUN
 
 
-Sts_MetaDeclarationValuesWeakList* Sts_MetaDeclarationValuesLinks_getOrCreate(Sts_MetaDeclarationValuesLinks* valuesLinks, ViewString key) {
-  if (!Sts_MetaDeclarationValuesLinks_contains(valuesLinks, key)) {
-    Sts_MetaDeclarationValuesWeakList list;
-    Sts_MetaDeclarationValuesWeakList_init(&list, 2);
-    Sts_MetaDeclarationValuesLinks_set(valuesLinks, key, list);
-  }
-  return Sts_MetaDeclarationValuesLinks_get(valuesLinks, key);
-}
-void Sts_MetaDeclarationValuesLinks_registerDeclaratonValue(Sts_MetaDeclarationValuesLinks* valuesLinks, WEAK(Sts_MetaDeclarationValue*) decValue) {
-  Sts_MetaDeclarationValuesWeakList* valuesWeakList = Sts_MetaDeclarationValuesLinks_getOrCreate(
-    valuesLinks,
-    ViewString_by(decValue->value.linkName)
-  );
-  Sts_MetaDeclarationValuesWeakList_add(valuesWeakList, decValue);
+void Sts_MetaDeclarationExtendElement_free(Sts_MetaDeclarationExtendElement* decName) {
+  Sts_MetaDeclarationValue_free(&decName->name);
+  Sts_MetaDeclarationValueList_freeElements(&decName->linksValues);
+  Sts_MetaDeclarationValueList_free(&decName->linksValues);
 }
 
 
@@ -243,8 +234,8 @@ void Sts_MetaEventDeclaration_free(Sts_MetaEventDeclaration* eventDec) {
   Sts_MetaDeclarationValue_free(&eventDec->name);
   Sts_MetaDeclarationValue_free(&eventDec->event);
 }
-void Sts_MetaZoneExtendDeclaration_free(Sts_MetaZoneExtendDeclaration* zoneExtendDec) {
-  Sts_MetaDeclarationValue_free(&zoneExtendDec->zoneName);
+void Sts_MetaZoneExpandDeclaration_free(Sts_MetaZoneExpandDeclaration* zoneExpandDec) {
+  Sts_MetaDeclarationValue_free(&zoneExpandDec->zoneName);
 }
 void Sts_MetaSuperRegexDeclarationElement_free(Sts_MetaSuperRegexDeclarationElement* regexDecElement) {
   Sts_MetaDeclarationValue_free(&regexDecElement->token);
@@ -265,8 +256,8 @@ void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
   else if (type == Sts_MetaDeclarationType_EVENT) {
     Sts_MetaEventDeclaration_free(&declaration->value.event);
   }
-  else if (type == Sts_MetaDeclarationType_ZONE_EXTEND) {
-    Sts_MetaZoneExtendDeclaration_free(&declaration->value.zoneExtend);
+  else if (type == Sts_MetaDeclarationType_ZONE_EXPAND) {
+    Sts_MetaZoneExpandDeclaration_free(&declaration->value.zoneExpand);
   }
   else if (type == Sts_MetaDeclarationType_SUPER_REGEX) {
     Sts_MetaSuperRegexDeclaration_free(&declaration->value.superRegex);
@@ -274,20 +265,20 @@ void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
 }
 
 void Sts_MetaDeclarationsBlock_init(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaDeclarationsBlockType type) {
-  decBlock->name = (String) {0};
   decBlock->type = type;
-  Sts_MetaDeclarationList_init(&decBlock->declarations, 5);
+  decBlock->name = (Sts_MetaDeclarationValue) {0};
   StringList_init(&decBlock->linkNames, 1);
-  Sts_MetaDeclarationValuesLinks_init(&decBlock->links);
+  Sts_MetaDeclarationExtendElementList_init(&decBlock->extenders, 1);
+  Sts_MetaDeclarationList_init(&decBlock->declarations, 5);
 }
 void Sts_MetaDeclarationsBlock_free(Sts_MetaDeclarationsBlock* decBlock) {
-  String_free(&decBlock->name);
-  Sts_MetaDeclarationList_freeElements(&decBlock->declarations);
-  Sts_MetaDeclarationList_free(&decBlock->declarations);
+  Sts_MetaDeclarationValue_free(&decBlock->name);
   StringList_freeElements(&decBlock->linkNames);
   StringList_free(&decBlock->linkNames);
-  Sts_MetaDeclarationValuesLinks_freeElements(&decBlock->links);
-  Sts_MetaDeclarationValuesLinks_free(&decBlock->links);
+  Sts_MetaDeclarationExtendElementList_freeElements(&decBlock->extenders);
+  Sts_MetaDeclarationExtendElementList_free(&decBlock->extenders);
+  Sts_MetaDeclarationList_freeElements(&decBlock->declarations);
+  Sts_MetaDeclarationList_free(&decBlock->declarations);
 }
 
 void Sts_MetaZone_init(Sts_MetaZone* zone, OWNER(String) name) {
