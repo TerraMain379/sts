@@ -4,11 +4,7 @@
 #include "metaparser_errors.h"
 
 #include "mpmodules/utils.h"
-#include "mpmodules/group.h"
-#include "mpmodules/regexlink.h"
-#include "mpmodules/setmainzone.h"
-#include "mpmodules/token.h"
-#include "mpmodules/zone.h"
+#include "mpmodules/elements.h"
 #include "mpmodules/ssts.h"
 
 typedef Sts_MetaParser_Context Context;

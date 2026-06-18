@@ -1,12 +1,1 @@
-created Declarations_parseDeclarationsBlockHeader based on old token.c implementation
-added Sts_MetaDeclarationExtendElement and Sts_MetaDeclarationExtendElementList
-implemented parseZone
-added zone expand parsing (parseDeclarations_zoneExpand)
-renamed parseDeclarations to Declarations_parseDeclarations
-renamed Sts_MetaZoneExtendDeclaration to Sts_MetaZoneExpandDeclaration
-added `extenders` param to Sts_MetaDeclarationsBlock
-removed `links` param from Sts_MetaDeclarationsBlock (and all related logic)
-`name` param type in Sts_MetaDeclarationsBlock changed to Sts_MetaDeclarationValue
-added `exitChar` param to Declarations_parseDeclarations
-removed deprecated Utils_Iter_readChar
-fixed Utils_Iter_readName
+metaparser modules regexlink.{h,c}, setmainzone.{h,c}, zone.{h,c}, token.{h,c}, group.{h,c} combined into elements.{h,c}
