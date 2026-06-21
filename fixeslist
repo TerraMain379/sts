@@ -1,7 +1,4 @@
-added namespaces
-renamed large number of structs in metablocks.h
-redesigned declarations structure
-added new methods for Sts_MetaDeclarationValue and Sts_MetaDeclaration (`_by...`, `_initBy...`)
-redesigned metaparser.c
-creates namespace.{h,c} based on parseLoop function
-added binary param TYPEDEFS to gmap and glist
+added deep linking
+added linkNamesBuffer to Sts_MetaParser_Context and pushLinkNames and popLinkNames methods
+redesigned Sts_MetaDeclarationValue_checkForLink and relocated to metaparser.h
+deleted Sts_MetaDeclarationHead from most function headers

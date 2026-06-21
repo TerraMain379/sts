@@ -2,10 +2,10 @@
 
 #include "pratt.h"
 
-Sts_MetaDeclarationValue Expressions_parseValue(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, ViewString exitChars) {
+Sts_MetaDeclarationValue Expressions_parseValue(Sts_MetaParser_Context* ctx, ViewString exitChars) {
   Source expressionSrc;
   Lexems lexems = Lexems_parseLexems(
-    head, ctx,
+    ctx,
     (Lexems_ParseSettings) {
       .available = {
         .assign = false,
@@ -22,7 +22,6 @@ Sts_MetaDeclarationValue Expressions_parseValue(Sts_MetaDeclarationHead* head, S
   size_t currIndex = 0;
   Pratt_Context prattContext = (Pratt_Context) {
     .ctx = ctx,
-    .head = head,
     .lexems = &lexems,
     .currIndex = &currIndex,
     .expressionSrc = expressionSrc,
@@ -32,10 +31,10 @@ Sts_MetaDeclarationValue Expressions_parseValue(Sts_MetaDeclarationHead* head, S
   return value;
 }
 
-Sts_MetaDeclarationValue Expressions_parseStatements(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, ViewString exitChars) {
+Sts_MetaDeclarationValue Expressions_parseStatements(Sts_MetaParser_Context* ctx, ViewString exitChars) {
   Source expressionSrc;
   Lexems lexems = Lexems_parseLexems(
-    head, ctx,
+    ctx,
     (Lexems_ParseSettings) { 
       .available = {
         .assign = true,
@@ -52,7 +51,6 @@ Sts_MetaDeclarationValue Expressions_parseStatements(Sts_MetaDeclarationHead* he
   size_t currIndex = 0;
   Pratt_Context prattContext = (Pratt_Context) {
     .ctx = ctx,
-    .head = head,
     .lexems = &lexems,
     .currIndex = &currIndex,
     .expressionSrc = expressionSrc,

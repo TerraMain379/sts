@@ -4,8 +4,17 @@
 
 --name--
 
-% <a, b> {
-  a {
-    b: n;
+ABCD : HELLOWORLD {
+
+}
+
+% <ZONE1, TOKEN1, TOKEN2> {
+  ZONE1 {
+    TOKEN1: n + ZONE1;
+  }
+  % listings {
+    TOKEN2<A> {
+      A: a + HELLOWORLD * ZONE1;
+    }
   }
 }

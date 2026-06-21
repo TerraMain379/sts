@@ -90,4 +90,4 @@ typedef struct Lexems_ParseSettings {
   } available;
   ViewString exitChars;
 } Lexems_ParseSettings;
-Lexems Lexems_parseLexems(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource);
+Lexems Lexems_parseLexems(Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource);

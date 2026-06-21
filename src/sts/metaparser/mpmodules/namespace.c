@@ -12,13 +12,15 @@ void parseNamespace(Sts_MetaParser_Context* ctx, Sts_MetaNamespaceDeclaration* p
   Utils_Iter_skipVoid(ctx, false);
   type_errno(String) name = Utils_Iter_readName(ctx);
   Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
-  Sts_MetaDeclarationValue_checkForLink(&nameValue, &parentNamespaceDec->head);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
   Sts_MetaNamespaceDeclaration namespaceDec;
   Sts_MetaNamespaceDeclaration_init(&namespaceDec, nameValue);
   Declarations_parseDeclarationHead(&namespaceDec.head, ctx, '{');
-  
+
+  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, namespaceDec.head.linkNames);
   parseNamespaceBody(ctx, &namespaceDec, false);
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byNamespace(namespaceDec);
   Sts_MetaDeclarations_add(&parentNamespaceDec->declarations, declaration);

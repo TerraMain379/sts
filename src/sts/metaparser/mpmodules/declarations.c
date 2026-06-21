@@ -116,7 +116,7 @@ static inline char parseDeclarationsBlockHeader_extend(Sts_MetaDeclarationHead* 
         .name = extendName
       }
     };
-    Sts_MetaDeclarationValue_checkForLink(&extendNameValue, head);
+    Sts_MetaDeclarationValue_checkForLink(&extendNameValue, ctx);
     Sts_MetaDeclarationExtendElement decName = {
       .name = extendNameValue,
       .linksValues = {}
@@ -155,7 +155,7 @@ static inline char parseDeclarationsBlockHeader_extend_links(Sts_MetaDeclaration
   Iter_nextChar(iter);
   while (true) {
     Utils_Iter_skipVoid(ctx, false);
-    Sts_MetaDeclarationValue linkValue = Expressions_parseValue(head, ctx, ViewString_of(",>"));
+    Sts_MetaDeclarationValue linkValue = Expressions_parseValue(ctx, ViewString_of(",>"));
     Sts_MetaDeclarationValueList_add(&decName->linksValues, linkValue);
 
     // TODO: StringList_add(&decBlock->linkNames, linkName);
@@ -189,28 +189,28 @@ typedef enum OpenType {
   OpenType_SHORT_CLOSE,
 } OpenType;
 
-static inline void parseDeclarations_name(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char c);
-static inline void parseDeclarations_name_param(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
-static inline void parseDeclarations_name_event(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx);
-static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx);
-static inline void parseDeclarations_zoneExpand(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, bool isExport);
+static inline void parseDeclarations_name(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char c);
+static inline void parseDeclarations_name_param(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType);
+static inline void parseDeclarations_name_event(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx);
+static inline void parseDeclarations_variable(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx);
+static inline void parseDeclarations_zoneExpand(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, bool isExport);
 
-void Declarations_parseDeclarations(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char exitChar) {
+void Declarations_parseDeclarations(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char exitChar) {
   while (true) {
     Utils_Iter_skipVoid(ctx, false);
     char c = Iter_currChar(&ctx->iter);
 
     if (Chars_isNameStart(c)) {
-      parseDeclarations_name(head, declarations, ctx, c);
+      parseDeclarations_name(declarations, ctx, c);
     }
     else if (c == '$') {
-      parseDeclarations_variable(head, declarations, ctx);
+      parseDeclarations_variable(declarations, ctx);
     }
     else if (c == '<') {
-      parseDeclarations_zoneExpand(head, declarations, ctx, false);
+      parseDeclarations_zoneExpand(declarations, ctx, false);
     }
     else if (c == '>') {
-      parseDeclarations_zoneExpand(head, declarations, ctx, true);
+      parseDeclarations_zoneExpand(declarations, ctx, true);
     }
     else if (c == exitChar) {
       Iter_nextChar(&ctx->iter);
@@ -234,19 +234,11 @@ void Declarations_parseDeclarations(Sts_MetaDeclarationHead* head, Sts_MetaLineD
   }
   Iter_nextChar(&ctx->iter);
 }
-static inline void parseDeclarations_name(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char c) {
+static inline void parseDeclarations_name(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char c) {
   String name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameDec;
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  bool contains = Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
-  bool contains = StringList_contains(&head->linkNames, ViewString_by(name));
-  if (contains) {
-    nameDec.type = Sts_MetaDeclarationValueType_LINK;
-    nameDec.value.linkName = name;
-  }
-  else {
-    nameDec.type = Sts_MetaDeclarationValueType_NAME;
-    nameDec.value.name = name;
-  }
 
   Utils_Iter_skipVoid(ctx, false);
   bool isGhost = Iter_currChar(&ctx->iter) == '!';
@@ -268,10 +260,10 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationHead* head, Sts_Met
   }
   Iter_nextChar(&ctx->iter);
 
-  if (ViewStrings_equals(ViewString_by(name), ViewString_of("event")) && !contains) {
+  if (ViewStrings_equals(ViewString_by(name), ViewString_of("event")) && contains) {
     if (openType == OpenType_BODY) {
       String_free(&name);
-      parseDeclarations_name_event(head, declarations, ctx);
+      parseDeclarations_name_event(declarations, ctx);
     }
     else if (openType == OpenType_SHORT_CLOSE) {
       Iter_nextChar(&ctx->iter);
@@ -288,10 +280,10 @@ static inline void parseDeclarations_name(Sts_MetaDeclarationHead* head, Sts_Met
     // TODO: super regex
   }
   else { // default param
-    parseDeclarations_name_param(head, declarations, ctx, nameDec, openType);
+    parseDeclarations_name_param(declarations, ctx, nameValue, openType);
   }
 }
-static inline void parseDeclarations_name_param(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType) {
+static inline void parseDeclarations_name_param(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, Sts_MetaDeclarationValue nameDec, OpenType openType) {
   char c;
   Sts_MetaLineDeclaration* dec = A_xloc(sizeof(Sts_MetaLineDeclaration));
   *dec = (Sts_MetaLineDeclaration) {
@@ -310,7 +302,7 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationHead* head, S
     do {
       Utils_Iter_skipVoid(ctx, false);
 
-      Sts_MetaDeclarationValue valueDec = Expressions_parseValue(head, ctx, ViewString_of(",;"));
+      Sts_MetaDeclarationValue valueDec = Expressions_parseValue(ctx, ViewString_of(",;"));
       Sts_MetaDeclarationValue* valueDecPtr = Sts_MetaDeclarationValueList_add(&values, valueDec);
 
       Utils_Iter_skipVoid(ctx, false);
@@ -331,7 +323,7 @@ static inline void parseDeclarations_name_param(Sts_MetaDeclarationHead* head, S
   };
   Sts_MetaLineDeclarationList_add(declarations, dec);
 }
-static inline void parseDeclarations_name_event(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx) {
+static inline void parseDeclarations_name_event(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
   while (true) {
     Utils_Iter_skipVoid(ctx, false);
@@ -353,17 +345,17 @@ static inline void parseDeclarations_name_event(Sts_MetaDeclarationHead* head, S
       Sts_MetaLineDeclaration* eventDec = A_xloc(sizeof(Sts_MetaLineDeclaration));
       eventDec->type = Sts_MetaLineDeclarationType_EVENT;
 
-      eventDec->value.event.name = Expressions_parseValue(head, ctx, ViewString_of(":,;"));
+      eventDec->value.event.name = Expressions_parseValue(ctx, ViewString_of(":,;"));
       Utils_Iter_skipChar(ctx, ':');
       Utils_Iter_skipVoid(ctx, false);
-      eventDec->value.event.event = Expressions_parseValue(head, ctx, ViewString_of(",;"));
+      eventDec->value.event.event = Expressions_parseValue(ctx, ViewString_of(",;"));
       Utils_Iter_skipChar(ctx, ';');
 
       Sts_MetaLineDeclarationList_add(declarations, eventDec);
     }
   }
 }
-static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx) {
+static inline void parseDeclarations_variable(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
 
 
@@ -402,7 +394,7 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts
       .name = nameString
     }
   };
-  Sts_MetaDeclarationValue_checkForLink(&name, head);
+  Sts_MetaDeclarationValue_checkForLink(&name, ctx);
 
   Utils_Iter_skipVoid(ctx, false);
   c = Iter_currChar(iter);
@@ -434,7 +426,7 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts
         .name = typingString
       }
     };
-    Sts_MetaDeclarationValue_checkForLink(&typing, head);
+    Sts_MetaDeclarationValue_checkForLink(&typing, ctx);
 
     Utils_Iter_skipVoid(ctx, false);
     c = Iter_currChar(iter);
@@ -456,7 +448,7 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts
 
   if (c == '=') {
     Iter_nextChar(iter);
-    value = Expressions_parseValue(head, ctx, ViewString_of(";}")); // `}` for smart error log
+    value = Expressions_parseValue(ctx, ViewString_of(";}")); // `}` for smart error log
     c = Iter_currChar(iter);
   }
 
@@ -486,7 +478,7 @@ static inline void parseDeclarations_variable(Sts_MetaDeclarationHead* head, Sts
 
   Sts_MetaLineDeclarationList_add(declarations, declaration);
 }
-static inline void parseDeclarations_zoneExpand(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, bool isExport) {
+static inline void parseDeclarations_zoneExpand(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, bool isExport) {
   Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
   type_errno(String) name = Utils_Iter_readName(ctx);
@@ -502,7 +494,7 @@ static inline void parseDeclarations_zoneExpand(Sts_MetaDeclarationHead* head, S
     .type = Sts_MetaDeclarationValueType_NAME,
     .value = { .name = name },
   };
-  Sts_MetaDeclarationValue_checkForLink(&nameValue, head);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
   Utils_Iter_skipVoid(ctx, false);
   Utils_Iter_skipChar(ctx, ';');
   Sts_MetaLineExpandDeclaration expandDec = (Sts_MetaLineExpandDeclaration) {

@@ -253,7 +253,6 @@ void Sts_MetaDeclarationValue_initByString(Sts_MetaDeclarationValue* decValue, S
 void Sts_MetaDeclarationValue_initByNumber(Sts_MetaDeclarationValue* decValue, double number);
 void Sts_MetaDeclarationValue_initByExpression(Sts_MetaDeclarationValue* decValue, OWNER(Sts_MetaDeclarationExpression*) expression);
 void Sts_MetaDeclarationValue_initByLinkName(Sts_MetaDeclarationValue* decValue, String linkName);
-void Sts_MetaDeclarationValue_checkForLink(Sts_MetaDeclarationValue* decValue, Sts_MetaDeclarationHead* head);
 void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue);
 dec_prints(Sts_MetaDeclarationValue);
 

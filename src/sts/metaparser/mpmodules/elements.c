@@ -117,7 +117,10 @@ void parseZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_ZONE);
   Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
-  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, ')');
+
+  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
+  Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, ')');
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
@@ -131,7 +134,10 @@ void parseToken(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_TOKEN);
   Declarations_parseDeclarationHead(&elementDec.head, ctx, '{');
-  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, '}');
+
+  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
+  Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, '}');
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
@@ -147,7 +153,10 @@ void parseGroup(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_GROUP);
   Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
-  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, ')');
+
+  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
+  Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, ')');
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);

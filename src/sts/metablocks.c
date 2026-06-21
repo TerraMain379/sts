@@ -236,15 +236,6 @@ void Sts_MetaDeclarationValue_initByExpression(Sts_MetaDeclarationValue* decValu
 void Sts_MetaDeclarationValue_initByLinkName(Sts_MetaDeclarationValue* decValue, String linkName) {
   *decValue = Sts_MetaDeclarationValue_byLinkName(linkName);
 }
-void Sts_MetaDeclarationValue_checkForLink(Sts_MetaDeclarationValue* decValue, Sts_MetaDeclarationHead* head) {
-  if (decValue->type == Sts_MetaDeclarationValueType_NAME) {
-    bool contains = StringList_contains(&head->linkNames, ViewString_by(decValue->value.name));
-    if (contains) {
-      decValue->type = Sts_MetaDeclarationValueType_LINK;
-      decValue->value.linkName = decValue->value.name;
-    }
-  }
-}
 void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue) {
   Sts_MetaDeclarationValueType type = decValue->type;
   if (type == Sts_MetaDeclarationValueType_NAME) {
