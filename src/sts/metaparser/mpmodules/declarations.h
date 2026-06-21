@@ -2,5 +2,5 @@
 
 #include "metaparser.h"
 
-void Declarations_parseDeclarationsBlockHeader(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, OWNER(String) name, char exitChar);
-void Declarations_parseDeclarations(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, char exitChar);
+void Declarations_parseDeclarationHead(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, char exitChar);
+void Declarations_parseDeclarations(Sts_MetaDeclarationHead* head, Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char exitChar);

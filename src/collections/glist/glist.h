@@ -5,17 +5,21 @@
 // #define TYPE ...
 // #define NULLV ...
 // #define FREEFUN ...
+// #define TYPEDEFS ...
 // #include "glist.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
 // #undef FREEFUN
+// #undef TYPEDEFS
 
 // logic for generate names for structs
 #define CONCAT(a, b) a ## _ ## b
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-typedef struct NAME NAME;
+#ifdef TYPEDEFS
+  typedef struct NAME NAME;
+#endif
 
 // glist
 struct NAME {

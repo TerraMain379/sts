@@ -1,1 +1,7 @@
-metaparser modules regexlink.{h,c}, setmainzone.{h,c}, zone.{h,c}, token.{h,c}, group.{h,c} combined into elements.{h,c}
+added namespaces
+renamed large number of structs in metablocks.h
+redesigned declarations structure
+added new methods for Sts_MetaDeclarationValue and Sts_MetaDeclaration (`_by...`, `_initBy...`)
+redesigned metaparser.c
+creates namespace.{h,c} based on parseLoop function
+added binary param TYPEDEFS to gmap and glist

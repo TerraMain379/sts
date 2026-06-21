@@ -212,12 +212,12 @@ void Lexem_free(Lexem* lexem) {
 #undef FREEFUN
 
 
-Lexem parseLexems_string(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
-Lexem parseLexems_number(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx);
-Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
-Lexem parseLexems_operator(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
+Lexem parseLexems_string(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx);
+Lexem parseLexems_number(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx);
+Lexem parseLexems_name(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
+Lexem parseLexems_operator(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
 
-Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource) {
+Lexems Lexems_parseLexems(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource) {
   Lexems lexems;
   Lexems_init(&lexems, 10);
 
@@ -236,13 +236,13 @@ Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Co
     if (!flag) break;
 
     if (Chars_isLetter(c)) {
-      Lexems_add(&lexems, parseLexems_name(decBlock, ctx, settings));
+      Lexems_add(&lexems, parseLexems_name(head, ctx, settings));
     }
     else if (Chars_isDigit(c) || c == '.') {
-      Lexems_add(&lexems, parseLexems_number(decBlock, ctx));
+      Lexems_add(&lexems, parseLexems_number(head, ctx));
     }
     else if (c == '"') {
-      Lexems_add(&lexems, parseLexems_string(decBlock, ctx));
+      Lexems_add(&lexems, parseLexems_string(head, ctx));
     }
     else if (Chars_isVoid(c)) {
       Utils_Iter_skipVoid(ctx, true);
@@ -258,7 +258,7 @@ Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Co
       non_call_return (Lexems) {};
     }
     else {
-      Lexems_add(&lexems, parseLexems_operator(decBlock, ctx, settings));
+      Lexems_add(&lexems, parseLexems_operator(head, ctx, settings));
     }
   }
   *retExpressionSource = Source_byIters(
@@ -268,7 +268,7 @@ Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Co
   );
   return lexems;
 }
-Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings) {
+Lexem parseLexems_name(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings) {
   Iter* iter = &ctx->iter;
   Iter startIterClone = Iter_copy(iter);
 
@@ -321,7 +321,7 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
   };
   do {
     Sts_MetaDeclarationValue nameValue;
-    if (StringList_contains(&decBlock->linkNames, vname)) {
+    if (StringList_contains(&head->linkNames, vname)) {
       nameValue = (Sts_MetaDeclarationValue) {
         .type = Sts_MetaDeclarationValueType_LINK,
         .value = { .linkName = name },
@@ -377,7 +377,7 @@ Lexem parseLexems_name(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Conte
   };
   return lexem;
 }
-Lexem parseLexems_number(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+Lexem parseLexems_number(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx) {
   Iter startIterClone = Iter_copy(&ctx->iter);
 
   double number = Utils_Iter_readNumber(ctx);
@@ -395,7 +395,7 @@ Lexem parseLexems_number(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Con
     .src = lexemSrc,
   };
 }
-Lexem parseLexems_string(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx) {
+Lexem parseLexems_string(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
   Iter startIterClone = Iter_copy(iter);
 
@@ -418,7 +418,7 @@ Lexem parseLexems_string(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Con
     .src = lexemSrc,
   };
 }
-Lexem parseLexems_operator(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings) {
+Lexem parseLexems_operator(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings) {
   Iter* iter = &ctx->iter;
   Iter startIterClone = Iter_copy(iter);
   char c = Iter_currChar(iter);

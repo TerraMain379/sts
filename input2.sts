@@ -1,0 +1,64 @@
+# any comment
+
+--main_zone--
+
+/a"main"/
+/world"foobar[a-z\"]"/
+
+- a <b> : b<1> (
+  < b;
+)
+
+A <g> : B<1+2, y> , g < g >{
+  parentZone: y;
+}
+
+TOKEN<ab> {
+  $[int:abc] = 1;
+  hello: ab;
+}
+
+TOKEN<b, a> {
+  hello: a.b. c;
+  $a = b;
+  $[name] = value + 1;
+
+  # a: a.1.2.c;
+  a: b;
+  vector: ("a" + b) * 1 , hello;
+  event {
+    "hello."+"world": "hello world";
+    a.n: c.b;
+  }
+  OPERATIONS: -A + B / 1 - C * 2 ** 3 ** 4;
+  A: ++A--;
+}
+
+# TOKEN1 : TOKEN<text, 123> {
+TOKEN1<a, b, c> : TOKEN2<1>, A, C<a + 2, b.c>, D {
+  parentZone: 1 * 2 * 2 * 3;
+  parentZone: 1;
+  event {
+    "closeZone.after": "$after = this.text";
+  }
+}
+
+* group1 (
+  < main_zone;
+)
+
+
+# % gens {
+#   - const_zone ()
+#   GEN <zone> {
+#     parentZone: zone;
+#     openZone: const_zone;
+#   }
+# }
+# % abc {
+#   ABC : gens.GEN<main_zone> ;
+#   ABC {
+#     parentZone: main_zone;
+#     openZone: const_zone;
+#   }
+# }

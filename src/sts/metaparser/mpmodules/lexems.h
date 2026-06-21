@@ -71,11 +71,13 @@ void Lexem_free(Lexem* lexem);
 #define TYPE Lexem
 #define NULLV (Lexem) {0}
 #define FREEFUN Lexem_free
+#define TYPEDEFS 1
 #include "glist.h"
 #undef NAME
 #undef TYPE
 #undef NULLV
 #undef FREEFUN
+#undef TYPEDEFS
 
 typedef struct Lexems_ParseSettings {
   struct {
@@ -88,4 +90,4 @@ typedef struct Lexems_ParseSettings {
   } available;
   ViewString exitChars;
 } Lexems_ParseSettings;
-Lexems Lexems_parseLexems(Sts_MetaDeclarationsBlock* decBlock, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource);
+Lexems Lexems_parseLexems(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource);

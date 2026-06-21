@@ -4,7 +4,17 @@
 #include "mpmodules/utils.h"
 #include "metaparser_errors.h"
 
-void parseRegexLink(Context* ctx) {
+static void checkNameValueForLink(Sts_MetaDeclarationHead* head, Sts_MetaDeclarationValue* value) {
+  if (value->type == Sts_MetaDeclarationValueType_NAME) {
+    bool contains = StringList_contains(&head->linkNames, ViewString_by(value->value.name));
+    if (contains) {
+      value->type = Sts_MetaDeclarationValueType_LINK;
+      value->value.linkName = value->value.name;
+    }
+  }
+}
+
+void parseRegexLink(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) { // TODO: redesign for namespace system
   Iter startIter = Iter_copy(&ctx->iter);
   Utils_Iter_skipChar(ctx, '/');
   Utils_Iter_skipVoid(ctx, false);
@@ -56,8 +66,9 @@ void parseRegexLink(Context* ctx) {
   }
 }
 
-void parseSetMainZone(Context* ctx) {
+void parseSetMainZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Iter startIter = Iter_copy(&ctx->iter);
+  Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
   type_errno(String) name = Utils_Iter_readName(ctx);
   if (errno != 0) {
@@ -97,34 +108,47 @@ void parseSetMainZone(Context* ctx) {
   String_free(&name);
 }
 
-void parseZone(Context* ctx) {
+void parseZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Utils_Iter_skipVoid(ctx, false);
   String name = Utils_Iter_readName(ctx);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  checkNameValueForLink(&namespaceDec->head, &nameValue);
 
-  Sts_MetaDeclarationsBlock decBlock;
-  Sts_MetaDeclarationsBlock_init(&decBlock, Sts_MetaDeclarationsBlockType_ZONE);
-  Declarations_parseDeclarationsBlockHeader(&decBlock, ctx, name, '(');
-  Declarations_parseDeclarations(&decBlock, ctx, ')');
-  Sts_MetaDeclarationsBlocks_add(&ctx->metaFile->decBlocks, decBlock);
+  Sts_MetaElementDeclaration elementDec;
+  Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_ZONE);
+  Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
+  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, ')');
+
+  Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
+  Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
 }
 
-void parseToken(Context* ctx) {
+void parseToken(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   String name = Utils_Iter_readName(ctx);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  checkNameValueForLink(&namespaceDec->head, &nameValue);
 
-  Sts_MetaDeclarationsBlock decBlock;
-  Sts_MetaDeclarationsBlock_init(&decBlock, Sts_MetaDeclarationsBlockType_TOKEN);
-  Declarations_parseDeclarationsBlockHeader(&decBlock, ctx, name, '{');
-  Declarations_parseDeclarations(&decBlock, ctx, '}');
-  Sts_MetaDeclarationsBlocks_add(&ctx->metaFile->decBlocks, decBlock);
+  Sts_MetaElementDeclaration elementDec;
+  Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_TOKEN);
+  Declarations_parseDeclarationHead(&elementDec.head, ctx, '{');
+  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, '}');
+
+  Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
+  Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
 }
 
-void parseGroup(Context* ctx) {
+void parseGroup(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
+  Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
   String name = Utils_Iter_readName(ctx);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  checkNameValueForLink(&namespaceDec->head, &nameValue);
 
-  Sts_MetaDeclarationsBlock decBlock;
-  Sts_MetaDeclarationsBlock_init(&decBlock, Sts_MetaDeclarationsBlockType_GROUP);
-  Declarations_parseDeclarationsBlockHeader(&decBlock, ctx, name, '(');
-  Declarations_parseDeclarations(&decBlock, ctx, ')');
-  Sts_MetaDeclarationsBlocks_add(&ctx->metaFile->decBlocks, decBlock);
+  Sts_MetaElementDeclaration elementDec;
+  Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_GROUP);
+  Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
+  Declarations_parseDeclarations(&elementDec.head, &elementDec.lineDeclarations, ctx, ')');
+
+  Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
+  Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
 }

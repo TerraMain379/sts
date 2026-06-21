@@ -5,11 +5,13 @@
 // #define TYPE ...
 // #define NULLV ...
 // #define FREEFUN ...
+// #define TYPEDEFS ...
 // #include "gmap.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
 // #undef FREEFUN
+// #undef TYPEDEFS
 
 // logic for generate names for structs
 #define __NAME(name) _ ## name
@@ -20,8 +22,10 @@
 #define _ELEMENT(name) _CONCAT(name, element)
 #define FUNCTION(name, fun) CONCAT(name, fun)
 
-typedef struct NAME NAME;
-typedef struct ELEMENT(NAME) ELEMENT(NAME);
+#ifdef TYPEDEFS
+  typedef struct NAME NAME;
+  typedef struct ELEMENT(NAME) ELEMENT(NAME);
+#endif
 
 // gmap
 struct NAME {

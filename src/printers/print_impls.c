@@ -329,20 +329,20 @@ dec_print_json(Sts_MetaDeclarationExpression) {
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaParamDeclaration) {
+dec_print(Sts_MetaLineParamDeclaration) {
   print_struct_init;
   print_field_value(Sts_MetaDeclarationValue, name);
   print_field_value(Sts_MetaDeclarationValueList, values);
   print_struct_return;
 }
-dec_print_json(Sts_MetaParamDeclaration) {
+dec_print_json(Sts_MetaLineParamDeclaration) {
   print_json_struct_init;
   print_json_field_value(Sts_MetaDeclarationValue, name);
   print_json_field_value(Sts_MetaDeclarationValueList, values);
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaVariableDeclaration) {
+dec_print(Sts_MetaLineVariableDeclaration) {
   print_struct_init;
   print_field_value(bool, isInit);
   print_field_value(Sts_MetaDeclarationValue, name);
@@ -350,7 +350,7 @@ dec_print(Sts_MetaVariableDeclaration) {
   print_field_value(Sts_MetaDeclarationValue, value);
   print_struct_return;
 }
-dec_print_json(Sts_MetaVariableDeclaration) {
+dec_print_json(Sts_MetaLineVariableDeclaration) {
   print_json_struct_init;
   print_json_field_value(bool, isInit);
   print_json_field_value(Sts_MetaDeclarationValue, name);
@@ -359,33 +359,33 @@ dec_print_json(Sts_MetaVariableDeclaration) {
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaEventDeclaration) {
+dec_print(Sts_MetaLineEventDeclaration) {
   print_struct_init;
   print_field_value(Sts_MetaDeclarationValue, name);
   print_field_value(Sts_MetaDeclarationValue, event);
   print_struct_return;
 }
-dec_print_json(Sts_MetaEventDeclaration) {
+dec_print_json(Sts_MetaLineEventDeclaration) {
   print_json_struct_init;
   print_json_field_value(Sts_MetaDeclarationValue, name);
   print_json_field_value(Sts_MetaDeclarationValue, event);
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaZoneExpandDeclaration) {
+dec_print(Sts_MetaLineExpandDeclaration) {
   print_struct_init;
   print_field_value(Sts_MetaDeclarationValue, zoneName);
   print_field_value(bool, isExport);
   print_struct_return;
 }
-dec_print_json(Sts_MetaZoneExpandDeclaration) {
+dec_print_json(Sts_MetaLineExpandDeclaration) {
   print_json_struct_init;
   print_json_field_value(Sts_MetaDeclarationValue, zoneName);
   print_json_field_value(bool, isExport);
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaSuperRegexDeclarationElement) {
+dec_print(Sts_MetaLineSuperRegexDeclarationElement) {
   print_struct_init;
   print_field_value(Sts_MetaDeclarationValue, token);
   print_field_value(Sts_MetaDeclarationValue, name);
@@ -393,7 +393,7 @@ dec_print(Sts_MetaSuperRegexDeclarationElement) {
   print_field_value(bool, isNonName);
   print_struct_return;
 }
-dec_print_json(Sts_MetaSuperRegexDeclarationElement) {
+dec_print_json(Sts_MetaLineSuperRegexDeclarationElement) {
   print_json_struct_init;
   print_json_field_value(Sts_MetaDeclarationValue, token);
   print_json_field_value(Sts_MetaDeclarationValue, name);
@@ -402,96 +402,104 @@ dec_print_json(Sts_MetaSuperRegexDeclarationElement) {
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaSuperRegexDeclarationElements) {
-  print_glist(Sts_MetaSuperRegexDeclarationElements, Sts_MetaSuperRegexDeclarationElement, , &);
+dec_print(Sts_MetaLineSuperRegexDeclarationElements) {
+  print_glist(Sts_MetaLineSuperRegexDeclarationElements, Sts_MetaLineSuperRegexDeclarationElement, , &);
 }
-dec_print_json(Sts_MetaSuperRegexDeclarationElements) {
-  print_json_glist(Sts_MetaSuperRegexDeclarationElements, Sts_MetaSuperRegexDeclarationElement, , &);
+dec_print_json(Sts_MetaLineSuperRegexDeclarationElements) {
+  print_json_glist(Sts_MetaLineSuperRegexDeclarationElements, Sts_MetaLineSuperRegexDeclarationElement, , &);
 }
 
-dec_print(Sts_MetaSuperRegexDeclaration) {
+dec_print(Sts_MetaLineSuperRegexDeclaration) {
   print_struct_init;
-  print_field_value(Sts_MetaSuperRegexDeclarationElements, elements);
+  print_field_value(Sts_MetaLineSuperRegexDeclarationElements, elements);
   print_field_value(bool, isGhost);
   print_struct_return;
 }
-dec_print_json(Sts_MetaSuperRegexDeclaration) {
+dec_print_json(Sts_MetaLineSuperRegexDeclaration) {
   print_json_struct_init;
-  print_json_field_value(Sts_MetaSuperRegexDeclarationElements, elements);
+  print_json_field_value(Sts_MetaLineSuperRegexDeclarationElements, elements);
   print_json_field_value(bool, isGhost);
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaDeclarationType) {
-  print_enum(Sts_MetaDeclarationType_PARAM);
-  print_enum(Sts_MetaDeclarationType_VARIABLE);
-  print_enum(Sts_MetaDeclarationType_EVENT);
-  print_enum(Sts_MetaDeclarationType_ZONE_EXPAND);
-  print_enum(Sts_MetaDeclarationType_SUPER_REGEX);
+dec_print(Sts_MetaLineDeclarationType) {
+  print_enum(Sts_MetaLineDeclarationType_PARAM);
+  print_enum(Sts_MetaLineDeclarationType_VARIABLE);
+  print_enum(Sts_MetaLineDeclarationType_EVENT);
+  print_enum(Sts_MetaLineDeclarationType_EXPAND);
+  print_enum(Sts_MetaLineDeclarationType_SUPER_REGEX);
   print_enum_end;
 }
-dec_print_json(Sts_MetaDeclarationType) {
-  print_json_enum(Sts_MetaDeclarationType_PARAM);
-  print_json_enum(Sts_MetaDeclarationType_VARIABLE);
-  print_json_enum(Sts_MetaDeclarationType_EVENT);
-  print_json_enum(Sts_MetaDeclarationType_ZONE_EXPAND);
-  print_json_enum(Sts_MetaDeclarationType_SUPER_REGEX);
+dec_print_json(Sts_MetaLineDeclarationType) {
+  print_json_enum(Sts_MetaLineDeclarationType_PARAM);
+  print_json_enum(Sts_MetaLineDeclarationType_VARIABLE);
+  print_json_enum(Sts_MetaLineDeclarationType_EVENT);
+  print_json_enum(Sts_MetaLineDeclarationType_EXPAND);
+  print_json_enum(Sts_MetaLineDeclarationType_SUPER_REGEX);
   print_json_enum_end;
 }
 
-dec_print(Sts_MetaDeclaration) {
+dec_print(Sts_MetaLineDeclaration) {
   print_struct_init;
-  print_field_value(Sts_MetaDeclarationType, type);
-  if (input->type == Sts_MetaDeclarationType_PARAM) {
-    print_field_value(Sts_MetaParamDeclaration, value.param);
-  } 
-  if (input->type == Sts_MetaDeclarationType_VARIABLE) {
-    print_field_value(Sts_MetaVariableDeclaration, value.variable);
-  } 
-  if (input->type == Sts_MetaDeclarationType_EVENT) {
-    print_field_value(Sts_MetaEventDeclaration, value.event);
-  } 
-  if (input->type == Sts_MetaDeclarationType_ZONE_EXPAND) {
-    print_field_value(Sts_MetaZoneExpandDeclaration, value.zoneExpand);
-  } 
-  if (input->type == Sts_MetaDeclarationType_SUPER_REGEX) {
-    print_field_value(Sts_MetaSuperRegexDeclaration, value.superRegex);
-  } 
+  print_field_value(Sts_MetaLineDeclarationType, type);
+  if (input->type == Sts_MetaLineDeclarationType_PARAM) {
+    print_field_value(Sts_MetaLineParamDeclaration, value.param);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_VARIABLE) {
+    print_field_value(Sts_MetaLineVariableDeclaration, value.variable);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_EVENT) {
+    print_field_value(Sts_MetaLineEventDeclaration, value.event);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_EXPAND) {
+    print_field_value(Sts_MetaLineExpandDeclaration, value.expand);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_SUPER_REGEX) {
+    print_field_value(Sts_MetaLineSuperRegexDeclaration, value.superRegex);
+  }
+  else {
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaLineDeclaration_print"));
+    non_call_return (String) {};
+  }
   print_struct_return;
 }
-dec_print_json(Sts_MetaDeclaration) {
+dec_print_json(Sts_MetaLineDeclaration) {
   print_json_struct_init;
-  print_json_field_value(Sts_MetaDeclarationType, type);
-  if (input->type == Sts_MetaDeclarationType_PARAM) {
-    print_json_field_value(Sts_MetaParamDeclaration, value.param);
-  } 
-  if (input->type == Sts_MetaDeclarationType_VARIABLE) {
-    print_json_field_value(Sts_MetaVariableDeclaration, value.variable);
-  } 
-  if (input->type == Sts_MetaDeclarationType_EVENT) {
-    print_json_field_value(Sts_MetaEventDeclaration, value.event);
-  } 
-  if (input->type == Sts_MetaDeclarationType_ZONE_EXPAND) {
-    print_json_field_value(Sts_MetaZoneExpandDeclaration, value.zoneExpand);
-  } 
-  if (input->type == Sts_MetaDeclarationType_SUPER_REGEX) {
-    print_json_field_value(Sts_MetaSuperRegexDeclaration, value.superRegex);
-  } 
+  print_json_field_value(Sts_MetaLineDeclarationType, type);
+  if (input->type == Sts_MetaLineDeclarationType_PARAM) {
+    print_json_field_value(Sts_MetaLineParamDeclaration, value.param);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_VARIABLE) {
+    print_json_field_value(Sts_MetaLineVariableDeclaration, value.variable);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_EVENT) {
+    print_json_field_value(Sts_MetaLineEventDeclaration, value.event);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_EXPAND) {
+    print_json_field_value(Sts_MetaLineExpandDeclaration, value.expand);
+  }
+  else if (input->type == Sts_MetaLineDeclarationType_SUPER_REGEX) {
+    print_json_field_value(Sts_MetaLineSuperRegexDeclaration, value.superRegex);
+  }
+  else {
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaLineDeclaration_print_json"));
+    non_call_return (String) {};
+  }
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaDeclarationList) {
-  print_glist(Sts_MetaDeclarationList, Sts_MetaDeclaration, *,);
+dec_print(Sts_MetaLineDeclarationList) {
+  print_glist(Sts_MetaLineDeclarationList, Sts_MetaLineDeclaration, *,);
 }
-dec_print_json(Sts_MetaDeclarationList) {
-  print_json_glist(Sts_MetaDeclarationList, Sts_MetaDeclaration, *,);
+dec_print_json(Sts_MetaLineDeclarationList) {
+  print_json_glist(Sts_MetaLineDeclarationList, Sts_MetaLineDeclaration, *,);
 }
 
-dec_print(Sts_MetaDeclarationValuesWeakList) {
-  print_glist(Sts_MetaDeclarationWeakList, Sts_MetaDeclarationValue, *,);
+dec_print(Sts_MetaDeclarationValueWeakList) {
+  print_glist(Sts_MetaDeclarationValueWeakList, Sts_MetaDeclarationValue, *,);
 }
-dec_print_json(Sts_MetaDeclarationValuesWeakList) {
-  print_json_glist(Sts_MetaDeclarationWeakList, Sts_MetaDeclarationValue, *,);
+dec_print_json(Sts_MetaDeclarationValueWeakList) {
+  print_json_glist(Sts_MetaDeclarationValueWeakList, Sts_MetaDeclarationValue, *,);
 }
 
 dec_print(Sts_MetaDeclarationExtendElement) {
@@ -514,50 +522,116 @@ dec_print_json(Sts_MetaDeclarationExtendElementList) {
   print_json_glist(Sts_MetaDeclarationExtendElementList, Sts_MetaDeclarationExtendElement, , &);
 }
 
-dec_print(Sts_MetaDeclarationsBlockType) {
-  print_enum(Sts_MetaDeclarationsBlockType_TOKEN);
-  print_enum(Sts_MetaDeclarationsBlockType_ZONE);
-  print_enum(Sts_MetaDeclarationsBlockType_GROUP);
-  print_enum(Sts_MetaDeclarationsBlockType_SUPER_TOKEN);
-  print_enum_end;
-}
-dec_print_json(Sts_MetaDeclarationsBlockType) {
-  print_json_enum(Sts_MetaDeclarationsBlockType_TOKEN);
-  print_json_enum(Sts_MetaDeclarationsBlockType_ZONE);
-  print_json_enum(Sts_MetaDeclarationsBlockType_GROUP);
-  print_json_enum(Sts_MetaDeclarationsBlockType_SUPER_TOKEN);
-  print_json_enum_end;
-}
-
-dec_print(Sts_MetaDeclarationsBlock) {
+dec_print(Sts_MetaDeclarationHead) {
   print_struct_init;
-  print_field_value(Sts_MetaDeclarationsBlockType, type);
   print_field_value(Sts_MetaDeclarationValue, name);
   print_field_value(StringList, linkNames);
   print_field_value(Sts_MetaDeclarationExtendElementList, extenders);
-  print_field_value(Sts_MetaDeclarationList, declarations);
   print_struct_return;
 }
-dec_print_json(Sts_MetaDeclarationsBlock) {
+dec_print_json(Sts_MetaDeclarationHead) {
   print_json_struct_init;
-  print_json_field_value(Sts_MetaDeclarationsBlockType, type);
   print_json_field_value(Sts_MetaDeclarationValue, name);
   print_json_field_value(StringList, linkNames);
   print_json_field_value(Sts_MetaDeclarationExtendElementList, extenders);
-  print_json_field_value(Sts_MetaDeclarationList, declarations);
   print_json_struct_return;
 }
 
-dec_print(Sts_MetaDeclarationsBlocks) {
-  print_glist(Sts_MetaDeclarationsBlocks, Sts_MetaDeclarationsBlock,,&);
+dec_print(Sts_MetaElementDeclarationType) {
+  print_enum(Sts_MetaElementDeclarationType_TOKEN);
+  print_enum(Sts_MetaElementDeclarationType_ZONE);
+  print_enum(Sts_MetaElementDeclarationType_GROUP);
+  print_enum(Sts_MetaElementDeclarationType_SUPER_TOKEN);
+  print_enum_end;
 }
-dec_print_json(Sts_MetaDeclarationsBlocks) {
-  print_json_glist(Sts_MetaDeclarationsBlocks, Sts_MetaDeclarationsBlock,,&);
+dec_print_json(Sts_MetaElementDeclarationType) {
+  print_json_enum(Sts_MetaElementDeclarationType_TOKEN);
+  print_json_enum(Sts_MetaElementDeclarationType_ZONE);
+  print_json_enum(Sts_MetaElementDeclarationType_GROUP);
+  print_json_enum(Sts_MetaElementDeclarationType_SUPER_TOKEN);
+  print_json_enum_end;
+}
+
+dec_print(Sts_MetaElementDeclaration) {
+  print_struct_init;
+  print_field_value(Sts_MetaDeclarationHead, head);
+  print_field_value(Sts_MetaElementDeclarationType, type);
+  print_field_value(Sts_MetaLineDeclarationList, lineDeclarations);
+  print_struct_return;
+}
+dec_print_json(Sts_MetaElementDeclaration) {
+  print_json_struct_init;
+  print_json_field_value(Sts_MetaDeclarationHead, head);
+  print_json_field_value(Sts_MetaElementDeclarationType, type);
+  print_json_field_value(Sts_MetaLineDeclarationList, lineDeclarations);
+  print_json_struct_return;
+}
+
+dec_print(Sts_MetaNamespaceDeclaration) {
+  print_struct_init;
+  print_field_value(Sts_MetaDeclarationHead, head);
+  print_field_value(Sts_MetaDeclarations, declarations);
+  print_struct_return;
+}
+dec_print_json(Sts_MetaNamespaceDeclaration) {
+  print_json_struct_init;
+  print_json_field_value(Sts_MetaDeclarationHead, head);
+  print_json_field_value(Sts_MetaDeclarations, declarations);
+  print_json_struct_return;
+}
+
+dec_print(Sts_MetaDeclarationType) {
+  print_enum(Sts_MetaDeclarationType_ELEMENT);
+  print_enum(Sts_MetaDeclarationType_NAMESPACE);
+  print_enum_end;
+}
+dec_print_json(Sts_MetaDeclarationType) {
+  print_json_enum(Sts_MetaDeclarationType_ELEMENT);
+  print_json_enum(Sts_MetaDeclarationType_NAMESPACE);
+  print_json_enum_end;
+}
+
+dec_print(Sts_MetaDeclaration) {
+  print_struct_init;
+  print_field_value(Sts_MetaDeclarationType, type);
+  if (input->type == Sts_MetaDeclarationType_ELEMENT) {
+    print_field_value(Sts_MetaElementDeclaration, value.element);
+  }
+  else if (input->type == Sts_MetaDeclarationType_NAMESPACE) {
+    print_field_value(Sts_MetaNamespaceDeclaration, value.namespace);
+  }
+  else {
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaDeclaration_print"));
+    non_call_return (String) {};
+  }
+  print_struct_return;
+}
+dec_print_json(Sts_MetaDeclaration) {
+  print_json_struct_init;
+  print_json_field_value(Sts_MetaDeclarationType, type);
+  if (input->type == Sts_MetaDeclarationType_ELEMENT) {
+    print_json_field_value(Sts_MetaElementDeclaration, value.element);
+  }
+  else if (input->type == Sts_MetaDeclarationType_NAMESPACE) {
+    print_json_field_value(Sts_MetaNamespaceDeclaration, value.namespace);
+  }
+  else {
+    Errors_internal_unexpectedEnumType(ViewString_of("Sts_MetaDeclaration_print_json"));
+    non_call_return (String) {};
+  }
+  print_json_struct_return;
+}
+
+dec_print(Sts_MetaDeclarations) {
+  print_glist(Sts_MetaDeclarations, Sts_MetaDeclaration, , &);
+}
+dec_print_json(Sts_MetaDeclarations) {
+  print_json_glist(Sts_MetaDeclarations, Sts_MetaDeclaration, , &);
 }
 
 dec_print(Sts_MetaFile) {
   print_struct_init;
-  print_field_value(Sts_MetaDeclarationsBlocks, decBlocks);
+  print_field_value(Sts_MetaDeclarations, declarations);
   print_field_value(Sts_MetaRegexLinks, regexes);
   print_field_value(Sts_OwnedMetaZonesMap, zones);
   print_field_value(Sts_OwnedMetaTokens, tokens);
@@ -568,7 +642,7 @@ dec_print(Sts_MetaFile) {
 }
 dec_print_json(Sts_MetaFile) {
   print_json_struct_init;
-  print_json_field_value(Sts_MetaDeclarationsBlocks, decBlocks);
+  print_json_field_value(Sts_MetaDeclarations, declarations);
   print_json_field_value(Sts_MetaRegexLinks, regexes);
   print_json_field_value(Sts_OwnedMetaZonesMap, zones);
   print_json_field_value(Sts_OwnedMetaTokens, tokens);

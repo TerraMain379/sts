@@ -1,0 +1,137 @@
+#include "mpmodules/namespace.h"
+
+#include "mpmodules/utils.h"
+#include "mpmodules/declarations.h"
+#include "mpmodules/elements.h"
+#include "mpmodules/ssts.h"
+#include "mpmodules/namespace.h"
+#include "metaparser_errors.h"
+
+void parseNamespace(Sts_MetaParser_Context* ctx, Sts_MetaNamespaceDeclaration* parentNamespaceDec) {
+  Iter_nextChar(&ctx->iter);
+  Utils_Iter_skipVoid(ctx, false);
+  type_errno(String) name = Utils_Iter_readName(ctx);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, &parentNamespaceDec->head);
+
+  Sts_MetaNamespaceDeclaration namespaceDec;
+  Sts_MetaNamespaceDeclaration_init(&namespaceDec, nameValue);
+  Declarations_parseDeclarationHead(&namespaceDec.head, ctx, '{');
+  
+  parseNamespaceBody(ctx, &namespaceDec, false);
+
+  Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byNamespace(namespaceDec);
+  Sts_MetaDeclarations_add(&parentNamespaceDec->declarations, declaration);
+}
+
+void parseNamespaceBody(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec, bool isRootSpace) {
+  Iter* iter = &ctx->iter;
+
+  ViewString filename = ViewString_by(ctx->filename);
+
+  bool flagModificator = false;
+  for (char c = Iter_currChar(iter);; c = Iter_currChar(iter)) {
+    // TODO: In the future, it's worth switching to the dispatch table.
+
+    if (c == '#' || Chars_isVoid(c)) {
+      Utils_Iter_skipVoid(ctx, false);
+    }
+    else if (Chars_isLetter(c)) {
+      parseToken(ctx, namespaceDec);
+    }
+    else if (c == '~') {
+      // modificator flag
+      if (!flagModificator) {
+        flagModificator = true;
+      }
+      else {
+        Errors_metaparser_unknownToken(ctx, Source_byIter(
+          filename,
+          iter,
+          SPD_new1(SPDMode_BACK_WORD_SHIFT, 1),
+          SPD_new2(SPDMode_CURR_CHAR)
+        ));
+      }
+    }
+    else if (c == '-') {
+      c = Iter_nextChar(iter);
+      if (errno != 0) {
+        Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+          filename,
+          iter,
+          SPD_new2(SPDMode_CURR_LINE),
+          SPD_new2(SPDMode_CURR_CHAR)
+        ));
+      }
+
+      if (c == '-') {
+        if (!isRootSpace) {
+          Errors_metaparser_tokenNotAvailableHere(ctx, Source_byIter(
+            ViewString_by(ctx->filename),
+            iter,
+            SPD_new2_double(SPDMode_CURR_CHAR)
+          ), ViewString_of("main zone declaration available only in root space"));
+          non_call_return;
+        }
+        parseSetMainZone(ctx, namespaceDec);
+      }
+      else {
+        parseZone(ctx, namespaceDec);
+      }
+    }
+    else if (c == '/') { 
+      if (!isRootSpace) {
+        Errors_metaparser_tokenNotAvailableHere(ctx, Source_byIter(
+          ViewString_by(ctx->filename),
+          iter,
+          SPD_new2_double(SPDMode_CURR_CHAR)
+        ), ViewString_of("regex-link declaration available only in root space"));
+        non_call_return;
+      }
+      parseRegexLink(ctx, namespaceDec);
+    }
+    else if (c == '[') {
+      // TODO: supertokens deleted
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        filename,
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
+    }
+    else if (c == '*') {
+      parseGroup(ctx, namespaceDec);
+    }
+    else if (c == ':') { 
+      parseSstsFunction(ctx, namespaceDec); // TODO:
+    }
+    else if (c == '%') {
+      parseNamespace(ctx, namespaceDec);
+    }
+    else if (c == '}' && !isRootSpace) {
+      Iter_nextChar(iter);
+      break;
+    }
+    else if (c == '\0') {
+      if (isRootSpace) {
+        break;
+      }
+      else {
+        Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
+          filename,
+          iter,
+          SPD_new2(SPDMode_CURR_CHAR),
+          SPD_new2(SPDMode_CURR_CHAR)
+        ));
+      }
+    }
+    else {
+      Errors_metaparser_unknownToken(ctx, Source_byIter(
+        filename,
+        iter,
+        SPD_new2(SPDMode_CURR_CHAR),
+        SPD_new2(SPDMode_CURR_CHAR)
+      ));
+    }
+  }
+}

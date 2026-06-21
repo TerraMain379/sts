@@ -6,11 +6,13 @@
 // #define TYPE ...
 // #define NULLV ...
 // #define FREEFUN ...
+// #define TYPEDEFS ...
 // #include "gmap.c.h"
 // #undef NAME
 // #undef TYPE
 // #undef NULLV
 // #undef FREEFUN
+// #undef TYPEDEFS
 
 
 // logic for generate names for structs

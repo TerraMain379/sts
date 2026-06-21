@@ -12,7 +12,7 @@
 
 typedef struct Pratt_Context {
   Sts_MetaParser_Context* ctx;
-  Sts_MetaDeclarationsBlock* decBlock;
+  Sts_MetaDeclarationHead* head;
   OWNER(Lexems*) lexems;
   size_t* currIndex;
   OWNER(Source) expressionSrc;

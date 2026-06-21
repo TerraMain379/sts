@@ -57,10 +57,6 @@ void test_lexem_parser() {
   String string = Files_readFile(ViewString_of("input.expression"));
   Iter iter = Iter_new(ViewString_by(string));
 
-  Sts_MetaDeclarationsBlock block;
-  Sts_MetaDeclarationsBlock_init(&block, Sts_MetaDeclarationsBlockType_TOKEN);
-  StringList_add(&block.linkNames, String_by("g"));
-
   // Sts_MetaParser_Context ctx = (Sts_MetaParser_Context){
   //   .metaFile = null,
   //   .iter = Iter_new((ViewString*)&string),
