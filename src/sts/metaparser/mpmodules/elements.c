@@ -4,16 +4,6 @@
 #include "mpmodules/utils.h"
 #include "metaparser_errors.h"
 
-static void checkNameValueForLink(Sts_MetaDeclarationHead* head, Sts_MetaDeclarationValue* value) {
-  if (value->type == Sts_MetaDeclarationValueType_NAME) {
-    bool contains = StringList_contains(&head->linkNames, ViewString_by(value->value.name));
-    if (contains) {
-      value->type = Sts_MetaDeclarationValueType_LINK;
-      value->value.linkName = value->value.name;
-    }
-  }
-}
-
 void parseRegexLink(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) { // TODO: redesign for namespace system
   Iter startIter = Iter_copy(&ctx->iter);
   Utils_Iter_skipChar(ctx, '/');
@@ -111,16 +101,15 @@ void parseSetMainZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) 
 void parseZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Utils_Iter_skipVoid(ctx, false);
   String name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
-  checkNameValueForLink(&namespaceDec->head, &nameValue);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_ZONE);
-  Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
+  size_t linkNamesInBufferNumber = Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
 
-  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
   Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, ')');
-  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesInBufferNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
@@ -128,16 +117,15 @@ void parseZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
 
 void parseToken(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   String name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
-  checkNameValueForLink(&namespaceDec->head, &nameValue);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_TOKEN);
-  Declarations_parseDeclarationHead(&elementDec.head, ctx, '{');
+  size_t linkNamesInBufferNumber = Declarations_parseDeclarationHead(&elementDec.head, ctx, '{');
 
-  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
   Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, '}');
-  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesInBufferNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);
@@ -147,16 +135,15 @@ void parseGroup(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {
   Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
   String name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
-  checkNameValueForLink(&namespaceDec->head, &nameValue);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
+  Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
   Sts_MetaElementDeclaration elementDec;
   Sts_MetaElementDeclaration_init(&elementDec, nameValue, Sts_MetaElementDeclarationType_GROUP);
-  Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
+  size_t linkNamesInBufferNumber = Declarations_parseDeclarationHead(&elementDec.head, ctx, '(');
 
-  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, elementDec.head.linkNames);
   Declarations_parseDeclarations(&elementDec.lineDeclarations, ctx, ')');
-  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesInBufferNumber);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byElement(elementDec);
   Sts_MetaDeclarations_add(&namespaceDec->declarations, declaration);

@@ -191,10 +191,15 @@ void Sts_MetaToken_free(Sts_MetaToken* token) {
   Sts_MetaElement_free((Sts_MetaElement*) token);
 }
 
-Sts_MetaDeclarationValue Sts_MetaDeclarationValue_byName(String name) {
+void Sts_MetaDeclarationValueName_free(Sts_MetaDeclarationValueName* decValueName) {
+  String_free(&decValueName->name);
+  decValueName->parentNamespace = null;
+}
+
+Sts_MetaDeclarationValue Sts_MetaDeclarationValue_byName(Sts_MetaDeclarationValueName decValueName) {
   return (Sts_MetaDeclarationValue) {
     .type = Sts_MetaDeclarationValueType_NAME,
-    .value = { .name = name },
+    .value = { .name = decValueName },
   };
 }
 Sts_MetaDeclarationValue Sts_MetaDeclarationValue_byString(String string) {
@@ -221,8 +226,8 @@ Sts_MetaDeclarationValue Sts_MetaDeclarationValue_byLinkName(String linkName) {
     .value = { .linkName = linkName },
   };
 }
-void Sts_MetaDeclarationValue_initByName(Sts_MetaDeclarationValue* decValue, String name) {
-  *decValue = Sts_MetaDeclarationValue_byName(name);
+void Sts_MetaDeclarationValue_initByName(Sts_MetaDeclarationValue* decValue, Sts_MetaDeclarationValueName decValueName) {
+  *decValue = Sts_MetaDeclarationValue_byName(decValueName);
 }
 void Sts_MetaDeclarationValue_initByString(Sts_MetaDeclarationValue* decValue, String string) {
   *decValue = Sts_MetaDeclarationValue_byString(string);
@@ -239,7 +244,7 @@ void Sts_MetaDeclarationValue_initByLinkName(Sts_MetaDeclarationValue* decValue,
 void Sts_MetaDeclarationValue_free(Sts_MetaDeclarationValue* decValue) {
   Sts_MetaDeclarationValueType type = decValue->type;
   if (type == Sts_MetaDeclarationValueType_NAME) {
-    String_free(&decValue->value.name);
+    Sts_MetaDeclarationValueName_free(&decValue->value.name);
   }
   else if (type == Sts_MetaDeclarationValueType_STRING) {
     String_free(&decValue->value.string);
@@ -382,7 +387,7 @@ Sts_MetaDeclaration Sts_MetaDeclaration_byElement(Sts_MetaElementDeclaration ele
     .value = { .element = element },
   };
 }
-Sts_MetaDeclaration Sts_MetaDeclaration_byNamespace(Sts_MetaNamespaceDeclaration namespace) {
+Sts_MetaDeclaration Sts_MetaDeclaration_byNamespace(Sts_MetaNamespaceDeclaration* namespace) {
   return (Sts_MetaDeclaration) {
     .type = Sts_MetaDeclarationType_NAMESPACE,
     .value = { .namespace = namespace },
@@ -391,7 +396,7 @@ Sts_MetaDeclaration Sts_MetaDeclaration_byNamespace(Sts_MetaNamespaceDeclaration
 void Sts_MetaDeclaration_initByElement(Sts_MetaDeclaration* declaration, Sts_MetaElementDeclaration element) {
   *declaration = Sts_MetaDeclaration_byElement(element);
 }
-void Sts_MetaDeclaration_initByNamespace(Sts_MetaDeclaration* declaration, Sts_MetaNamespaceDeclaration namespace) {
+void Sts_MetaDeclaration_initByNamespace(Sts_MetaDeclaration* declaration, Sts_MetaNamespaceDeclaration* namespace) {
   *declaration = Sts_MetaDeclaration_byNamespace(namespace);
 }
 void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
@@ -399,7 +404,8 @@ void Sts_MetaDeclaration_free(Sts_MetaDeclaration* declaration) {
     Sts_MetaElementDeclaration_free(&declaration->value.element);
   }
   else if (declaration->type == Sts_MetaDeclarationType_NAMESPACE) {
-    Sts_MetaNamespaceDeclaration_free(&declaration->value.namespace);
+    Sts_MetaNamespaceDeclaration_free(declaration->value.namespace);
+    A_free(declaration->value.namespace);
   }
 }
 
@@ -417,7 +423,15 @@ void Sts_MetaZone_free(Sts_MetaZone* zone) {
 }
 
 void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
-  Sts_MetaDeclarations_init(&metaFile->declarations, 50);
+  metaFile->baseNamespaceDeclaration = A_xloc(sizeof(Sts_MetaNamespaceDeclaration));
+  Sts_MetaDeclarations_init(&metaFile->baseNamespaceDeclaration->declarations, 50);
+  metaFile->baseNamespaceDeclaration->head = (Sts_MetaDeclarationHead) {
+    .name = {0},
+    .linkNames = {0},
+    .extenders = {0},
+    .isGeneric = false,
+    .isGhost = false,
+  };
   Sts_MetaRegexLinks_init(&metaFile->regexes);
   Sts_OwnedMetaZonesMap_init(&metaFile->zones);
   Sts_OwnedMetaTokens_init(&metaFile->tokens);
@@ -426,8 +440,8 @@ void Sts_MetaFile_init(Sts_MetaFile* metaFile) {
   metaFile->properties.sources = (Sources) {0};
 }
 void Sts_MetaFile_free(Sts_MetaFile* metaFile) {
-  Sts_MetaDeclarations_freeElements(&metaFile->declarations);
-  Sts_MetaDeclarations_free(&metaFile->declarations);
+  Sts_MetaNamespaceDeclaration_free(metaFile->baseNamespaceDeclaration);
+  A_free(metaFile->baseNamespaceDeclaration);
   Sts_MetaRegexLinks_freeElements(&metaFile->regexes);
   Sts_MetaRegexLinks_free(&metaFile->regexes);
   Sts_OwnedMetaZonesMap_freeElements(&metaFile->zones);

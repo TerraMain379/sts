@@ -321,7 +321,7 @@ Lexem parseLexems_name(Sts_MetaParser_Context* ctx, Lexems_ParseSettings setting
     .type = Sts_MetaDeclarationValueType_NULL
   };
   do {
-    Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+    Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
     Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
     if (leftValue.type != Sts_MetaDeclarationValueType_NULL) {

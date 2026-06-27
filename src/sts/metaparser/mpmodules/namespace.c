@@ -6,21 +6,24 @@
 #include "mpmodules/ssts.h"
 #include "mpmodules/namespace.h"
 #include "metaparser_errors.h"
+#include "allocator.h"
 
 void parseNamespace(Sts_MetaParser_Context* ctx, Sts_MetaNamespaceDeclaration* parentNamespaceDec) {
   Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
   type_errno(String) name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
   Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
-  Sts_MetaNamespaceDeclaration namespaceDec;
-  Sts_MetaNamespaceDeclaration_init(&namespaceDec, nameValue);
-  Declarations_parseDeclarationHead(&namespaceDec.head, ctx, '{');
+  Sts_MetaNamespaceDeclaration* namespaceDec = A_xloc(sizeof(Sts_MetaNamespaceDeclaration));
+  Sts_MetaNamespaceDeclaration_init(namespaceDec, nameValue);
+  size_t linkNamesInBufferNumber = Declarations_parseDeclarationHead(&namespaceDec->head, ctx, '{');
 
-  size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, namespaceDec.head.linkNames);
-  parseNamespaceBody(ctx, &namespaceDec, false);
-  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesNumber);
+  // size_t linkNamesNumber = Sts_MetaParser_Context_pushLinkNames(ctx, namespaceDec->head.linkNames);
+  Sts_MetaParser_Context_pushNamespace(ctx, namespaceDec);
+  parseNamespaceBody(ctx, namespaceDec, false);
+  Sts_MetaParser_Context_popLinkNames(ctx, linkNamesInBufferNumber);
+  Sts_MetaParser_Context_popNamespace(ctx);
 
   Sts_MetaDeclaration declaration = Sts_MetaDeclaration_byNamespace(namespaceDec);
   Sts_MetaDeclarations_add(&parentNamespaceDec->declarations, declaration);

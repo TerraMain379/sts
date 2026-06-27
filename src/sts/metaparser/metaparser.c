@@ -23,25 +23,17 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, S
     .linkNamesBuffer = {},
   };
   ViewStringList_init(&context.linkNamesBuffer, 32);
+  Sts_MetaNamespaceDeclarationList_init(&context.namespacesBuffer, 8);
 
   if (setjmp(context.errjmp) != 0) { // ERROR EXIT
     errno = 1; return;
   }
   
-  Sts_MetaDeclarationHead tempHead;
-  StringList_init(&tempHead.linkNames, 0);
-  Sts_MetaDeclarationExtendElementList_init(&tempHead.extenders, 0);
+  Sts_MetaParser_Context_pushNamespace(&context, metaFile->baseNamespaceDeclaration);
+  parseNamespaceBody(&context, metaFile->baseNamespaceDeclaration, true);
+  Sts_MetaParser_Context_popNamespace(&context);
 
-  Sts_MetaNamespaceDeclaration tempNamespaceDec;
-  tempNamespaceDec.head = tempHead;
-  tempNamespaceDec.declarations = metaFile->declarations; // moveing list to tempNamespaceDec and back after parse
-  parseNamespaceBody(&context, &tempNamespaceDec, true);
-  metaFile->declarations = tempNamespaceDec.declarations;
-
-  Sts_MetaDeclarationExtendElementList_freeElements(&tempHead.extenders);
-  Sts_MetaDeclarationExtendElementList_free(&tempHead.extenders);
-  StringList_freeElements(&tempHead.linkNames);
-  StringList_free(&tempHead.linkNames);
+  Sts_MetaNamespaceDeclarationList_free(&context.namespacesBuffer);
   ViewStringList_freeElements(&context.linkNamesBuffer);
   ViewStringList_free(&context.linkNamesBuffer);
 
@@ -60,19 +52,36 @@ size_t Sts_MetaParser_Context_pushLinkNames(Sts_MetaParser_Context* context, BOR
   return linkNamesNumber;
 }
 void Sts_MetaParser_Context_popLinkNames(Sts_MetaParser_Context* context, size_t linkNamesNumber) {
+  size_t startSize = context->linkNamesBuffer.size;
   for (size_t i = linkNamesNumber; i > 0; i--) {
-    ViewStringList_remove(&context->linkNamesBuffer, i-1);
+    ViewStringList_remove(&context->linkNamesBuffer, startSize-i);
   }
+}
+
+void Sts_MetaParser_Context_pushNamespace(Sts_MetaParser_Context* context, MUT_WEAK(Sts_MetaNamespaceDeclaration*) namespace) {
+  Sts_MetaNamespaceDeclarationList_add(&context->namespacesBuffer, namespace);
+}
+void Sts_MetaParser_Context_popNamespace(Sts_MetaParser_Context* context) {
+  Sts_MetaNamespaceDeclarationList_remove(&context->namespacesBuffer, context->namespacesBuffer.size - 1);
+}
+MUT_WEAK(Sts_MetaNamespaceDeclaration*) Sts_MetaParser_Context_getCurrNamespace(Sts_MetaParser_Context* context) {
+  return Sts_MetaNamespaceDeclarationList_get(&context->namespacesBuffer, context->namespacesBuffer.size - 1);
 }
 
 bool Sts_MetaDeclarationValue_checkForLink(Sts_MetaDeclarationValue* decValue, Sts_MetaParser_Context* context) {
   if (decValue->type == Sts_MetaDeclarationValueType_NAME) {
-    bool contains = ViewStringList_contains(&context->linkNamesBuffer, ViewString_by(decValue->value.name));
+    bool contains = ViewStringList_contains(&context->linkNamesBuffer, ViewString_by(decValue->value.name.name));
     if (contains) {
       decValue->type = Sts_MetaDeclarationValueType_LINK;
-      decValue->value.linkName = decValue->value.name;
+      decValue->value.linkName = decValue->value.name.name;
     }
     return contains;
   }
   return false;
+}
+Sts_MetaDeclarationValue Sts_MetaDeclarationValue_byName1(String name, Sts_MetaParser_Context* context) {
+  return Sts_MetaDeclarationValue_byName((Sts_MetaDeclarationValueName) {
+    .name = name,
+    .parentNamespace = Sts_MetaParser_Context_getCurrNamespace(context),
+  });
 }

@@ -3,7 +3,7 @@
 #define NAME ViewStringList
 #define TYPE ViewString
 #define NULLV (ViewString){0}
-#define FREEFUN ViewString_free
+#undef PFREEFUN
 #define TYPEDEFS 1
 #include "glist.c.h"
 #undef NAME

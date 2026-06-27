@@ -1,0 +1,358 @@
+baseNamespaceDeclaration:
+  head:
+    name:
+      type: Sts_MetaDeclarationValueType_NULL
+    linkNames: []
+    extenders: []
+  declarations:
+    - type: Sts_MetaDeclarationType_NAMESPACE
+      value.namespace:
+        head:
+          name:
+            type: Sts_MetaDeclarationValueType_NAME
+            value.name:
+              name: space1
+              parentNamespace:
+                head:
+                  name:
+                    type: Sts_MetaDeclarationValueType_NULL
+                  linkNames: []
+                  extenders: []
+          linkNames: []
+          extenders: []
+        declarations:
+          - type: Sts_MetaDeclarationType_ELEMENT
+            value.element:
+              head:
+                name:
+                  type: Sts_MetaDeclarationValueType_NAME
+                  value.name:
+                    name: FOO
+                    parentNamespace:
+                      head:
+                        name:
+                          type: Sts_MetaDeclarationValueType_NAME
+                          value.name:
+                            name: space1
+                            parentNamespace:
+                              head:
+                                name:
+                                  type: Sts_MetaDeclarationValueType_NULL
+                                linkNames: []
+                                extenders: []
+                        linkNames: []
+                        extenders: []
+                linkNames: []
+                extenders: []
+              type: Sts_MetaElementDeclarationType_TOKEN
+              lineDeclarations: []
+    - type: Sts_MetaDeclarationType_NAMESPACE
+      value.namespace:
+        head:
+          name:
+            type: Sts_MetaDeclarationValueType_NAME
+            value.name:
+              name: gen1
+              parentNamespace:
+                head:
+                  name:
+                    type: Sts_MetaDeclarationValueType_NULL
+                  linkNames: []
+                  extenders: []
+          linkNames:
+            - a
+          extenders: []
+        declarations:
+          - type: Sts_MetaDeclarationType_NAMESPACE
+            value.namespace:
+              head:
+                name:
+                  type: Sts_MetaDeclarationValueType_NAME
+                  value.name:
+                    name: gen2
+                    parentNamespace:
+                      head:
+                        name:
+                          type: Sts_MetaDeclarationValueType_NAME
+                          value.name:
+                            name: gen1
+                            parentNamespace:
+                              head:
+                                name:
+                                  type: Sts_MetaDeclarationValueType_NULL
+                                linkNames: []
+                                extenders: []
+                        linkNames:
+                          - a
+                        extenders: []
+                linkNames:
+                  - b
+                extenders: []
+              declarations:
+                - type: Sts_MetaDeclarationType_ELEMENT
+                  value.element:
+                    head:
+                      name:
+                        type: Sts_MetaDeclarationValueType_NAME
+                        value.name:
+                          name: B
+                          parentNamespace:
+                            head:
+                              name:
+                                type: Sts_MetaDeclarationValueType_NAME
+                                value.name:
+                                  name: gen2
+                                  parentNamespace:
+                                    head:
+                                      name:
+                                        type: Sts_MetaDeclarationValueType_NAME
+                                        value.name:
+                                          name: gen1
+                                          parentNamespace:
+                                            head:
+                                              name:
+                                                type: Sts_MetaDeclarationValueType_NULL
+                                              linkNames: []
+                                              extenders: []
+                                      linkNames:
+                                        - a
+                                      extenders: []
+                              linkNames:
+                                - b
+                              extenders: []
+                      linkNames: []
+                      extenders:
+                        - name:
+                            type: Sts_MetaDeclarationValueType_LINK
+                            value.linkName: b
+                          linksValues: []
+                    type: Sts_MetaElementDeclarationType_TOKEN
+                    lineDeclarations:
+                      - type: Sts_MetaLineDeclarationType_PARAM
+                        value.param:
+                          name:
+                            type: Sts_MetaDeclarationValueType_NAME
+                            value.name:
+                              name: parentZone
+                              parentNamespace:
+                                head:
+                                  name:
+                                    type: Sts_MetaDeclarationValueType_NAME
+                                    value.name:
+                                      name: gen2
+                                      parentNamespace:
+                                        head:
+                                          name:
+                                            type: Sts_MetaDeclarationValueType_NAME
+                                            value.name:
+                                              name: gen1
+                                              parentNamespace:
+                                                head:
+                                                  name:
+                                                    type: Sts_MetaDeclarationValueType_NULL
+                                                  linkNames: []
+                                                  extenders: []
+                                          linkNames:
+                                            - a
+                                          extenders: []
+                                  linkNames:
+                                    - b
+                                  extenders: []
+                          values:
+                            - type: Sts_MetaDeclarationValueType_NAME
+                              value.name:
+                                name: main
+                                parentNamespace:
+                                  head:
+                                    name:
+                                      type: Sts_MetaDeclarationValueType_NAME
+                                      value.name:
+                                        name: gen2
+                                        parentNamespace:
+                                          head:
+                                            name:
+                                              type: Sts_MetaDeclarationValueType_NAME
+                                              value.name:
+                                                name: gen1
+                                                parentNamespace:
+                                                  head:
+                                                    name:
+                                                      type: Sts_MetaDeclarationValueType_NULL
+                                                    linkNames: []
+                                                    extenders: []
+                                            linkNames:
+                                              - a
+                                            extenders: []
+                                    linkNames:
+                                      - b
+                                    extenders: []
+          - type: Sts_MetaDeclarationType_NAMESPACE
+            value.namespace:
+              head:
+                name:
+                  type: Sts_MetaDeclarationValueType_NAME
+                  value.name:
+                    name: gen3
+                    parentNamespace:
+                      head:
+                        name:
+                          type: Sts_MetaDeclarationValueType_NAME
+                          value.name:
+                            name: gen1
+                            parentNamespace:
+                              head:
+                                name:
+                                  type: Sts_MetaDeclarationValueType_NULL
+                                linkNames: []
+                                extenders: []
+                        linkNames:
+                          - a
+                        extenders: []
+                linkNames:
+                  - c
+                extenders:
+                  - name:
+                      type: Sts_MetaDeclarationValueType_NAME
+                      value.name:
+                        name: gen2
+                        parentNamespace:
+                          head:
+                            name:
+                              type: Sts_MetaDeclarationValueType_NAME
+                              value.name:
+                                name: gen1
+                                parentNamespace:
+                                  head:
+                                    name:
+                                      type: Sts_MetaDeclarationValueType_NULL
+                                    linkNames: []
+                                    extenders: []
+                            linkNames:
+                              - a
+                            extenders: []
+                    linksValues:
+                      - type: Sts_MetaDeclarationValueType_LINK
+                        value.linkName: c
+              declarations:
+                - type: Sts_MetaDeclarationType_ELEMENT
+                  value.element:
+                    head:
+                      name:
+                        type: Sts_MetaDeclarationValueType_NAME
+                        value.name:
+                          name: C
+                          parentNamespace:
+                            head:
+                              name:
+                                type: Sts_MetaDeclarationValueType_NAME
+                                value.name:
+                                  name: gen3
+                                  parentNamespace:
+                                    head:
+                                      name:
+                                        type: Sts_MetaDeclarationValueType_NAME
+                                        value.name:
+                                          name: gen1
+                                          parentNamespace:
+                                            head:
+                                              name:
+                                                type: Sts_MetaDeclarationValueType_NULL
+                                              linkNames: []
+                                              extenders: []
+                                      linkNames:
+                                        - a
+                                      extenders: []
+                              linkNames:
+                                - c
+                              extenders:
+                                - name:
+                                    type: Sts_MetaDeclarationValueType_NAME
+                                    value.name:
+                                      name: gen2
+                                      parentNamespace:
+                                        head:
+                                          name:
+                                            type: Sts_MetaDeclarationValueType_NAME
+                                            value.name:
+                                              name: gen1
+                                              parentNamespace:
+                                                head:
+                                                  name:
+                                                    type: Sts_MetaDeclarationValueType_NULL
+                                                  linkNames: []
+                                                  extenders: []
+                                          linkNames:
+                                            - a
+                                          extenders: []
+                                  linksValues:
+                                    - type: Sts_MetaDeclarationValueType_LINK
+                                      value.linkName: c
+                      linkNames: []
+                      extenders:
+                        - name:
+                            type: Sts_MetaDeclarationValueType_LINK
+                            value.linkName: c
+                          linksValues: []
+                    type: Sts_MetaElementDeclarationType_TOKEN
+                    lineDeclarations:
+                      - type: Sts_MetaLineDeclarationType_PARAM
+                        value.param:
+                          name:
+                            type: Sts_MetaDeclarationValueType_NAME
+                            value.name:
+                              name: parentZone
+                              parentNamespace:
+                                head:
+                                  name:
+                                    type: Sts_MetaDeclarationValueType_NAME
+                                    value.name:
+                                      name: gen3
+                                      parentNamespace:
+                                        head:
+                                          name:
+                                            type: Sts_MetaDeclarationValueType_NAME
+                                            value.name:
+                                              name: gen1
+                                              parentNamespace:
+                                                head:
+                                                  name:
+                                                    type: Sts_MetaDeclarationValueType_NULL
+                                                  linkNames: []
+                                                  extenders: []
+                                          linkNames:
+                                            - a
+                                          extenders: []
+                                  linkNames:
+                                    - c
+                                  extenders:
+                                    - name:
+                                        type: Sts_MetaDeclarationValueType_NAME
+                                        value.name:
+                                          name: gen2
+                                          parentNamespace:
+                                            head:
+                                              name:
+                                                type: Sts_MetaDeclarationValueType_NAME
+                                                value.name:
+                                                  name: gen1
+                                                  parentNamespace:
+                                                    head:
+                                                      name:
+                                                        type: Sts_MetaDeclarationValueType_NULL
+                                                      linkNames: []
+                                                      extenders: []
+                                              linkNames:
+                                                - a
+                                              extenders: []
+                                      linksValues:
+                                        - type: Sts_MetaDeclarationValueType_LINK
+                                          value.linkName: c
+                          values:
+                            - type: Sts_MetaDeclarationValueType_LINK
+                              value.linkName: a
+regexes: {}
+zones: {}
+tokens: {}
+mainZone: null
+properties.name: ""
+properties.sources: []

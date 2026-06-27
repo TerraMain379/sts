@@ -33,7 +33,7 @@ static inline char parseDeclarationsBlockHeader_links(Sts_MetaDeclarationHead* h
 static inline char parseDeclarationsBlockHeader_extend(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, char exitChar);
 static inline char parseDeclarationsBlockHeader_extend_links(Sts_MetaDeclarationExtendElement* decName, Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx);
 
-void Declarations_parseDeclarationHead(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, char exitChar) {
+size_t Declarations_parseDeclarationHead(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx, char exitChar) {
   Iter* iter = &ctx->iter;
 
   head->isGeneric = false;
@@ -52,6 +52,7 @@ void Declarations_parseDeclarationHead(Sts_MetaDeclarationHead* head, Sts_MetaPa
     head->isGeneric = true;
     c = parseDeclarationsBlockHeader_links(head, ctx);
   }
+  size_t linkNamesInBufferNumber = Sts_MetaParser_Context_pushLinkNames(ctx, head->linkNames);
 
   if (c == ':') {
     c = parseDeclarationsBlockHeader_extend(head, ctx, exitChar);
@@ -66,6 +67,8 @@ void Declarations_parseDeclarationHead(Sts_MetaDeclarationHead* head, Sts_MetaPa
     ));
   }
   Iter_nextChar(&ctx->iter);
+
+  return linkNamesInBufferNumber;
 }
 static inline char parseDeclarationsBlockHeader_links(Sts_MetaDeclarationHead* head, Sts_MetaParser_Context* ctx) {
   Iter* iter = &ctx->iter;
@@ -110,12 +113,7 @@ static inline char parseDeclarationsBlockHeader_extend(Sts_MetaDeclarationHead* 
       non_call_return 0;
     }
 
-    Sts_MetaDeclarationValue extendNameValue = {
-      .type = Sts_MetaDeclarationValueType_NAME,
-      .value = {
-        .name = extendName
-      }
-    };
+    Sts_MetaDeclarationValue extendNameValue = Sts_MetaDeclarationValue_byName1(extendName, ctx);
     Sts_MetaDeclarationValue_checkForLink(&extendNameValue, ctx);
     Sts_MetaDeclarationExtendElement decName = {
       .name = extendNameValue,
@@ -225,7 +223,7 @@ void Declarations_parseDeclarations(Sts_MetaLineDeclarationList* declarations, S
 }
 static inline void parseDeclarations_name(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, char c) {
   String name = Utils_Iter_readName(ctx);
-  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName(name);
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
   bool contains = Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
 
 
@@ -378,7 +376,7 @@ static inline void parseDeclarations_name_superregex(Sts_MetaLineDeclarationList
     Sts_MetaDeclarationValue nameValue = {0};
     bool isNonName = errno != 0;
     if (!isNonName) {
-      nameValue = Sts_MetaDeclarationValue_byName(name);
+      nameValue = Sts_MetaDeclarationValue_byName1(name, ctx);
       Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
     }
     Utils_Iter_skipVoid(ctx, false);
@@ -436,12 +434,7 @@ static inline void parseDeclarations_variable(Sts_MetaLineDeclarationList* decla
     ), ViewString_of("<name>"));
     non_call_return;
   }
-  name = (Sts_MetaDeclarationValue) {
-    .type = Sts_MetaDeclarationValueType_NAME,
-    .value = {
-      .name = nameString
-    }
-  };
+  name = Sts_MetaDeclarationValue_byName1(nameString, ctx);
   Sts_MetaDeclarationValue_checkForLink(&name, ctx);
 
   Utils_Iter_skipVoid(ctx, false);
@@ -468,12 +461,7 @@ static inline void parseDeclarations_variable(Sts_MetaLineDeclarationList* decla
       non_call_return;
     }
 
-    typing = (Sts_MetaDeclarationValue) {
-      .type = Sts_MetaDeclarationValueType_NAME,
-      .value = {
-        .name = typingString
-      }
-    };
+    typing = Sts_MetaDeclarationValue_byName1(typingString, ctx);
     Sts_MetaDeclarationValue_checkForLink(&typing, ctx);
 
     Utils_Iter_skipVoid(ctx, false);
@@ -523,7 +511,7 @@ static inline void parseDeclarations_variable(Sts_MetaLineDeclarationList* decla
 static inline void parseDeclarations_zoneExpand(Sts_MetaLineDeclarationList* declarations, Sts_MetaParser_Context* ctx, bool isExport) {
   Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
-  type_errno(String) name = Utils_Iter_readName(ctx);
+  type_errno(String) nameString = Utils_Iter_readName(ctx);
   if (errno != 0) {
     Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
       ViewString_by(ctx->filename),
@@ -532,10 +520,7 @@ static inline void parseDeclarations_zoneExpand(Sts_MetaLineDeclarationList* dec
     ), ViewString_of("<name>"));
     non_call_return;
   }
-  Sts_MetaDeclarationValue nameValue = (Sts_MetaDeclarationValue) {
-    .type = Sts_MetaDeclarationValueType_NAME,
-    .value = { .name = name },
-  };
+  Sts_MetaDeclarationValue nameValue = Sts_MetaDeclarationValue_byName1(nameString, ctx);
   Sts_MetaDeclarationValue_checkForLink(&nameValue, ctx);
   Utils_Iter_skipVoid(ctx, false);
   Utils_Iter_skipChar(ctx, ';');

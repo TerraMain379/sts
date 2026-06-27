@@ -1,0 +1,34 @@
+# token {
+#   a: b;
+# }
+
+--name--
+
+ABCD : HELLOWORLD {
+
+}
+
+% <ZONE1, TOKEN1, TOKEN2> {
+  ZONE1 {
+    TOKEN1: n + ZONE1;
+  }
+  % listings {
+    TOKEN2<A> {
+      A!: a + HELLOWORLD * ZONE1;
+      regex! {
+        A a ;
+        B?b;
+        A;
+        B ?;
+      }
+    }
+  }
+}
+A {
+  event! {
+    "a": a;
+  }
+  event {
+    "b": b;
+  }
+}

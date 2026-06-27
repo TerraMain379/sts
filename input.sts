@@ -1,34 +1,40 @@
-# token {
-#   a: b;
-# }
+# % space1 {
+#  FOO<a,b> {
+#    parentZone: a;
+#    b: BAR;
+#  }
+#  BAR {
+#    regex: "lol";
+#  }
+#}
+#% space2 {
+#  FOO1 : FOO<zone1, param123> {}
+#  - zone1 ();
+#
+#  FOO1 {
+#    parentZone: zone1;
+#    param123: BAR;
+#  }
+#}
 
---name--
 
-ABCD : HELLOWORLD {
+% space1 {
+  FOO {
 
+  }
 }
 
-% <ZONE1, TOKEN1, TOKEN2> {
-  ZONE1 {
-    TOKEN1: n + ZONE1;
-  }
-  % listings {
-    TOKEN2<A> {
-      A!: a + HELLOWORLD * ZONE1;
-      regex! {
-        A a ;
-        B?b;
-        A;
-        B ?;
-      }
+
+
+% gen1 <a> {
+  % gen2 <b> {
+    B : b {
+      parentZone: main;
     }
   }
-}
-A {
-  event! {
-    "a": a;
-  }
-  event {
-    "b": b;
+  % gen3 <c> : gen2 <c> {
+    C : c {
+      parentZone: a;
+    }
   }
 }
