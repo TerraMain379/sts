@@ -1,4 +1,8 @@
-added deep linking
-added linkNamesBuffer to Sts_MetaParser_Context and pushLinkNames and popLinkNames methods
-redesigned Sts_MetaDeclarationValue_checkForLink and relocated to metaparser.h
-deleted Sts_MetaDeclarationHead from most function headers
+added super regex line declaration parse
+added skipping events if added `!` char
+added isGhost param to Sts_MetaLineParamDeclaration
+added Utils_Iter_readPath method
+added new functitons for Sts_MetaLineDeclaration (_by...)
+fixed Sts_MetaParser_parse logic and memory leaks
+fixed Sts_MetaDeclarationValue_checkForLink undefined behavior
+refactored declarations.c

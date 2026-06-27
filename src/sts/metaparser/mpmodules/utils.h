@@ -11,3 +11,4 @@ void_stop Utils_Iter_skipChar(Context* ctx, char c);
 String Utils_Iter_readString(Context* ctx);
 double Utils_Iter_readNumber(Context* ctx);
 
+Sts_MetaDeclarationValue Utils_Iter_readPath(Context* ctx);

@@ -172,3 +172,35 @@ double Utils_Iter_readNumber(Context* ctx) {
   }
 }
 
+type_errno(Sts_MetaDeclarationValue) Utils_Iter_readPath(Context* ctx) {
+  type_errno(String) firstString = Utils_Iter_readName(ctx);
+  if (errno != 0) return (Sts_MetaDeclarationValue) {};
+  Sts_MetaDeclarationValue leftValue = Sts_MetaDeclarationValue_byName(firstString);
+  Sts_MetaDeclarationValue_checkForLink(&leftValue, ctx);
+
+  Utils_Iter_skipVoid(ctx, false);
+  while (Iter_currChar(&ctx->iter) == '.') {
+    Iter_nextChar(&ctx->iter);
+    Utils_Iter_skipVoid(ctx, false);
+
+    type_errno(String) nextString = Utils_Iter_readName(ctx);
+    if (errno != 0) {
+      Errors_metaparser_anotherTokenExpected(ctx, Source_byIter(
+        ViewString_by(ctx->filename),
+        &ctx->iter,
+        SPD_new2_double(SPDMode_CURR_CHAR)
+      ), ViewString_of("<name>"));
+    }
+    Sts_MetaDeclarationValue rightValue = Sts_MetaDeclarationValue_byName(nextString);
+    Sts_MetaDeclarationValue_checkForLink(&rightValue, ctx);
+
+    Sts_MetaDeclarationExpression* expression = A_xloc(sizeof(Sts_MetaDeclarationExpression));
+    *expression = (Sts_MetaDeclarationExpression) {
+      .type = Sts_MetaDeclarationExpressionType_CHILD,
+      .value1 = leftValue,
+      .value2 = rightValue,
+    };
+    errno = 0; leftValue = Sts_MetaDeclarationValue_byExpression(expression);
+  }
+  return leftValue;
+}

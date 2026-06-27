@@ -14,7 +14,21 @@ ABCD : HELLOWORLD {
   }
   % listings {
     TOKEN2<A> {
-      A: a + HELLOWORLD * ZONE1;
+      A!: a + HELLOWORLD * ZONE1;
+      regex! {
+        A a ;
+        B?b;
+        A;
+        B ?;
+      }
     }
+  }
+}
+A {
+  event! {
+    "a": a;
+  }
+  event {
+    "b": b;
   }
 }

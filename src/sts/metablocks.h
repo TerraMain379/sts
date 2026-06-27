@@ -167,7 +167,6 @@ void Sts_MetaToken_free(Sts_MetaToken* token);
 dec_prints(Sts_MetaToken);
 
 #define PNAME Sts_OwnedMetaTokens
-// TODO: check ptr
 #define PTYPE OWNER(Sts_MetaToken)
 #define PFREEFUN Sts_MetaToken_free
 #define BASE_MAP Map
@@ -194,7 +193,6 @@ void Sts_MetaZone_free(Sts_MetaZone* zone);
 dec_prints(Sts_MetaZone);
 
 #define PNAME Sts_OwnedMetaZonesMap
-// TODO: check ptr
 #define PTYPE OWNER(Sts_MetaZone)
 #define PFREEFUN Sts_MetaZone_free
 #define BASE_MAP Map
@@ -206,7 +204,6 @@ dec_prints(Sts_MetaZone);
 dec_prints(Sts_OwnedMetaZonesMap);
 
 #define PNAME Sts_MetaZones
-// TODO: check ptr
 #define PTYPE WEAK(Sts_MetaZone)
 #undef PFREEFUN
 #define BASE_LIST ConstList
@@ -323,6 +320,7 @@ dec_prints(Sts_MetaDeclarationExpression);
 struct Sts_MetaLineParamDeclaration {
   Sts_MetaDeclarationValue name;
   Sts_MetaDeclarationValueList values;
+  bool isGhost;
 };
 void Sts_MetaLineParamDeclaration_free(Sts_MetaLineParamDeclaration* paramDec);
 dec_prints(Sts_MetaLineParamDeclaration);
@@ -396,6 +394,11 @@ struct Sts_MetaLineDeclaration {
     Sts_MetaLineSuperRegexDeclaration superRegex;
   } value;
 };
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byParam(Sts_MetaLineParamDeclaration param);
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byVariable(Sts_MetaLineVariableDeclaration variable);
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byEvent(Sts_MetaLineEventDeclaration event);
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byExpand(Sts_MetaLineExpandDeclaration expand);
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_bySuperRegex(Sts_MetaLineSuperRegexDeclaration superRegex);
 void Sts_MetaLineDeclaration_free(Sts_MetaLineDeclaration* lineDec);
 dec_prints(Sts_MetaLineDeclaration);
 
@@ -464,7 +467,7 @@ dec_prints(Sts_MetaElementDeclaration);
 
 // moved because C limits the possibilities of logical ordering of structures
 #define NAME Sts_MetaDeclarations
-#define TYPE Sts_MetaDeclaration
+#define TYPE OWNER(Sts_MetaDeclaration)
 #define NULLV (Sts_MetaDeclaration) {0}
 #define FREEFUN Sts_MetaDeclaration_free
 #undef TYPEDEFS

@@ -217,6 +217,7 @@ Lexem parseLexems_number(Sts_MetaParser_Context* ctx);
 Lexem parseLexems_name(Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
 Lexem parseLexems_operator(Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings);
 
+// valid exit from the function is possible only when exitChars are encountered
 Lexems Lexems_parseLexems(Sts_MetaParser_Context* ctx, Lexems_ParseSettings settings, Source* retExpressionSource) {
   Lexems lexems;
   Lexems_init(&lexems, 10);

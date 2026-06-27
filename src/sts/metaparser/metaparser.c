@@ -31,12 +31,20 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, S
   Sts_MetaDeclarationHead tempHead;
   StringList_init(&tempHead.linkNames, 0);
   Sts_MetaDeclarationExtendElementList_init(&tempHead.extenders, 0);
+
   Sts_MetaNamespaceDeclaration tempNamespaceDec;
   tempNamespaceDec.head = tempHead;
-  Sts_MetaDeclarations_init(&tempNamespaceDec.declarations, 50);
-  
+  tempNamespaceDec.declarations = metaFile->declarations; // moveing list to tempNamespaceDec and back after parse
   parseNamespaceBody(&context, &tempNamespaceDec, true);
   metaFile->declarations = tempNamespaceDec.declarations;
+
+  Sts_MetaDeclarationExtendElementList_freeElements(&tempHead.extenders);
+  Sts_MetaDeclarationExtendElementList_free(&tempHead.extenders);
+  StringList_freeElements(&tempHead.linkNames);
+  StringList_free(&tempHead.linkNames);
+  ViewStringList_freeElements(&context.linkNamesBuffer);
+  ViewStringList_free(&context.linkNamesBuffer);
+
   errno = 0; return;
 }
 
@@ -66,4 +74,5 @@ bool Sts_MetaDeclarationValue_checkForLink(Sts_MetaDeclarationValue* decValue, S
     }
     return contains;
   }
+  return false;
 }

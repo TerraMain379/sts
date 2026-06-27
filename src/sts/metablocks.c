@@ -281,6 +281,37 @@ void Sts_MetaLineSuperRegexDeclaration_free(Sts_MetaLineSuperRegexDeclaration* r
   Sts_MetaLineSuperRegexDeclarationElements_freeElements(&regexDec->elements);
   Sts_MetaLineSuperRegexDeclarationElements_free(&regexDec->elements);
 }
+
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byParam(Sts_MetaLineParamDeclaration param) {
+  return (Sts_MetaLineDeclaration) {
+    .type = Sts_MetaLineDeclarationType_PARAM,
+    .value = { .param = param },
+  };
+}
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byVariable(Sts_MetaLineVariableDeclaration variable) {
+  return (Sts_MetaLineDeclaration) {
+    .type = Sts_MetaLineDeclarationType_VARIABLE,
+    .value = { .variable = variable },
+  };
+}
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byEvent(Sts_MetaLineEventDeclaration event) {
+  return (Sts_MetaLineDeclaration) {
+    .type = Sts_MetaLineDeclarationType_EVENT,
+    .value = { .event = event },
+  };
+}
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_byExpand(Sts_MetaLineExpandDeclaration expand) {
+  return (Sts_MetaLineDeclaration) {
+    .type = Sts_MetaLineDeclarationType_EXPAND,
+    .value = { .expand = expand },
+  };
+}
+Sts_MetaLineDeclaration Sts_MetaLineDeclaration_bySuperRegex(Sts_MetaLineSuperRegexDeclaration superRegex) {
+  return (Sts_MetaLineDeclaration) {
+    .type = Sts_MetaLineDeclarationType_SUPER_REGEX,
+    .value = { .superRegex = superRegex },
+  };
+}
 void Sts_MetaLineDeclaration_free(Sts_MetaLineDeclaration* lineDec) {
   Sts_MetaLineDeclarationType type = lineDec->type;
   if (type == Sts_MetaLineDeclarationType_PARAM) {
