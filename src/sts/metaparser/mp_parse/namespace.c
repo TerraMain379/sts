@@ -1,10 +1,10 @@
-#include "mpmodules/namespace.h"
+#include "mp_parse/namespace.h"
 
-#include "mpmodules/utils.h"
-#include "mpmodules/declarations.h"
-#include "mpmodules/elements.h"
-#include "mpmodules/ssts.h"
-#include "mpmodules/namespace.h"
+#include "mp_parse/utils.h"
+#include "mp_parse/declarations.h"
+#include "mp_parse/elements.h"
+#include "mp_parse/ssts.h"
+#include "mp_parse/namespace.h"
 #include "metaparser_errors.h"
 #include "allocator.h"
 

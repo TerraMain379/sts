@@ -1,7 +1,7 @@
-#include "mpmodules/elements.h"
+#include "mp_parse/elements.h"
 
-#include "mpmodules/declarations.h"
-#include "mpmodules/utils.h"
+#include "mp_parse/declarations.h"
+#include "mp_parse/utils.h"
 #include "metaparser_errors.h"
 
 void parseRegexLink(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) { // TODO: redesign for namespace system
@@ -15,12 +15,10 @@ void parseRegexLink(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) { 
   String regex = Utils_Iter_readString(ctx);
   Utils_Iter_skipChar(ctx, '/');
 
-  Sts_MetaRegex metaRegex;
-  Sts_MetaRegex_init(&metaRegex, regex);
-  if (Sts_MetaRegexLinks_contains(&ctx->metaFile->regexes, ViewString_by(name))) {
+  if (StringMap_contains(&ctx->decFile->regexes, ViewString_by(name))) {
     goto goto_error_redefining;
   }
-  Sts_MetaRegexLinks_setByOwnKey(&ctx->metaFile->regexes, name, metaRegex);
+  StringMap_setByOwnKey(&ctx->decFile->regexes, name, regex);
   return;
 
   goto_error_readName: {
@@ -60,7 +58,7 @@ void parseSetMainZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) 
   Iter startIter = Iter_copy(&ctx->iter);
   Iter_nextChar(&ctx->iter);
   Utils_Iter_skipVoid(ctx, false);
-  type_errno(String) name = Utils_Iter_readName(ctx);
+  type_errno(Sts_MetaDeclarationValue) nameValue = Utils_Iter_readPath(ctx);
   if (errno != 0) {
     if (Iter_currChar(&ctx->iter) == '\0') {
       Errors_metaparser_unexpectedEnd(ctx, Source_byIter(
@@ -83,19 +81,7 @@ void parseSetMainZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) 
   }
   Utils_Iter_skipChar(ctx, '-');
   Utils_Iter_skipChar(ctx, '-');
-
-  Sts_MetaZone* mainZone = Sts_MetaFile_getOrCreateZone(ctx->metaFile, ViewString_by(name));
-  if (ctx->metaFile->mainZone) {
-    Warnings_metaparser_redefiningMainZone(ctx, Source_byIters(
-      ViewString_by(ctx->filename),
-      &startIter,
-      SPD_new2(SPDMode_CURR_CHAR),
-      &ctx->iter,
-      SPD_new2(SPDMode_CURR_CHAR)
-    ), ViewString_by(name));
-  }
-  ctx->metaFile->mainZone = mainZone;
-  String_free(&name);
+  ctx->decFile->mainZone = nameValue;
 }
 
 void parseZone(Context* ctx, Sts_MetaNamespaceDeclaration* namespaceDec) {

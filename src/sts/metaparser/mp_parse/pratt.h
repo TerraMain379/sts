@@ -4,7 +4,7 @@
 #include "metaparser.h"
 #include "allocator.h"
 #include "metablocks.h"
-#include "mpmodules/lexems.h"
+#include "mp_parse/lexems.h"
 #include "sources.h"
 
 // This is an extended version of the Pratt parser, which allows you to process operators that can be both `infix`, `posfix`, and `prefix' at the same time.

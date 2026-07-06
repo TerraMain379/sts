@@ -18,7 +18,8 @@ typedef struct Sts_MetaParser_Arguments {
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments);
 void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments);
 
-void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, Sts_MetaParser_Arguments args);
+void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaDeclarationFile*) decFile, Iter iter, Sts_MetaParser_Arguments args);
+void_errno Sts_MetaParser_resolve(OWNER(Sts_MetaFile*) metaFile, Sts_MetaParser_Arguments args);
 
 
 #define PNAME Sts_MetaNamespaceDeclarationList
@@ -32,7 +33,7 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, S
 
 
 typedef struct Sts_MetaParser_Context {
-  MUT_BORROW(Sts_MetaFile*) metaFile;
+  MUT_BORROW(Sts_MetaDeclarationFile*) decFile;
   Iter iter;
   String filename;
   jmp_buf errjmp;

@@ -49,7 +49,7 @@ INCLUDE_DIRS = \
 	src/sts/metaparser/errors \
 
 SRC_DIRS = $(INCLUDE_DIRS) \
-	src/sts/metaparser/mpmodules \
+	src/sts/metaparser/mp_parse \
 	src/sts/metaparser/parseutils \
 	src/sts/metaparser/iter \
 

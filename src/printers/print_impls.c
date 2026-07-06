@@ -18,6 +18,15 @@ dec_print_json(StringList) {
 }
 
 
+#include "stringmap.h"
+
+dec_print(StringMap) {
+  print_gmap(StringMap, String,,&);
+}
+dec_print_json(StringMap) {
+  print_json_gmap(StringMap, String,,&);
+}
+
 // ##########################
 // #       metablocks       #
 // ##########################
@@ -181,6 +190,35 @@ dec_print(Sts_MetaZones) {
 dec_print_json(Sts_MetaZones) {
   print_json_glist(Sts_MetaZones, Sts_MetaZone,*,);
 }
+
+dec_print(Sts_MetaFile) {
+  print_struct_init;
+  print_field_value(Sts_MetaDeclarationFile, declarationFile);
+  print_field_value(Sts_MetaRegexLinks, regexes);
+  print_field_value(Sts_OwnedMetaZonesMap, zones);
+  print_field_value(Sts_OwnedMetaTokens, tokens);
+  print_field_ptr(Sts_MetaZone, mainZone);
+  print_field_value(String, properties.name);
+  print_field_value(Sources, properties.sources);
+  print_struct_return;
+}
+dec_print_json(Sts_MetaFile) {
+  print_json_struct_init;
+  print_json_field_value(Sts_MetaDeclarationFile, declarationFile);
+  print_json_field_value(Sts_MetaRegexLinks, regexes);
+  print_json_field_value(Sts_OwnedMetaZonesMap, zones);
+  print_json_field_value(Sts_OwnedMetaTokens, tokens);
+  print_json_field_ptr(Sts_MetaZone, mainZone);
+  print_json_field_value(String, properties.name);
+  print_json_field_value(Sources, properties.sources);
+  print_json_struct_return;
+}
+
+
+// #####################################
+// #       metadeclarationblocks       #
+// #####################################
+#include "metadeclarationblocks.h"
 
 #define Sts_MetaNamespaceDeclaration__ptr Sts_MetaNamespaceDeclaration
 dec_print(Sts_MetaNamespaceDeclaration__ptr) {
@@ -656,28 +694,21 @@ dec_print_json(Sts_MetaDeclarations) {
   print_json_glist(Sts_MetaDeclarations, Sts_MetaDeclaration, , &);
 }
 
-dec_print(Sts_MetaFile) {
+dec_print(Sts_MetaDeclarationFile) {
   print_struct_init;
   print_field_ptr(Sts_MetaNamespaceDeclaration, baseNamespaceDeclaration);
-  print_field_value(Sts_MetaRegexLinks, regexes);
-  print_field_value(Sts_OwnedMetaZonesMap, zones);
-  print_field_value(Sts_OwnedMetaTokens, tokens);
-  print_field_ptr(Sts_MetaZone, mainZone);
-  print_field_value(String, properties.name);
-  print_field_value(Sources, properties.sources);
+  print_field_value(StringMap, regexes);
+  print_field_value(Sts_MetaDeclarationValue, mainZone);
   print_struct_return;
 }
-dec_print_json(Sts_MetaFile) {
+dec_print_json(Sts_MetaDeclarationFile) {
   print_json_struct_init;
   print_json_field_ptr(Sts_MetaNamespaceDeclaration, baseNamespaceDeclaration);
-  print_json_field_value(Sts_MetaRegexLinks, regexes);
-  print_json_field_value(Sts_OwnedMetaZonesMap, zones);
-  print_json_field_value(Sts_OwnedMetaTokens, tokens);
-  print_json_field_ptr(Sts_MetaZone, mainZone);
-  print_json_field_value(String, properties.name);
-  print_json_field_value(Sources, properties.sources);
+  print_json_field_value(StringMap, regexes);
+  print_json_field_value(Sts_MetaDeclarationValue, mainZone);
   print_json_struct_return;
 }
+
 
 // ####################
 // #       stss       #

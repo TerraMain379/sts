@@ -1,6 +1,6 @@
-#include "mpmodules/lexems.h"
+#include "mp_parse/lexems.h"
 
-#include "mpmodules/utils.h"
+#include "mp_parse/utils.h"
 #include "metaparser_errors.h"
 #include "stringbuilder.h"
 

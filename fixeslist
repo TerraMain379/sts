@@ -1,7 +1,5 @@
-added a weak pointer to Sts_MetaNamespaceDeclaration in Sts_MetaDeclarationValue of the name type
-added namespaces buffer in Sts_MetaParser_Context
-added Sts_MetaParser_Context_pushLinkNames call to Declarations_parseDeclarationHead and replaced return type to size_t
-fixed incorrect linking of element names due to the outdated checkNameValueForLink function in elements.c
-fixed incorrect logic of Sts_MetaParser_Context_popLinkNames
-optimized dec_prints macros in metablocks.h
-removed freeElements function from ViewStringList and ViewStringMap
+divided metablocks.{h,c} into metablocks.{h,c} and metadeclarationblocks.{h,c}
+renamed mpmodules to mp_parse
+added Sts_MetaDeclarationFile
+declared Sts_MetaParser_resolve
+moved print logic for StringMap from logger.c to print_impls.c

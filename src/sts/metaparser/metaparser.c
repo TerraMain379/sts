@@ -1,7 +1,6 @@
 #include "metaparser.h"
 
-#include "errors.h"
-#include "mpmodules/namespace.h"
+#include "mp_parse/namespace.h"
 
 
 void Sts_MetaParser_Arguments_init(Sts_MetaParser_Arguments* arguments) {
@@ -11,14 +10,10 @@ void Sts_MetaParser_Arguments_free(Sts_MetaParser_Arguments* arguments) {
   String_free(&arguments->metadata.filename);
 }
 
-void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, Sts_MetaParser_Arguments args) {
-  ViewString errLocation = ViewString_of("Sts_MetaParser_parse");
-  if (metaFile == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaFile* metaFile"), errLocation);
-  // if (args == null) Errors_internal_nullPointer(ViewString_of("Sts_MetaParser_Arguments* args"), errLocation);
-  
+void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaDeclarationFile*) decFile, Iter iter, Sts_MetaParser_Arguments args) {
   Sts_MetaParser_Context context = {
     .filename = args.metadata.filename,
-    .metaFile = metaFile,
+    .decFile = decFile,
     .iter = iter,
     .linkNamesBuffer = {},
   };
@@ -29,8 +24,8 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, S
     errno = 1; return;
   }
   
-  Sts_MetaParser_Context_pushNamespace(&context, metaFile->baseNamespaceDeclaration);
-  parseNamespaceBody(&context, metaFile->baseNamespaceDeclaration, true);
+  Sts_MetaParser_Context_pushNamespace(&context, decFile->baseNamespaceDeclaration);
+  parseNamespaceBody(&context, decFile->baseNamespaceDeclaration, true);
   Sts_MetaParser_Context_popNamespace(&context);
 
   Sts_MetaNamespaceDeclarationList_free(&context.namespacesBuffer);
@@ -38,6 +33,10 @@ void_errno Sts_MetaParser_parse(MUT_BORROW(Sts_MetaFile*) metaFile, Iter iter, S
   ViewStringList_free(&context.linkNamesBuffer);
 
   errno = 0; return;
+}
+
+void_errno Sts_MetaParser_compile(MUT_BORROW(Sts_MetaFile*) metaFile, Sts_MetaParser_Arguments args) {
+  
 }
 
 size_t Sts_MetaParser_Context_pushLinkNames(Sts_MetaParser_Context* context, BORROW(StringList) pushLinks) {

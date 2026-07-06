@@ -1,6 +1,6 @@
 #include "expressions.h"
 
-#include "pratt.h"
+#include "mp_parse/pratt.h"
 
 Sts_MetaDeclarationValue Expressions_parseValue(Sts_MetaParser_Context* ctx, ViewString exitChars) {
   Source expressionSrc;

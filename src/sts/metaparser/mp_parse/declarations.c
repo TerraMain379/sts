@@ -1,11 +1,11 @@
-#include "mpmodules/declarations.h"
+#include "mp_parse/declarations.h"
 
 #include "allocator.h"
 #include "iter.h"
 #include "metablocks.h"
 #include "metaparser_errors.h"
-#include "mpmodules/utils.h"
-#include "mpmodules/expressions.h"
+#include "mp_parse/utils.h"
+#include "mp_parse/expressions.h"
 #include "sources.h"
 
 static void_stop error_readName(Context* ctx, int backCharsDistance) {

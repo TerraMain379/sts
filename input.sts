@@ -18,6 +18,8 @@
 #}
 
 
+/abc"foobnar"/
+
 % space1 {
   FOO {
 
@@ -38,3 +40,7 @@
     }
   }
 }
+
+--main_zone.name1--
+
+% {}

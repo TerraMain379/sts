@@ -6,9 +6,9 @@
 #include "metaparser.h"
 #include "stringbuilder.h"
 #include "files.h"
-#include "mpmodules/declarations.h"
+#include "mp_parse/declarations.h"
 // #include "metaparser.h"
-#include "mpmodules/utils.h"
+#include "mp_parse/utils.h"
 #include "print_json_utils.h"
 #include "print_utils.h"
 #include "prints.h"
@@ -29,28 +29,29 @@ void test_parse() {
   if (errno != 0) {
     return;
   }
-  // printf("%s", data.buffer);
   Iter iter = Iter_new(ViewString_by(data));
 
-  Sts_MetaFile metaFile;
-  Sts_MetaFile_init(&metaFile);
 
-  Sts_MetaParser_Arguments args;
-  Sts_MetaParser_Arguments_init(&args);
-  args.metadata.filename = String_by("input.sts");
+  Sts_MetaDeclarationFile decFile;
+  Sts_MetaDeclarationFile_init(&decFile);
 
-  Sts_MetaParser_parse(&metaFile, iter, args);
+  Sts_MetaParser_Arguments args = {
+    .metadata = {
+      .filename = String_const("input.sts")
+    }
+  };
+
+  Sts_MetaParser_parse(&decFile, iter, args);
   if (errno != 0) {
     return;
   }
 
-  String log = Sts_MetaFile_print_json(&metaFile, 1);
+  String log = Sts_MetaDeclarationFile_print_json(&decFile, 1);
   printf("%s\n", log.buffer);
   String_free(&log);
-
+  
   Sts_MetaParser_Arguments_free(&args);
-  Sts_MetaFile_free(&metaFile);
-  String_free(&data);
+  Sts_MetaDeclarationFile_free(&decFile);
 }
 
 void test_lexem_parser() {

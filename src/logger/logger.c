@@ -15,9 +15,6 @@ dec_print_json(ErrorLogExcerpt) {
   print_json_field_value(String, line);
   print_json_struct_return;
 }
-dec_print_json(StringMap) {
-  print_json_gmap(StringMap, String,,&);
-}
 dec_print_json(ErrorLog) {
   print_json_struct_init;
   print_json_field_value(int, v);
