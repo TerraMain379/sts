@@ -1,5 +1,1 @@
-divided metablocks.{h,c} into metablocks.{h,c} and metadeclarationblocks.{h,c}
-renamed mpmodules to mp_parse
-added Sts_MetaDeclarationFile
-declared Sts_MetaParser_resolve
-moved print logic for StringMap from logger.c to print_impls.c
+changed location of tests

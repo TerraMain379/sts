@@ -58,6 +58,8 @@ TESTS_INCLUDE_DIRS = \
 	tests/unity \
 	tests/collections \
 	tests/tests \
+	tests/tests/allocator \
+	tests/tests/strings \
 
 	# tests/collections/glist \
 	# tests/collections/glist/tgen \
